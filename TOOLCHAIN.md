@@ -19,32 +19,45 @@ From the upstream `README.md` at `818c413`:
 | Maven     | 3.9.16 via the Maven wrapper (`.mvn/wrapper/maven-wrapper.properties`); system Maven is also 3.9.16 |
 | OS        | macOS 26.6.2 (build 25G83), arm64 (Apple Silicon) |
 | Git       | 2.54.0 |
-| Docker    | CLI installed at `/usr/local/bin/docker`; daemon **not running** during verification |
+| Docker    | Docker Desktop 4.82.0, Engine 29.6.1, Compose v5.3.0 (context `desktop-linux`) |
+| Images    | `postgres:18.4` (via Spring Boot Docker Compose), `mysql:9.7` and `testcontainers/ryuk:0.14.0` (via Testcontainers) |
 
 ## Build result
 
 Command: `./mvnw -B verify` on `upstream-pristine` (`818c4136ea971c21674525f9053de0d9c7ad8cfe`).
+
+### Full suite, Docker running (the reference result)
+
+| Run | Wall clock | Result |
+|-----|-----------|--------|
+| Cold images (pulls `postgres:18.4`, `mysql:9.7`, `ryuk`) | 134 s | BUILD SUCCESS: 76 tests, 0 failures, 0 errors, 0 skipped |
+| Warm images and `~/.m2`                                  | 21 s  | BUILD SUCCESS: 76 tests, 0 failures, 0 errors, 0 skipped |
+
+On a cold run, `PostgresIntegrationTests` (66 s) and `MySqlIntegrationTests` (59 s) are almost
+all image pull time. **Before going on stage:** start Docker Desktop and run the build once,
+so both the images and `~/.m2` are cached.
+
+### Without Docker
 
 | Run | Wall clock | Result |
 |-----|-----------|--------|
 | Cold `~/.m2` (748 artefact downloads) | 72 s | BUILD SUCCESS: 74 tests, 0 failures, 0 errors, 2 skipped |
 | Warm `~/.m2` (0 downloads)            | 9 s  | BUILD SUCCESS: 74 tests, 0 failures, 0 errors, 2 skipped |
 
-On stage, plan for the warm figure, and prime the cache before the talk.
-
-### Tests that did not really run
-
-Without a Docker daemon these tests skip themselves:
+With no Docker daemon, the database tests skip themselves and the build still reports success:
 
 - `MySqlIntegrationTests`: 2 tests skipped (`@Testcontainers(disabledWithoutDocker = true)`).
 - `PostgresIntegrationTests`: 0 tests run (an `assumeTrue(isDockerAvailable())` in `@BeforeAll`).
 
-To exercise them, start Docker Desktop and re-run `./mvnw -B verify`.
+This is a usable fallback if Docker misbehaves on the day: 9 s against 21 s. But it is not the
+full suite, so don't call it one on stage.
 
 ### Expected noise in the log
 
-- `DockerClientProviderStrategy : Could not find a valid Docker environment`: Docker is absent.
+- `DockerClientProviderStrategy : Could not find a valid Docker environment`: only when Docker is absent.
 - `RuntimeException: Expected: controller used to showcase what happens when an exception is thrown`:
   `CrashControllerIntegrationTests` provokes this on purpose.
+- The Postgres test starts `docker-compose.yml`'s `postgres` service. It leaves a stopped
+  `petclinic-loops-at-levels-postgres-1` container behind, which is harmless.
 
-Neither is a failure. It's worth knowing in advance so neither one surprises you on stage.
+None of these is a failure. It's worth knowing in advance so none of them surprises you on stage.
