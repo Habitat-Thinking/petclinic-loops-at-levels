@@ -12,7 +12,7 @@
 | Branch                  | Parent                  | Status |
 |-------------------------|-------------------------|--------|
 | `level-0-baseline`      | `upstream-pristine`     | created |
-| `level-1-dictating`     | `level-0-baseline`      | not yet created |
+| `level-1-dictating`     | `level-0-baseline`      | created, 0 commits (content-identical to baseline) |
 | `level-2-commanding`    | `level-1-dictating`     | not yet created |
 | `level-3-regulating`    | `level-2-commanding`    | not yet created |
 | `level-4-orchestrating` | `level-3-regulating`    | not yet created |
@@ -37,7 +37,11 @@ Linters, formatters, CI changes, pre-commit hooks, dependency scanning, applicat
 changes and talk READMEs each belong to a specific level. Introducing one earlier
 destroys the evidence that its level introduced it.
 
-## Demo-safety siblings (convention only; none created yet)
+## Demo-safety siblings
+
+Created so far: `level-1-dictating-after` (run 3's output, unedited).
+
+## The convention
 
 For any level whose live demo produces agent output, a `<branch>-after` sibling
 (for example `level-2-commanding-after`) holds that output already committed. If a live
