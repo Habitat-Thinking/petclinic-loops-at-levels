@@ -13,7 +13,7 @@
 |-------------------------|-------------------------|--------|
 | `level-0-baseline`      | `upstream-pristine`     | created |
 | `level-1-dictating`     | `level-0-baseline`      | created, 0 commits (content-identical to baseline) |
-| `level-2-commanding`    | `level-1-dictating`     | not yet created |
+| `level-2-commanding`    | `level-1-dictating`     | created: AGENTS.md, CLAUDE.md, HARNESS.md (no constraints), copilot pointer, REFLECTION_LOG.md |
 | `level-3-regulating`    | `level-2-commanding`    | not yet created |
 | `level-4-orchestrating` | `level-3-regulating`    | not yet created |
 | `level-5-supervising`   | `level-4-orchestrating` | not yet created |
@@ -39,7 +39,8 @@ destroys the evidence that its level introduced it.
 
 ## Demo-safety siblings
 
-Created so far: `level-1-dictating-after` (run 3's output, unedited).
+Created so far: `level-1-dictating-after` (Level 1 run 3) and
+`level-2-commanding-after` (the Level 2 run). Both unedited.
 
 ## The convention
 

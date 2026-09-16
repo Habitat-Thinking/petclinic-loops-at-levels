@@ -1,0 +1,28 @@
+I answered this from what was already in my context. I didn't run any tools or open any files.
+
+**(1) Files whose content was loaded automatically at startup**
+
+Only one:
+- `/Users/russellmiles/code/Habitat-Thinking/petclinic-l2/CLAUDE.md`
+
+**(2) Its first line, word for word**
+
+> `# Project Conventions`
+
+The rest of it just points elsewhere. It says the directives live in `AGENTS.md`, tells me to read that file, and says CLAUDE.md "holds nothing of its own".
+
+**(3) Numbered must-follow directives**
+
+I was given **zero** numbered directives, so I can't name directives 4 and 12. Anything I gave you for them would be made up.
+
+**AGENTS.md was not loaded automatically.** All I know about it is its name, from the link in CLAUDE.md and the latest commit message ("Relocate directives to AGENTS.md…"). I haven't seen any of its content.
+
+Other things in my context aren't instruction files: the git status and recent commits, the system prompt, and the lists of available agents and skills. The skill descriptions mention HARNESS.md and AGENTS.md as general ideas, but none of that is this project's content.
+
+**Files I'd have to open myself**
+
+- `/Users/russellmiles/code/Habitat-Thinking/petclinic-l2/AGENTS.md`: this is where the directives, including 4 and 12, are said to be.
+- Probably `HARNESS.md`. The commit message says it now points to AGENTS.md, so it may also hold constraints.
+- Probably the Copilot instructions file (likely `.github/copilot-instructions.md`), to check it points to the same place.
+
+**What this means:** CLAUDE.md is a pointer, and Claude Code doesn't follow it automatically. So in any session where I don't open AGENTS.md myself, none of its directives apply. One fix is to import the file directly in CLAUDE.md with `@AGENTS.md`, which loads its content at startup.

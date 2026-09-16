@@ -1,0 +1,518 @@
+diff --git a/src/main/java/org/springframework/samples/petclinic/owner/Owner.java b/src/main/java/org/springframework/samples/petclinic/owner/Owner.java
+index 44ff8c5..2463c91 100644
+--- a/src/main/java/org/springframework/samples/petclinic/owner/Owner.java
++++ b/src/main/java/org/springframework/samples/petclinic/owner/Owner.java
+@@ -31,6 +31,7 @@ import jakarta.persistence.JoinColumn;
+ import jakarta.persistence.OneToMany;
+ import jakarta.persistence.OrderBy;
+ import jakarta.persistence.Table;
++import jakarta.validation.constraints.Email;
+ import jakarta.validation.constraints.Pattern;
+ import jakarta.validation.constraints.NotBlank;
+ 
+@@ -61,6 +62,10 @@ public class Owner extends Person {
+ 	@Pattern(regexp = "\\d{10}", message = "{telephone.invalid}")
+ 	private String telephone;
+ 
++	@Column
++	@Email(message = "{email.invalid}")
++	private String email;
++
+ 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+ 	@JoinColumn(name = "owner_id")
+ 	@OrderBy("name")
+@@ -90,6 +95,14 @@ public class Owner extends Person {
+ 		this.telephone = telephone;
+ 	}
+ 
++	public String getEmail() {
++		return this.email;
++	}
++
++	public void setEmail(String email) {
++		this.email = email;
++	}
++
+ 	public List<Pet> getPets() {
+ 		return this.pets;
+ 	}
+diff --git a/src/main/resources/db/h2/data.sql b/src/main/resources/db/h2/data.sql
+index f232b13..9ee8acf 100644
+--- a/src/main/resources/db/h2/data.sql
++++ b/src/main/resources/db/h2/data.sql
+@@ -22,16 +22,16 @@ INSERT INTO types VALUES (default, 'snake');
+ INSERT INTO types VALUES (default, 'bird');
+ INSERT INTO types VALUES (default, 'hamster');
+ 
+-INSERT INTO owners VALUES (default, 'George', 'Franklin', '110 W. Liberty St.', 'Madison', '6085551023');
+-INSERT INTO owners VALUES (default, 'Betty', 'Davis', '638 Cardinal Ave.', 'Sun Prairie', '6085551749');
+-INSERT INTO owners VALUES (default, 'Eduardo', 'Rodriquez', '2693 Commerce St.', 'McFarland', '6085558763');
+-INSERT INTO owners VALUES (default, 'Harold', 'Davis', '563 Friendly St.', 'Windsor', '6085553198');
+-INSERT INTO owners VALUES (default, 'Peter', 'McTavish', '2387 S. Fair Way', 'Madison', '6085552765');
+-INSERT INTO owners VALUES (default, 'Jean', 'Coleman', '105 N. Lake St.', 'Monona', '6085552654');
+-INSERT INTO owners VALUES (default, 'Jeff', 'Black', '1450 Oak Blvd.', 'Monona', '6085555387');
+-INSERT INTO owners VALUES (default, 'Maria', 'Escobito', '345 Maple St.', 'Madison', '6085557683');
+-INSERT INTO owners VALUES (default, 'David', 'Schroeder', '2749 Blackhawk Trail', 'Madison', '6085559435');
+-INSERT INTO owners VALUES (default, 'Carlos', 'Estaban', '2335 Independence La.', 'Waunakee', '6085555487');
++INSERT INTO owners VALUES (default, 'George', 'Franklin', '110 W. Liberty St.', 'Madison', '6085551023', 'george.franklin@example.com');
++INSERT INTO owners VALUES (default, 'Betty', 'Davis', '638 Cardinal Ave.', 'Sun Prairie', '6085551749', 'betty.davis@example.com');
++INSERT INTO owners VALUES (default, 'Eduardo', 'Rodriquez', '2693 Commerce St.', 'McFarland', '6085558763', 'eduardo.rodriquez@example.com');
++INSERT INTO owners VALUES (default, 'Harold', 'Davis', '563 Friendly St.', 'Windsor', '6085553198', 'harold.davis@example.com');
++INSERT INTO owners VALUES (default, 'Peter', 'McTavish', '2387 S. Fair Way', 'Madison', '6085552765', 'peter.mctavish@example.com');
++INSERT INTO owners VALUES (default, 'Jean', 'Coleman', '105 N. Lake St.', 'Monona', '6085552654', 'jean.coleman@example.com');
++INSERT INTO owners VALUES (default, 'Jeff', 'Black', '1450 Oak Blvd.', 'Monona', '6085555387', 'jeff.black@example.com');
++INSERT INTO owners VALUES (default, 'Maria', 'Escobito', '345 Maple St.', 'Madison', '6085557683', 'maria.escobito@example.com');
++INSERT INTO owners VALUES (default, 'David', 'Schroeder', '2749 Blackhawk Trail', 'Madison', '6085559435', 'david.schroeder@example.com');
++INSERT INTO owners VALUES (default, 'Carlos', 'Estaban', '2335 Independence La.', 'Waunakee', '6085555487', 'carlos.estaban@example.com');
+ 
+ INSERT INTO pets VALUES (default, 'Leo', '2010-09-07', 1, 1);
+ INSERT INTO pets VALUES (default, 'Basil', '2012-08-06', 6, 2);
+diff --git a/src/main/resources/db/h2/schema.sql b/src/main/resources/db/h2/schema.sql
+index f53b168..3d55ebd 100644
+--- a/src/main/resources/db/h2/schema.sql
++++ b/src/main/resources/db/h2/schema.sql
+@@ -39,7 +39,8 @@ CREATE TABLE owners (
+   last_name  VARCHAR_IGNORECASE(30),
+   address    VARCHAR(255),
+   city       VARCHAR(80),
+-  telephone  VARCHAR(20)
++  telephone  VARCHAR(20),
++  email      VARCHAR(255)
+ );
+ CREATE INDEX owners_last_name ON owners (last_name);
+ 
+diff --git a/src/main/resources/db/mysql/data.sql b/src/main/resources/db/mysql/data.sql
+index 3f1dcf8..af54976 100644
+--- a/src/main/resources/db/mysql/data.sql
++++ b/src/main/resources/db/mysql/data.sql
+@@ -22,16 +22,16 @@ INSERT IGNORE INTO types VALUES (4, 'snake');
+ INSERT IGNORE INTO types VALUES (5, 'bird');
+ INSERT IGNORE INTO types VALUES (6, 'hamster');
+ 
+-INSERT IGNORE INTO owners VALUES (1, 'George', 'Franklin', '110 W. Liberty St.', 'Madison', '6085551023');
+-INSERT IGNORE INTO owners VALUES (2, 'Betty', 'Davis', '638 Cardinal Ave.', 'Sun Prairie', '6085551749');
+-INSERT IGNORE INTO owners VALUES (3, 'Eduardo', 'Rodriquez', '2693 Commerce St.', 'McFarland', '6085558763');
+-INSERT IGNORE INTO owners VALUES (4, 'Harold', 'Davis', '563 Friendly St.', 'Windsor', '6085553198');
+-INSERT IGNORE INTO owners VALUES (5, 'Peter', 'McTavish', '2387 S. Fair Way', 'Madison', '6085552765');
+-INSERT IGNORE INTO owners VALUES (6, 'Jean', 'Coleman', '105 N. Lake St.', 'Monona', '6085552654');
+-INSERT IGNORE INTO owners VALUES (7, 'Jeff', 'Black', '1450 Oak Blvd.', 'Monona', '6085555387');
+-INSERT IGNORE INTO owners VALUES (8, 'Maria', 'Escobito', '345 Maple St.', 'Madison', '6085557683');
+-INSERT IGNORE INTO owners VALUES (9, 'David', 'Schroeder', '2749 Blackhawk Trail', 'Madison', '6085559435');
+-INSERT IGNORE INTO owners VALUES (10, 'Carlos', 'Estaban', '2335 Independence La.', 'Waunakee', '6085555487');
++INSERT IGNORE INTO owners VALUES (1, 'George', 'Franklin', '110 W. Liberty St.', 'Madison', '6085551023', 'george.franklin@example.com');
++INSERT IGNORE INTO owners VALUES (2, 'Betty', 'Davis', '638 Cardinal Ave.', 'Sun Prairie', '6085551749', 'betty.davis@example.com');
++INSERT IGNORE INTO owners VALUES (3, 'Eduardo', 'Rodriquez', '2693 Commerce St.', 'McFarland', '6085558763', 'eduardo.rodriquez@example.com');
++INSERT IGNORE INTO owners VALUES (4, 'Harold', 'Davis', '563 Friendly St.', 'Windsor', '6085553198', 'harold.davis@example.com');
++INSERT IGNORE INTO owners VALUES (5, 'Peter', 'McTavish', '2387 S. Fair Way', 'Madison', '6085552765', 'peter.mctavish@example.com');
++INSERT IGNORE INTO owners VALUES (6, 'Jean', 'Coleman', '105 N. Lake St.', 'Monona', '6085552654', 'jean.coleman@example.com');
++INSERT IGNORE INTO owners VALUES (7, 'Jeff', 'Black', '1450 Oak Blvd.', 'Monona', '6085555387', 'jeff.black@example.com');
++INSERT IGNORE INTO owners VALUES (8, 'Maria', 'Escobito', '345 Maple St.', 'Madison', '6085557683', 'maria.escobito@example.com');
++INSERT IGNORE INTO owners VALUES (9, 'David', 'Schroeder', '2749 Blackhawk Trail', 'Madison', '6085559435', 'david.schroeder@example.com');
++INSERT IGNORE INTO owners VALUES (10, 'Carlos', 'Estaban', '2335 Independence La.', 'Waunakee', '6085555487', 'carlos.estaban@example.com');
+ 
+ INSERT IGNORE INTO pets VALUES (1, 'Leo', '2000-09-07', 1, 1);
+ INSERT IGNORE INTO pets VALUES (2, 'Basil', '2002-08-06', 6, 2);
+diff --git a/src/main/resources/db/mysql/schema.sql b/src/main/resources/db/mysql/schema.sql
+index ed53056..6b7f3ad 100644
+--- a/src/main/resources/db/mysql/schema.sql
++++ b/src/main/resources/db/mysql/schema.sql
+@@ -32,6 +32,7 @@ CREATE TABLE IF NOT EXISTS owners (
+   address VARCHAR(255),
+   city VARCHAR(80),
+   telephone VARCHAR(20),
++  email VARCHAR(255),
+   INDEX(last_name)
+ ) engine=InnoDB;
+ 
+diff --git a/src/main/resources/db/postgres/data.sql b/src/main/resources/db/postgres/data.sql
+index 5b53366..26cffa0 100644
+--- a/src/main/resources/db/postgres/data.sql
++++ b/src/main/resources/db/postgres/data.sql
+@@ -22,16 +22,16 @@ INSERT INTO types (name) SELECT 'snake' WHERE NOT EXISTS (SELECT * FROM types WH
+ INSERT INTO types (name) SELECT 'bird' WHERE NOT EXISTS (SELECT * FROM types WHERE name='bird');
+ INSERT INTO types (name) SELECT 'hamster' WHERE NOT EXISTS (SELECT * FROM types WHERE name='hamster');
+ 
+-INSERT INTO owners (first_name, last_name, address, city, telephone) SELECT 'George', 'Franklin', '110 W. Liberty St.', 'Madison', '6085551023' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=1);
+-INSERT INTO owners (first_name, last_name, address, city, telephone) SELECT 'Betty', 'Davis', '638 Cardinal Ave.', 'Sun Prairie', '6085551749' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=2);
+-INSERT INTO owners (first_name, last_name, address, city, telephone) SELECT 'Eduardo', 'Rodriquez', '2693 Commerce St.', 'McFarland', '6085558763' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=3);
+-INSERT INTO owners (first_name, last_name, address, city, telephone) SELECT 'Harold', 'Davis', '563 Friendly St.', 'Windsor', '6085553198' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=4);
+-INSERT INTO owners (first_name, last_name, address, city, telephone) SELECT 'Peter', 'McTavish', '2387 S. Fair Way', 'Madison', '6085552765' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=5);
+-INSERT INTO owners (first_name, last_name, address, city, telephone) SELECT 'Jean', 'Coleman', '105 N. Lake St.', 'Monona', '6085552654' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=6);
+-INSERT INTO owners (first_name, last_name, address, city, telephone) SELECT 'Jeff', 'Black', '1450 Oak Blvd.', 'Monona', '6085555387' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=7);
+-INSERT INTO owners (first_name, last_name, address, city, telephone) SELECT 'Maria', 'Escobito', '345 Maple St.', 'Madison', '6085557683' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=8);
+-INSERT INTO owners (first_name, last_name, address, city, telephone) SELECT 'David', 'Schroeder', '2749 Blackhawk Trail', 'Madison', '6085559435' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=9);
+-INSERT INTO owners (first_name, last_name, address, city, telephone) SELECT 'Carlos', 'Estaban', '2335 Independence La.', 'Waunakee', '6085555487' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=10);
++INSERT INTO owners (first_name, last_name, address, city, telephone, email) SELECT 'George', 'Franklin', '110 W. Liberty St.', 'Madison', '6085551023', 'george.franklin@example.com' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=1);
++INSERT INTO owners (first_name, last_name, address, city, telephone, email) SELECT 'Betty', 'Davis', '638 Cardinal Ave.', 'Sun Prairie', '6085551749', 'betty.davis@example.com' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=2);
++INSERT INTO owners (first_name, last_name, address, city, telephone, email) SELECT 'Eduardo', 'Rodriquez', '2693 Commerce St.', 'McFarland', '6085558763', 'eduardo.rodriquez@example.com' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=3);
++INSERT INTO owners (first_name, last_name, address, city, telephone, email) SELECT 'Harold', 'Davis', '563 Friendly St.', 'Windsor', '6085553198', 'harold.davis@example.com' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=4);
++INSERT INTO owners (first_name, last_name, address, city, telephone, email) SELECT 'Peter', 'McTavish', '2387 S. Fair Way', 'Madison', '6085552765', 'peter.mctavish@example.com' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=5);
++INSERT INTO owners (first_name, last_name, address, city, telephone, email) SELECT 'Jean', 'Coleman', '105 N. Lake St.', 'Monona', '6085552654', 'jean.coleman@example.com' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=6);
++INSERT INTO owners (first_name, last_name, address, city, telephone, email) SELECT 'Jeff', 'Black', '1450 Oak Blvd.', 'Monona', '6085555387', 'jeff.black@example.com' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=7);
++INSERT INTO owners (first_name, last_name, address, city, telephone, email) SELECT 'Maria', 'Escobito', '345 Maple St.', 'Madison', '6085557683', 'maria.escobito@example.com' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=8);
++INSERT INTO owners (first_name, last_name, address, city, telephone, email) SELECT 'David', 'Schroeder', '2749 Blackhawk Trail', 'Madison', '6085559435', 'david.schroeder@example.com' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=9);
++INSERT INTO owners (first_name, last_name, address, city, telephone, email) SELECT 'Carlos', 'Estaban', '2335 Independence La.', 'Waunakee', '6085555487', 'carlos.estaban@example.com' WHERE NOT EXISTS (SELECT * FROM owners WHERE id=10);
+ 
+ INSERT INTO pets (name, birth_date, type_id, owner_id) SELECT 'Leo', '2000-09-07', 1, 1 WHERE NOT EXISTS (SELECT * FROM pets WHERE id=1);
+ INSERT INTO pets (name, birth_date, type_id, owner_id) SELECT 'Basil', '2002-08-06', 6, 2 WHERE NOT EXISTS (SELECT * FROM pets WHERE id=2);
+diff --git a/src/main/resources/db/postgres/schema.sql b/src/main/resources/db/postgres/schema.sql
+index 05b450d..e867f93 100644
+--- a/src/main/resources/db/postgres/schema.sql
++++ b/src/main/resources/db/postgres/schema.sql
+@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS owners (
+   last_name  TEXT,
+   address    TEXT,
+   city       TEXT,
+-  telephone  TEXT
++  telephone  TEXT,
++  email      TEXT
+ );
+ CREATE INDEX IF NOT EXISTS idx_owners_last_name ON owners (last_name);
+ 
+diff --git a/src/main/resources/messages/messages.properties b/src/main/resources/messages/messages.properties
+index 070c9f0..f6525a6 100644
+--- a/src/main/resources/messages/messages.properties
++++ b/src/main/resources/messages/messages.properties
+@@ -13,6 +13,7 @@ lastName=Last Name
+ address=Address
+ city=City
+ telephone=Telephone
++email=Email
+ owners=Owners
+ addOwner=Add Owner
+ findOwner=Find Owner
+@@ -32,6 +33,7 @@ pets=Pets
+ home=Home
+ error=Error
+ telephone.invalid=Telephone must be a 10-digit number
++email.invalid=Email must be a valid email address
+ layoutTitle=PetClinic :: a Spring Framework demonstration
+ pet=Pet
+ birthDate=Birth Date
+diff --git a/src/main/resources/messages/messages_de.properties b/src/main/resources/messages/messages_de.properties
+index a4698d3..212d1ce 100644
+--- a/src/main/resources/messages/messages_de.properties
++++ b/src/main/resources/messages/messages_de.properties
+@@ -13,6 +13,7 @@ lastName=Nachname
+ address=Adresse
+ city=Stadt
+ telephone=Telefon
++email=E-Mail
+ owners=Besitzer
+ addOwner=Besitzer hinzufügen
+ findOwner=Besitzer finden
+@@ -32,6 +33,7 @@ pets=Haustiere
+ home=Startseite
+ error=Fehler
+ telephone.invalid=Telefonnummer muss aus 10 Ziffern bestehen
++email.invalid=E-Mail muss eine gültige E-Mail-Adresse sein
+ layoutTitle=PetClinic :: eine Demonstration des Spring Frameworks
+ pet=Haustier
+ birthDate=Geburtsdatum
+diff --git a/src/main/resources/messages/messages_es.properties b/src/main/resources/messages/messages_es.properties
+index 9e3c293..3629576 100644
+--- a/src/main/resources/messages/messages_es.properties
++++ b/src/main/resources/messages/messages_es.properties
+@@ -13,6 +13,7 @@ lastName=Apellido
+ address=Dirección
+ city=Ciudad
+ telephone=Teléfono
++email=Correo electrónico
+ owners=Propietarios
+ addOwner=Añadir propietario
+ findOwner=Buscar propietario
+@@ -32,6 +33,7 @@ pets=Mascotas
+ home=Inicio
+ error=Error
+ telephone.invalid=El número de teléfono debe tener 10 dígitos
++email.invalid=El correo electrónico debe ser una dirección válida
+ layoutTitle=PetClinic :: una demostración de Spring Framework
+ pet=Mascota
+ birthDate=Fecha de nacimiento
+diff --git a/src/main/resources/messages/messages_fa.properties b/src/main/resources/messages/messages_fa.properties
+index 2260298..1c460f0 100644
+--- a/src/main/resources/messages/messages_fa.properties
++++ b/src/main/resources/messages/messages_fa.properties
+@@ -13,6 +13,7 @@ lastName=نام خانوادگی
+ address=آدرس
+ city=شهر
+ telephone=تلفن
++email=ایمیل
+ owners=مالکان
+ addOwner=افزودن مالک
+ findOwner=یافتن مالک
+@@ -32,6 +33,7 @@ pets=حیوانات خانگی
+ home=خانه
+ error=خطا
+ telephone.invalid=شماره تلفن باید ۱۰ رقمی باشد
++email.invalid=ایمیل باید یک آدرس ایمیل معتبر باشد
+ layoutTitle=PetClinic :: یک نمایش از Spring Framework
+ pet=حیوان خانگی
+ birthDate=تاریخ تولد
+diff --git a/src/main/resources/messages/messages_hi.properties b/src/main/resources/messages/messages_hi.properties
+index 8a22cc1..6bea723 100644
+--- a/src/main/resources/messages/messages_hi.properties
++++ b/src/main/resources/messages/messages_hi.properties
+@@ -15,6 +15,7 @@ lastName=\u0905\u0902\u0924\u093F\u092E \u0928\u093E\u092E
+ address=\u092A\u0924\u093E
+ city=\u0936\u0939\u0930
+ telephone=\u091F\u0947\u0932\u0940\u092B\u094B\u0928
++email=\u0908\u092E\u0947\u0932
+ owners=\u092E\u093E\u0932\u093F\u0915
+ addOwner=\u092E\u093E\u0932\u093F\u0915 \u091C\u094B\u0921\u093C\u0947\u0902
+ findOwner=\u092E\u093E\u0932\u093F\u0915 \u0916\u094B\u091C\u0947\u0902
+@@ -34,6 +35,7 @@ pets=\u092A\u093E\u0932\u0924\u0942 \u091C\u093E\u0928\u0935\u0930
+ home=\u0918\u0930
+ error=\u0924\u094D\u0930\u0941\u091F\u093F
+ telephone.invalid=\u091F\u0947\u0932\u0940\u092B\u094B\u0928 \u090F\u0915 10-\u0905\u0902\u0915\u094B\u0902 \u0915\u0940 \u0938\u0902\u0916\u094D\u092F\u093E \u0939\u094B\u0928\u0940 \u091A\u093E\u0939\u093F\u090F
++email.invalid=\u0908\u092E\u0947\u0932 \u090F\u0915 \u092E\u093E\u0928\u094D\u092F \u0908\u092E\u0947\u0932 \u092A\u0924\u093E \u0939\u094B\u0928\u093E \u091A\u093E\u0939\u093F\u090F
+ layoutTitle=PetClinic :: \u090F\u0915 \u0938\u094D\u092A\u094D\u0930\u093F\u0902\u0917 \u092B\u094D\u0930\u0947\u092E\u0935\u0930\u094D\u0915 \u092A\u094D\u0930\u0926\u0930\u094D\u0936\u0928
+ pet=\u092A\u093E\u0932\u0924\u0942 \u091C\u093E\u0928\u0935\u0930
+ birthDate=\u091C\u0928\u094D\u092E \u0924\u093F\u0925\u093F
+diff --git a/src/main/resources/messages/messages_ja.properties b/src/main/resources/messages/messages_ja.properties
+index e60d875..986b5b1 100644
+--- a/src/main/resources/messages/messages_ja.properties
++++ b/src/main/resources/messages/messages_ja.properties
+@@ -15,6 +15,7 @@ lastName=姓
+ address=住所
+ city=市区町村
+ telephone=電話番号
++email=メールアドレス
+ owners=オーナー一覧
+ addOwner=オーナーを追加
+ findOwner=オーナーを検索
+@@ -34,6 +35,7 @@ pets=ペット
+ home=ホーム
+ error=エラー
+ telephone.invalid=電話番号は10桁の数字で入力してください
++email.invalid=有効なメールアドレスを入力してください
+ layoutTitle=PetClinic :: Spring Framework デモ
+ pet=ペット
+ birthDate=生年月日
+diff --git a/src/main/resources/messages/messages_ko.properties b/src/main/resources/messages/messages_ko.properties
+index b0f9f0d..c1e412d 100644
+--- a/src/main/resources/messages/messages_ko.properties
++++ b/src/main/resources/messages/messages_ko.properties
+@@ -13,6 +13,7 @@ lastName=성
+ address=주소
+ city=도시
+ telephone=전화번호
++email=이메일
+ owners=소유자 목록
+ addOwner=소유자 추가
+ findOwner=소유자 찾기
+@@ -32,6 +33,7 @@ pets=반려동물
+ home=홈
+ error=오류
+ telephone.invalid=전화번호는 10자리 숫자여야 합니다
++email.invalid=유효한 이메일 주소여야 합니다
+ layoutTitle=PetClinic :: Spring Framework 데모
+ pet=반려동물
+ birthDate=생년월일
+diff --git a/src/main/resources/messages/messages_pt.properties b/src/main/resources/messages/messages_pt.properties
+index c2efd77..02d3661 100644
+--- a/src/main/resources/messages/messages_pt.properties
++++ b/src/main/resources/messages/messages_pt.properties
+@@ -13,6 +13,7 @@ lastName=Sobrenome
+ address=Endereço
+ city=Cidade
+ telephone=Telefone
++email=E-mail
+ owners=Proprietários
+ addOwner=Adicionar proprietário
+ findOwner=Encontrar proprietário
+@@ -32,6 +33,7 @@ pets=Animais de estimação
+ home=Início
+ error=Erro
+ telephone.invalid=O número de telefone deve conter 10 dígitos
++email.invalid=O e-mail deve ser um endereço de e-mail válido
+ layoutTitle=PetClinic :: uma demonstração do Spring Framework
+ pet=Animal de estimação
+ birthDate=Data de nascimento
+diff --git a/src/main/resources/messages/messages_ru.properties b/src/main/resources/messages/messages_ru.properties
+index f667057..fde9e16 100644
+--- a/src/main/resources/messages/messages_ru.properties
++++ b/src/main/resources/messages/messages_ru.properties
+@@ -13,6 +13,7 @@ lastName=Фамилия
+ address=Адрес
+ city=Город
+ telephone=Телефон
++email=Электронная почта
+ owners=Владельцы
+ addOwner=Добавить владельца
+ findOwner=Найти владельца
+@@ -32,6 +33,7 @@ pets=Питомцы
+ home=Главная
+ error=Ошибка
+ telephone.invalid=Телефон должен содержать 10 цифр
++email.invalid=Электронная почта должна быть действительным адресом
+ layoutTitle=PetClinic :: демонстрация Spring Framework
+ pet=Питомец
+ birthDate=Дата рождения
+diff --git a/src/main/resources/messages/messages_tr.properties b/src/main/resources/messages/messages_tr.properties
+index 9b1e9fa..aff65d9 100644
+--- a/src/main/resources/messages/messages_tr.properties
++++ b/src/main/resources/messages/messages_tr.properties
+@@ -13,6 +13,7 @@ lastName=Soyad
+ address=Adres
+ city=Şehir
+ telephone=Telefon
++email=E-posta
+ owners=Sahipler
+ addOwner=Sahip Ekle
+ findOwner=Sahip Bul
+@@ -32,6 +33,7 @@ pets=Evcil Hayvanlar
+ home=Ana Sayfa
+ error=Hata
+ telephone.invalid=Telefon numarası 10 basamaklı olmalıdır
++email.invalid=E-posta geçerli bir e-posta adresi olmalıdır
+ layoutTitle=PetClinic :: bir Spring Framework demosu
+ pet=Evcil Hayvan
+ birthDate=Doğum Tarihi
+diff --git a/src/main/resources/templates/owners/createOrUpdateOwnerForm.html b/src/main/resources/templates/owners/createOrUpdateOwnerForm.html
+index 4cd6e11..3c64603 100644
+--- a/src/main/resources/templates/owners/createOrUpdateOwnerForm.html
++++ b/src/main/resources/templates/owners/createOrUpdateOwnerForm.html
+@@ -12,6 +12,7 @@
+       <input th:replace="~{fragments/inputField :: input (#{address}, 'address', 'text')}" />
+       <input th:replace="~{fragments/inputField :: input (#{city}, 'city', 'text')}" />
+       <input th:replace="~{fragments/inputField :: input (#{telephone}, 'telephone', 'text')}" />
++      <input th:replace="~{fragments/inputField :: input (#{email}, 'email', 'text')}" />
+     </div>
+     <div class="form-group">
+       <div class="col-sm-offset-2 col-sm-10">
+diff --git a/src/main/resources/templates/owners/ownerDetails.html b/src/main/resources/templates/owners/ownerDetails.html
+index cc175cd..d2425de 100644
+--- a/src/main/resources/templates/owners/ownerDetails.html
++++ b/src/main/resources/templates/owners/ownerDetails.html
+@@ -31,6 +31,10 @@
+       <th th:text="#{telephone}">Telephone</th>
+       <td th:text="*{telephone}"></td>
+     </tr>
++    <tr>
++      <th th:text="#{email}">Email</th>
++      <td th:text="*{email}"></td>
++    </tr>
+   </table>
+ 
+   <a th:href="@{__${owner.id}__/edit}" class="btn btn-primary" th:text="#{editOwner}">Edit
+diff --git a/src/test/java/org/springframework/samples/petclinic/MySqlIntegrationTests.java b/src/test/java/org/springframework/samples/petclinic/MySqlIntegrationTests.java
+index 9520c8d..1104cae 100644
+--- a/src/test/java/org/springframework/samples/petclinic/MySqlIntegrationTests.java
++++ b/src/test/java/org/springframework/samples/petclinic/MySqlIntegrationTests.java
+@@ -69,6 +69,7 @@ class MySqlIntegrationTests {
+ 		RestTemplate template = builder.baseUri("http://localhost:" + port).build();
+ 		ResponseEntity<String> result = template.exchange(RequestEntity.get("/owners/1").build(), String.class);
+ 		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
++		assertThat(result.getBody()).contains("george.franklin@example.com");
+ 	}
+ 
+ }
+diff --git a/src/test/java/org/springframework/samples/petclinic/PostgresIntegrationTests.java b/src/test/java/org/springframework/samples/petclinic/PostgresIntegrationTests.java
+index 5966d41..3bb75a7 100644
+--- a/src/test/java/org/springframework/samples/petclinic/PostgresIntegrationTests.java
++++ b/src/test/java/org/springframework/samples/petclinic/PostgresIntegrationTests.java
+@@ -89,6 +89,7 @@ public class PostgresIntegrationTests {
+ 		RestTemplate template = builder.baseUri("http://localhost:" + port).build();
+ 		ResponseEntity<String> result = template.exchange(RequestEntity.get("/owners/1").build(), String.class);
+ 		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
++		assertThat(result.getBody()).contains("george.franklin@example.com");
+ 	}
+ 
+ 	static class PropertiesLogger implements ApplicationListener<ApplicationPreparedEvent> {
+diff --git a/src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java b/src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java
+index dd379a5..5f457fd 100644
+--- a/src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java
++++ b/src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java
+@@ -33,6 +33,7 @@ import java.time.LocalDate;
+ import java.util.List;
+ import java.util.Optional;
+ 
++import static org.hamcrest.Matchers.containsString;
+ import static org.hamcrest.Matchers.empty;
+ import static org.hamcrest.Matchers.greaterThan;
+ import static org.hamcrest.Matchers.hasItem;
+@@ -42,6 +43,7 @@ import static org.hamcrest.Matchers.is;
+ import static org.hamcrest.Matchers.not;
+ import static org.mockito.ArgumentMatchers.any;
+ import static org.mockito.ArgumentMatchers.anyString;
++import static org.mockito.ArgumentMatchers.argThat;
+ import static org.mockito.ArgumentMatchers.eq;
+ import static org.mockito.BDDMockito.given;
+ import static org.mockito.Mockito.times;
+@@ -78,6 +80,7 @@ class OwnerControllerTests {
+ 		george.setAddress("110 W. Liberty St.");
+ 		george.setCity("Madison");
+ 		george.setTelephone("6085551023");
++		george.setEmail("george.franklin@example.com");
+ 		Pet max = new Pet();
+ 		PetType dog = new PetType();
+ 		dog.setName("dog");
+@@ -133,6 +136,35 @@ class OwnerControllerTests {
+ 			.andExpect(view().name("owners/createOrUpdateOwnerForm"));
+ 	}
+ 
++	@Test
++	void processCreationFormWithEmailSuccess() throws Exception {
++		mockMvc
++			.perform(post("/owners/new").param("firstName", "Joe")
++				.param("lastName", "Bloggs")
++				.param("address", "123 Caramel Street")
++				.param("city", "London")
++				.param("telephone", "1316761638")
++				.param("email", "joe.bloggs@example.com"))
++			.andExpect(status().is3xxRedirection());
++
++		verify(this.owners).save(argThat(owner -> "joe.bloggs@example.com".equals(owner.getEmail())));
++	}
++
++	@Test
++	void processCreationFormWithInvalidEmailHasErrors() throws Exception {
++		mockMvc
++			.perform(post("/owners/new").param("firstName", "Joe")
++				.param("lastName", "Bloggs")
++				.param("address", "123 Caramel Street")
++				.param("city", "London")
++				.param("telephone", "1316761638")
++				.param("email", "not-an-email"))
++			.andExpect(status().isOk())
++			.andExpect(model().attributeHasFieldErrors("owner", "email"))
++			.andExpect(content().string(containsString("Email must be a valid email address")))
++			.andExpect(view().name("owners/createOrUpdateOwnerForm"));
++	}
++
+ 	@Test
+ 	void initFindForm() throws Exception {
+ 		mockMvc.perform(get("/owners/find"))
+@@ -205,6 +237,8 @@ class OwnerControllerTests {
+ 			.andExpect(model().attribute("owner", hasProperty("address", is("110 W. Liberty St."))))
+ 			.andExpect(model().attribute("owner", hasProperty("city", is("Madison"))))
+ 			.andExpect(model().attribute("owner", hasProperty("telephone", is("6085551023"))))
++			.andExpect(model().attribute("owner", hasProperty("email", is("george.franklin@example.com"))))
++			.andExpect(content().string(containsString("value=\"george.franklin@example.com\"")))
+ 			.andExpect(view().name("owners/createOrUpdateOwnerForm"));
+ 	}
+ 
+@@ -215,9 +249,12 @@ class OwnerControllerTests {
+ 				.param("lastName", "Bloggs")
+ 				.param("address", "123 Caramel Street")
+ 				.param("city", "London")
+-				.param("telephone", "1616291589"))
++				.param("telephone", "1616291589")
++				.param("email", "joe.bloggs@example.com"))
+ 			.andExpect(status().is3xxRedirection())
+ 			.andExpect(view().name("redirect:/owners/{ownerId}"));
++
++		verify(this.owners).save(argThat(owner -> "joe.bloggs@example.com".equals(owner.getEmail())));
+ 	}
+ 
+ 	@Test
+@@ -250,6 +287,8 @@ class OwnerControllerTests {
+ 			.andExpect(model().attribute("owner", hasProperty("address", is("110 W. Liberty St."))))
+ 			.andExpect(model().attribute("owner", hasProperty("city", is("Madison"))))
+ 			.andExpect(model().attribute("owner", hasProperty("telephone", is("6085551023"))))
++			.andExpect(model().attribute("owner", hasProperty("email", is("george.franklin@example.com"))))
++			.andExpect(content().string(containsString("george.franklin@example.com")))
+ 			.andExpect(model().attribute("owner", hasProperty("pets", not(empty()))))
+ 			.andExpect(model().attribute("owner",
+ 					hasProperty("pets", hasItem(hasProperty("visits", hasSize(greaterThan(0)))))))
