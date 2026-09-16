@@ -101,6 +101,7 @@ class ClinicServiceTests {
 		assertThat(optionalOwner).isPresent();
 		Owner owner = optionalOwner.get();
 		assertThat(owner.getLastName()).startsWith("Franklin");
+		assertThat(owner.getEmail()).isEqualTo("george.franklin@example.com");
 		assertThat(owner.getPets()).hasSize(1);
 		assertThat(owner.getPets().get(0).getType()).isNotNull();
 		assertThat(owner.getPets().get(0).getType().getName()).isEqualTo("cat");
@@ -118,6 +119,7 @@ class ClinicServiceTests {
 		owner.setAddress("4, Evans Street");
 		owner.setCity("Wollongong");
 		owner.setTelephone("4444444444");
+		owner.setEmail("sam.schultz@example.com");
 		this.owners.save(owner);
 		assertThat(owner.getId()).isNotZero();
 
