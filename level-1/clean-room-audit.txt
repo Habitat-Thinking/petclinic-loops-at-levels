@@ -1,0 +1,88 @@
+Read-only audit complete — nothing modified. All commands were `cat`/`ls`/`find`/read-only `python3`.
+
+## 1. Memory / context files loaded
+
+**NONE.**
+
+- No `CLAUDE.md`, `CLAUDE.local.md`, or `AGENTS.md` anywhere in the project tree (`find` to depth 4 from the repo root returned nothing).
+- No `~/.claude/CLAUDE.md` (user-level memory file does not exist).
+- No project `.claude/` directory at all.
+- Note: `AGENTS.md` files exist *inside* plugin install dirs (e.g. `~/.claude/plugins/cache/techtalkai/ai-readiness-assessment/1.0.0/AGENTS.md`), but those are plugin payload files, not loaded into my context.
+
+## 2. Settings files in effect
+
+- `/Users/russellmiles/.claude/settings.json` — the only settings file that exists and applies.
+- `/Users/russellmiles/.claude.json` — global state/config file (contains `projects`, marketplace state, onboarding flags). This working directory is **not** present in its `projects` map, so it contributes no project-scoped permissions or MCP config.
+- **Not present:** enterprise/managed settings (`/Library/Application Support/ClaudeCode/managed-settings.json`, `/etc/claude-code/managed-settings.json`), `~/.claude/settings.local.json`, project `.claude/settings.json`, project `.claude/settings.local.json`.
+
+Effective contents of `~/.claude/settings.json`: `permissions.defaultMode: "auto"`, `model: "opus[1m]"`, `tui: "fullscreen"`, `theme: "dark"`, `skipWorkflowUsageWarning: true`, `agentPushNotifEnabled: true`, `skipAutoPermissionPrompt: true`, plus `enabledPlugins`, `extraKnownMarketplaces`, and an `autoMode.environment` block (see §9).
+
+## 3. MCP servers connected
+
+**NONE.**
+
+- No `mcpServers` key in `/Users/russellmiles/.claude.json` at global scope.
+- No project entry for this directory, so no project-scoped servers.
+- No `.mcp.json` in the repo, and none in any installed plugin.
+- No `mcp__*` tools are present in my tool list.
+
+## 4. Plugins
+
+Four are **enabled in settings.json and installed on disk**, from three marketplaces:
+
+| Plugin | Version | Install path |
+|---|---|---|
+| `ai-literacy-superpowers@ai-literacy-superpowers` | 0.89.0 | `~/.claude/plugins/cache/ai-literacy-superpowers/ai-literacy-superpowers/0.89.0` |
+| `diagnostic-legibility@ai-literacy-superpowers` | 0.11.0 | `~/.claude/plugins/cache/ai-literacy-superpowers/diagnostic-legibility/0.11.0` |
+| `writing-superpowers@writing-superpowers` | 0.7.0 | `~/.claude/plugins/cache/writing-superpowers/writing-superpowers/0.7.0` |
+| `ai-readiness-assessment@techtalkai` | 1.0.0 | `~/.claude/plugins/cache/techtalkai/ai-readiness-assessment/1.0.0` |
+
+Marketplaces registered: `claude-plugins-official` (github `anthropics/claude-plugins-official`), `ai-literacy-superpowers` (github `Habitat-Thinking/ai-literacy-superpowers`), `writing-superpowers` (github `russmiles/writing-superpowers`), `techtalkai` (local directory `/Users/russellmiles/code/techtalk/ai-readiness-assessment`).
+
+**Important divergence I can observe directly:** these plugins ship 52 skills, 38 agents, and 55 slash commands on disk, but **none of them appear in my runtime context for this session** — my skills list and agent-type list are bundled-only (see §6, §7). I can't determine from inside the session why; I'm reporting the on-disk state and the loaded state as two separate facts rather than assuming they match.
+
+## 5. Hooks configured
+
+No hooks in any settings file. Two enabled plugins define hooks on disk:
+
+**`ai-literacy-superpowers/0.89.0/hooks/hooks.json`**
+- `PreToolUse` matcher `Write|Edit` → `markdownlint-check.sh` (15s)
+- `PostToolUse` matcher `Bash|mcp__.*` → `affordance-invocation-recorder.sh` (10s)
+- `PostToolUse` matcher `Write|Edit` → a **prompt-type** hook (reads `HARNESS.md`, checks commit-scope constraint violations, 30s)
+- `Stop` matcher `*` → 11 command hooks: `drift-check.sh`, `snapshot-staleness-check.sh`, `reflection-prompt.sh`, `framework-change-prompt.sh`, `secrets-check.sh` (15s), `gc-rotate.sh`, `curation-nudge.sh`, `governance-drift-check.sh`, `mast-boundary-check.sh`, `reservoir-check.sh`, `session-registry-sweep.sh`
+- `SessionStart` matcher `*` → `template-currency-check.sh`, `session-registry-start.sh`, `parked-resume-check.sh`, `wip-check.sh`
+
+**`writing-superpowers/0.7.0/hooks/hooks.json`**
+- `Stop` (empty matcher) → `editorial-nudge.sh` (10s)
+- `PostToolUse` matcher `Write|Edit` → `markua-validate.sh` (15s)
+
+`diagnostic-legibility` and `ai-readiness-assessment` ship no hooks. Caveat: I can read these definitions but cannot observe whether they actually fired this session — no hook output has appeared in my context.
+
+## 6. Skills / slash commands available
+
+**17 skills are actually loaded in my context, all bundled:** `dataviz`, `update-config`, `keybindings-help`, `code-review`, `simplify`, `fewer-permission-prompts`, `loop`, `schedule`, `claude-api`, `workflow-authoring`, `run`, `init`, `security-review` (13 in the user-invocable listing), plus the built-in CLI commands which are not skills.
+
+**Sources: bundled only. Plugin skills: 0 loaded. User skills: 0** (`~/.claude/skills` does not exist). **Project skills: 0** (no project `.claude/`).
+
+On disk but not loaded: 52 plugin skills (ai-literacy-superpowers 42, writing-superpowers 8, ai-readiness-assessment 2, diagnostic-legibility 0) and 55 plugin slash commands (ai-literacy-superpowers 40, writing-superpowers 11, diagnostic-legibility 2, ai-readiness-assessment 2).
+
+## 7. Subagent types available
+
+**Five, all built-in:** `claude`, `Explore`, `general-purpose`, `Plan`, `statusline-setup`.
+
+No user agents (`~/.claude/agents` does not exist), no project agents. The 38 plugin-defined agents on disk (22 in ai-literacy-superpowers, 15 in writing-superpowers, 1 in diagnostic-legibility) are **not** available to my Agent tool.
+
+## 8. Model and effort level
+
+- **Model ID: `claude-opus-5`** (Opus 5), per my environment.
+- `settings.json` requests `"model": "opus[1m]"` — the 1M-context Opus variant.
+- **Effort level: NOT OBSERVABLE.** No effort/thinking-budget value appears in any settings file or in my environment. I won't guess one.
+- Related observable: `permissions.defaultMode: "auto"` and auto mode is active (it's driving my preference for Bash over the Read/Edit/Write tools in this session). Session prompt-cache TTL is 1 hour.
+
+## 9. Project-specific instructions about this repository
+
+**NONE for this repository.**
+
+No memory file, no project settings, no project skills or agents target `petclinic-loops-at-levels`. The only repo-shaped context I received is the git status snapshot (branch `level-1-dictating`, main branch `main`, clean tree, recent Spring PetClinic commits), which is environmental context, not instruction.
+
+Worth flagging: `settings.json` contains an `autoMode.environment` block that reads as project guidance — protected `main`, PR-with-green-CI workflow, CHANGELOG/version-bump discipline, secrets-detection concerns, trusted-repo boundaries. But it is explicitly scoped to **`Habitat-Thinking/ai-literacy-superpowers`**, a different repository. It applies globally as auto-mode safety context, and its "trusted repo" designation does **not** cover this PetClinic repo.

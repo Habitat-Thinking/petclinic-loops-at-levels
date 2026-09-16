@@ -1,0 +1,1 @@
+Add an email address to owners. It should be shown on the owner details page and be editable when creating or editing an owner.

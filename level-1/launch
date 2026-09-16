@@ -1,0 +1,22 @@
+#!/bin/sh
+# Clean-room launcher for "(Agentic) Loops At Levels, Live".
+# Dedicated config dir, scrubbed environment, pinned model and settings.
+# NOTE: USER is deliberately NOT passed through. With a custom CLAUDE_CONFIG_DIR,
+# a set USER (even empty) makes the keychain credential lookup fail with
+# "Not logged in". Verified on Claude Code 2.1.272, macOS 26.6.2.
+# Run from the repository root:  ~/.claude-loops-at-levels/launch
+PROFILE="$HOME/.claude-loops-at-levels"
+exec env -i \
+  HOME="$HOME" LOGNAME="$LOGNAME" SHELL="$SHELL" PATH="$PATH" \
+  TERM="${TERM:-xterm-256color}" LANG="${LANG:-en_GB.UTF-8}" TMPDIR="$TMPDIR" \
+  COLORTERM="$COLORTERM" TERM_PROGRAM="$TERM_PROGRAM" \
+  CLAUDE_CONFIG_DIR="$PROFILE" \
+  CLAUDE_CODE_DISABLE_AUTO_MEMORY=1 \
+  claude \
+    --model claude-opus-5 \
+    --effort high \
+    --permission-mode auto \
+    --setting-sources project,local \
+    --settings "$PROFILE/pinned-settings.json" \
+    --strict-mcp-config \
+    "$@"
