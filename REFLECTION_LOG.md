@@ -1,0 +1,38 @@
+# Reflection Log
+
+<!-- GENERATED FILE — do not edit by hand.
+
+     This file is a deterministic aggregate of the per-entry fragments in
+     reflections/active/. Add a reflection with /reflect (which writes a
+     fragment and regenerates this file); never append here directly.
+     Regenerate with: scripts/regenerate-reflection-log.sh
+
+     Each entry below mirrors one fragment. Entry format:
+
+     ---
+
+     - **Date**: YYYY-MM-DD
+     - **Agent**: integration-agent
+     - **Task**: [one-sentence summary]
+     - **Surprise**: [anything unexpected]
+     - **Proposal**: [pattern or gotcha for AGENTS.md, or "none"]
+     - **Improvement**: [what would make the pipeline smoother]
+     - **Signal**: [context | instruction | workflow | failure | none]
+     - **Constraint**: [proposed constraint, or "none"]
+-->
+
+---
+
+- **Date**: 2026-09-16
+- **Agent**: Claude Code (Opus 5), working from AGENTS.md directives at level 2 (advisory only, nothing enforced)
+- **Task**: Added an email field to Owner, following the AGENTS.md directives.
+- **Surprise**: Directive 12 says every judgement call goes in a "Decisions" section of the PR description. The run followed the letter of it and wrote six numbered decisions, but they went into the chat transcript. There is no PR, and nothing in the working tree records them. Close the terminal and the reasoning is lost, just as it would be with no context at all. The directive named a destination that did not exist, and nothing checked where the decisions actually landed. A second, smaller point: the run knowingly shipped an inconsistency. The email column is VARCHAR(255) on H2 and MySQL, but the entity has no @Size, so an over-length email causes a database error instead of a form validation error. The run listed this as Decision 2 instead of fixing it, and nothing stopped it. Advisory context can note a defect; it cannot prevent one.
+- **Proposal**: For a human to decide, not applied: (a) change directive 12 to name a destination that always exists, e.g. a decisions record committed in the working tree alongside the change, with the PR description drawing from it; (b) add a directive that a column length limit must be matched by an entity validation constraint (@Size) so over-length input fails as a form error.
+- **Improvement**: Written-down context changes what an agent does, but it cannot make a decision durable and it cannot stop a known defect from shipping. Only something that checks can. Every directive that names an artefact should name one that exists at the time the agent acts, and should be paired with a check that the artefact was produced. A defect the agent reports itself should block the change, not just be noted.
+- **Signal**: failure
+- **Constraint**: none (candidates proposed, not accepted; the user asked for capture only: (1) a decisions record exists in the working tree for any change that adds a field (deterministic, file-presence check, scope: commit/pr); (2) every length-limited column in db/*/schema.sql has a matching @Size on the entity field (agent, scope: pr))
+- **Session metadata**:
+  - Duration: unknown
+  - Model tiers used: unknown
+  - Pipeline stages completed: single-agent interaction, no orchestrator
+  - Agent delegation: manual
