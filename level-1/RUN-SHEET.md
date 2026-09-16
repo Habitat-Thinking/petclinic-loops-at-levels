@@ -86,3 +86,14 @@ git diff level-1-dictating..level-2-commanding
 
 `rm -rf ~/code/Habitat-Thinking/l1-runs` — the three scratch clones used to capture the
 runs. The evidence is already committed here.
+
+## Slide decks for this segment
+
+- [slides/BEFORE-L1.md](slides/BEFORE-L1.md) — 6 slides, run immediately before the demo:
+  what Dictating is, the clean room, the frozen prompt, what to watch for.
+- [slides/AFTER-L1.md](slides/AFTER-L1.md) — 7 slides, run immediately after: the three-run
+  evidence, the `I18nPropertiesSyncTest` finding, the evaporated decision, the cost spread,
+  and the handover to Level 2.
+
+Both are slide *plans* — takeaway, content and speaker note per slide, with design
+direction at the top — written to be handed to Claude Design to produce the deck.
