@@ -33,6 +33,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItem;
@@ -42,6 +43,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.times;
@@ -78,6 +80,7 @@ class OwnerControllerTests {
 		george.setAddress("110 W. Liberty St.");
 		george.setCity("Madison");
 		george.setTelephone("6085551023");
+		george.setEmail("george.franklin@example.com");
 		Pet max = new Pet();
 		PetType dog = new PetType();
 		dog.setName("dog");
@@ -130,6 +133,35 @@ class OwnerControllerTests {
 			.andExpect(model().attributeHasErrors("owner"))
 			.andExpect(model().attributeHasFieldErrors("owner", "address"))
 			.andExpect(model().attributeHasFieldErrors("owner", "telephone"))
+			.andExpect(view().name("owners/createOrUpdateOwnerForm"));
+	}
+
+	@Test
+	void processCreationFormWithEmailSuccess() throws Exception {
+		mockMvc
+			.perform(post("/owners/new").param("firstName", "Joe")
+				.param("lastName", "Bloggs")
+				.param("address", "123 Caramel Street")
+				.param("city", "London")
+				.param("telephone", "1316761638")
+				.param("email", "joe.bloggs@example.com"))
+			.andExpect(status().is3xxRedirection());
+
+		verify(this.owners).save(argThat(owner -> "joe.bloggs@example.com".equals(owner.getEmail())));
+	}
+
+	@Test
+	void processCreationFormWithInvalidEmailHasErrors() throws Exception {
+		mockMvc
+			.perform(post("/owners/new").param("firstName", "Joe")
+				.param("lastName", "Bloggs")
+				.param("address", "123 Caramel Street")
+				.param("city", "London")
+				.param("telephone", "1316761638")
+				.param("email", "not-an-email"))
+			.andExpect(status().isOk())
+			.andExpect(model().attributeHasFieldErrors("owner", "email"))
+			.andExpect(content().string(containsString("Email must be a valid email address")))
 			.andExpect(view().name("owners/createOrUpdateOwnerForm"));
 	}
 
@@ -205,6 +237,8 @@ class OwnerControllerTests {
 			.andExpect(model().attribute("owner", hasProperty("address", is("110 W. Liberty St."))))
 			.andExpect(model().attribute("owner", hasProperty("city", is("Madison"))))
 			.andExpect(model().attribute("owner", hasProperty("telephone", is("6085551023"))))
+			.andExpect(model().attribute("owner", hasProperty("email", is("george.franklin@example.com"))))
+			.andExpect(content().string(containsString("value=\"george.franklin@example.com\"")))
 			.andExpect(view().name("owners/createOrUpdateOwnerForm"));
 	}
 
@@ -215,9 +249,12 @@ class OwnerControllerTests {
 				.param("lastName", "Bloggs")
 				.param("address", "123 Caramel Street")
 				.param("city", "London")
-				.param("telephone", "1616291589"))
+				.param("telephone", "1616291589")
+				.param("email", "joe.bloggs@example.com"))
 			.andExpect(status().is3xxRedirection())
 			.andExpect(view().name("redirect:/owners/{ownerId}"));
+
+		verify(this.owners).save(argThat(owner -> "joe.bloggs@example.com".equals(owner.getEmail())));
 	}
 
 	@Test
@@ -250,6 +287,8 @@ class OwnerControllerTests {
 			.andExpect(model().attribute("owner", hasProperty("address", is("110 W. Liberty St."))))
 			.andExpect(model().attribute("owner", hasProperty("city", is("Madison"))))
 			.andExpect(model().attribute("owner", hasProperty("telephone", is("6085551023"))))
+			.andExpect(model().attribute("owner", hasProperty("email", is("george.franklin@example.com"))))
+			.andExpect(content().string(containsString("george.franklin@example.com")))
 			.andExpect(model().attribute("owner", hasProperty("pets", not(empty()))))
 			.andExpect(model().attribute("owner",
 					hasProperty("pets", hasItem(hasProperty("visits", hasSize(greaterThan(0)))))))

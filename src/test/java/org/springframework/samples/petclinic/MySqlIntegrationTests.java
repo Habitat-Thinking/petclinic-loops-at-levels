@@ -69,6 +69,7 @@ class MySqlIntegrationTests {
 		RestTemplate template = builder.baseUri("http://localhost:" + port).build();
 		ResponseEntity<String> result = template.exchange(RequestEntity.get("/owners/1").build(), String.class);
 		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(result.getBody()).contains("george.franklin@example.com");
 	}
 
 }
