@@ -1,0 +1,88 @@
+# Level 3 — Regulating. Beats for ./bin/demo run 3
+
+### Recall the drift
+TIME: 15s
+SAY: "This got past us two levels ago." The reflection entry is still in the log,
+SAY: where Level 2 left it: the decisions went into a chat message, there was no PR,
+SAY: and nothing in the repository remembered.
+SAY: Do not re-explain Level 2. Fifteen seconds, then move.
+CMD: git show level-2-commanding:REFLECTION_LOG.md | sed -n '25,40p'
+MODE: run
+
+### Promote it — /harness-constrain live
+TIME: 2 min
+SAY: The reflection proposes. The human curates. Only then is the rule durable.
+SAY: Point at the moment it stops and waits for you. It writes nothing until you say
+SAY: "accept". That pause is the boundary the whole framework rests on.
+SAY: If it drifts or runs long, the rehearsed exchange is in
+SAY: level-3/harness-constrain-exchange.md and the constraint is already in HARNESS.md.
+CMD: /harness-constrain
+MODE: copy
+
+### HARNESS.md next to AGENTS.md
+TIME: 30s
+SAY: One governs the loop, the other governs the turn. Say it once, plainly, and move.
+SAY: Three directives moved out of AGENTS.md when the harness was built - the table at
+SAY: the top of AGENTS.md lists them. Directive 12 changed as it moved: it used to name
+SAY: "the PR description", a destination that does not exist while you work. It now
+SAY: names a file a script can look for.
+CMD: sed -n '1,30p' AGENTS.md; echo '--- HARNESS ---'; sed -n '/^### Decision record/,/^#### Decision record for source changes . commit/p' HARNESS.md
+MODE: run
+
+### Break the rule on purpose
+TIME: 45s
+SAY: One command, already prepared. Typing a deliberate bug live invites a typo that
+SAY: breaks for the wrong reason.
+SAY: This adds an email column to the H2 schema only, with no decision record - the
+SAY: Level 2 drift, reproduced exactly.
+SAY: The advisory warning comes first: it tells you, and lets you carry on.
+CMD: cat level-3/catch-verbatim.txt
+MODE: manual
+
+### Try to merge it — the beat this segment exists for
+TIME: 60s
+SAY: Same violation, different loop, different consequence. This pull request is real,
+SAY: it is red, and it has been red since before the talk started.
+SAY: Read the failure out loud: "1 file(s) under src/ changed, and no record under
+SAY: decisions/ was added or updated in the same change."
+SAY: Then stop talking.
+CMD: gh pr checks 1 || open https://github.com/Habitat-Thinking/petclinic-loops-at-levels/pull/1
+MODE: run
+
+### The tool, with no agent anywhere near it
+TIME: 30s
+SAY: This is the one that matters for the argument. No model is involved. No prompt, no
+SAY: context, no judgement. A test reads three files and fails.
+SAY: The rule survives the agent being absent, wrong, or replaced.
+CMD: cat level-3/catch-strict.txt
+MODE: manual
+
+### The advisory constraint, and its weakness
+TIME: 30s
+SAY: "Abstraction earns its place" cannot be made deterministic. A linter can count
+SAY: callers; it cannot tell a premature abstraction from a deliberate seam.
+SAY: It is kept, and labelled as weaker than every other rule in the file, because the
+SAY: alternative - quietly pretending every rule is enforceable - is worse.
+SAY: CUT THIS BEAT FIRST if you are over time. Never cut the merge gate.
+CMD: sed -n '/^### Abstraction earns its place/,/^---/p' HARNESS.md
+MODE: run
+
+### What the instruments found on a one-day-old harness
+TIME: 45s
+SAY: Optional. They were told not to invent findings, and they still found four real
+SAY: mismatches: a badge claiming 2/2, a constraint declaring commit scope that nothing
+SAY: ran at commit, a GC rule nothing ran while CI ran three nobody had written down,
+SAY: and a hook timeout shorter than a cold Maven start - which would have failed
+SAY: silently.
+SAY: Do not say "your repo is rotting". Say: a harness drifts from its own description
+SAY: immediately, and none of that was visible by reading the files.
+CMD: sed -n '/## Mismatches I found/,$p' level-3/health.txt
+MODE: manual
+
+### Name the ceiling
+TIME: 30s
+SAY: Everything here bounds what MAY happen. Nothing here has an opinion about what
+SAY: SHOULD happen.
+SAY: The harness cannot tell you the email field was worth adding. It cannot choose
+SAY: between two designs. It cannot decide what to build next. It says no.
+SAY: That is what Level 4 is for.

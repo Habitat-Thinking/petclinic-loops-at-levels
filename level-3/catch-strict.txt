@@ -1,0 +1,33 @@
+### MERGE-TIME (strict): the same script, run as CI runs it
+
+    $ scripts/check-decision-record.sh origin/level-3-regulating
+    decision-record: VIOLATED
+    
+      1 file(s) under src/ changed, and no record under decisions/ was added
+      or updated in the same change.
+    
+      Changed under src/:
+        src/main/resources/db/h2/schema.sql
+    
+      Every judgement call the task did not state — required vs optional, nullability,
+      limits, defaults, naming, error handling — belongs in a record that outlives the
+      session. If there genuinely were none, say so in the record explicitly.
+    
+      Add decisions/<yyyy-mm-dd>-<slug>.md and include it in this change.
+    exit=
+
+### THE TOOL, WITH NO AGENT ANYWHERE NEAR IT
+
+    $ ./mvnw -B test -Dtest=SchemaParityTest
+    [INFO] Running org.springframework.samples.petclinic.harness.SchemaParityTest
+    [ERROR] Tests run: 3, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.039 s <<< FAILURE! -- in org.springframework.samples.petclinic.harness.SchemaParityTest
+    [ERROR] org.springframework.samples.petclinic.harness.SchemaParityTest.everyColumnExistsInEveryDialect -- Time elapsed: 0.007 s <<< FAILURE!
+    Schema parity violated — a change landed in one database and not the others:
+      owners.email exists in h2 but not in mysql
+      owners.email exists in h2 but not in postgres
+    	at org.springframework.samples.petclinic.harness.SchemaParityTest.everyColumnExistsInEveryDialect(SchemaParityTest.java:92)
+    [ERROR]   SchemaParityTest.everyColumnExistsInEveryDialect:92 Schema parity violated — a change landed in one database and not the others:
+      owners.email exists in h2 but not in mysql
+      owners.email exists in h2 but not in postgres
+    [ERROR] Tests run: 3, Failures: 1, Errors: 0, Skipped: 0
+    [INFO] BUILD FAILURE

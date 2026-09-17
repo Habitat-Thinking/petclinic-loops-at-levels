@@ -1,0 +1,14 @@
+I ran both garbage collection rules and changed nothing: no fixes, no commits, no issues opened. Neither rule found anything wrong in the repository itself. They did turn up three problems with the checks: two make the sweep look cleaner than it is, and one is a bug waiting to fire. I checked each of these against the files myself.
+
+## The rules
+
+**1. Reflection-driven regression detection: nothing found.** There is only one reflection so far (`reflections/active/2026-09-16-add-email-field-to-owner.md`), and the rule needs a theme to show up in at least two. The main lesson in that entry is already enforced by **Decision record for source changes**. Another point in it is not covered by any rule: a VARCHAR(255) column with no matching `@Size` limit on the entity. It has only come up once, so it doesn't count yet.
+
+**2. Scheduled sweep: nothing found locally**, running the workflow's own commands.
+- **a. Source changes without a decision record:** passes against the tag `upstream-pristine`.
+- **b. Active reflections:** 1, against a limit of 10.
+- **c. Tools named in HARNESS.md that no longer exist:** none missing. I also checked everything else HARNESS.md names by hand, and all of it is present.
+
+## Problems with the checks
+
+1. **Check (a) passes for the wrong reason.** Since the tag, one file under `src/` has changed: `SchemaParityTest.java`, in d1e236a. The only file under `de

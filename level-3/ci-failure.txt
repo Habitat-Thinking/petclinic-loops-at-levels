@@ -1,0 +1,21 @@
+Enforce PR constraints	Constraint: Decision record for source changes	﻿2026-09-17T08:50:00.9304645Z ##[group]Run scripts/check-decision-record.sh "origin/level-3-regulating"
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:00.9305253Z ^[[36;1mscripts/check-decision-record.sh "origin/level-3-regulating"^[[0m
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:00.9343688Z shell: /usr/bin/bash -e {0}
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:00.9343947Z env:
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:00.9344227Z   JAVA_HOME: /opt/hostedtoolcache/Java_Adopt_jdk/17.0.20-101/x64
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:00.9344671Z   JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Adopt_jdk/17.0.20-101/x64
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:00.9345024Z ##[endgroup]
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1304936Z decision-record: VIOLATED
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1305513Z 
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1310545Z   1 file(s) under src/ changed, and no record under decisions/ was added
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1314172Z   or updated in the same change.
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1314636Z 
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1314934Z   Changed under src/:
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1315552Z     src/main/resources/db/h2/schema.sql
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1316073Z 
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1316886Z   Every judgement call the task did not state — required vs optional, nullability,
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1318212Z   limits, defaults, naming, error handling — belongs in a record that outlives the
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1319269Z   session. If there genuinely were none, say so in the record explicitly.
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1319901Z 
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1320357Z   Add decisions/<yyyy-mm-dd>-<slug>.md and include it in this change.
+Enforce PR constraints	Constraint: Decision record for source changes	2026-09-17T08:50:01.1324952Z ##[error]Process completed with exit code 1.

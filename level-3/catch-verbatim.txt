@@ -1,0 +1,33 @@
+### EDIT-TIME (advisory): scripts/harness-advisory.sh
+
+
+  HARNESS advisory: src/ has changed with no record under decisions/.
+    Blocking at merge. Add decisions/<yyyy-mm-dd>-<slug>.md before you push.
+  HARNESS advisory: SchemaParityTest fails — a column is missing from one
+    of the three schemas, or h2 and mysql disagree on a length. Run:
+      ./mvnw test -Dtest=SchemaParityTest
+
+
+### COMMIT-TIME (advisory): the pre-commit hook warns, the commit succeeds
+
+    decision-record: VIOLATED
+    
+      1 file(s) under src/ changed, and no record under decisions/ was added
+      or updated in the same change.
+    
+      Changed under src/:
+        src/main/resources/db/h2/schema.sql
+    
+      Every judgement call the task did not state — required vs optional, nullability,
+      limits, defaults, naming, error handling — belongs in a record that outlives the
+      session. If there genuinely were none, say so in the record explicitly.
+    
+      Add decisions/<yyyy-mm-dd>-<slug>.md and include it in this change.
+    warning: decision record constraint failed (advisory at commit; blocking on pull request)
+    [level-3-regulating cd785a6] Add email column to the H2 schema only (deliberate violation)
+     1 file changed, 2 insertions(+), 1 deletion(-)
+
+### MERGE-TIME (strict): the same script, blocking
+
+    decision-record: no changes to check
+    exit=0
