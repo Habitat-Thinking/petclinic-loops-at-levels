@@ -22,6 +22,9 @@ permissions:
 jobs:
   enforce:
     name: Enforce PR constraints
+    # Only on a pull request: the decision-record check needs a base ref to diff
+    # against, and a manual dispatch has none.
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
