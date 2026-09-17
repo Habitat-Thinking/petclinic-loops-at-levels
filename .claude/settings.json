@@ -7,7 +7,7 @@
           {
             "type": "command",
             "command": "scripts/harness-advisory.sh",
-            "timeout": 20
+            "timeout": 120
           }
         ]
       }

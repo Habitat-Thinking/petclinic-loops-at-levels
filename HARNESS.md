@@ -123,6 +123,19 @@ The script exits non-zero when files under `src/` changed and no record under
 
 ---
 
+### Scheduled sweep (CI)
+
+- **Rule**: `.github/workflows/harness.yml` job `sweep` runs every Monday at 07:00 UTC
+  and on demand. It reports, and never blocks:
+  1. source changes since the last tag with no decision record
+  2. more than 10 active reflection entries awaiting promotion or retirement
+  3. constraints in this file naming a tool that no longer exists
+- **Enforcement**: deterministic
+- **Scope**: scheduled
+- **Why**: entropy does not arrive with a pull request attached. Check 3 exists because
+  a harness whose rules name missing tools is worse than no harness: it reports success
+  for checks nobody is running.
+
 ## Observability
 
 <!-- Not yet configured. Run /harness-init and select this feature to set up. -->

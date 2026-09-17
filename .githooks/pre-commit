@@ -10,4 +10,14 @@ fi
 if ! scripts/check-decision-record.sh --staged; then
 	echo "warning: decision record constraint failed (advisory at commit; blocking on pull request)" >&2
 fi
+
+# Schema parity declares commit scope in HARNESS.md, so it runs here too. Only when a
+# schema file is staged: an unconditional Maven start would make every commit slow
+# enough that people disable the hook, which costs more than it catches.
+if git diff --cached --name-only | grep -q '^src/main/resources/db/.*schema\.sql$'; then
+	if ! ./mvnw -B -q test -Dtest=SchemaParityTest >/dev/null 2>&1; then
+		echo "warning: SchemaParityTest fails — a column is missing from one of the three schemas," >&2
+		echo "         or h2 and mysql disagree on a length (advisory at commit; blocking on pull request)" >&2
+	fi
+fi
 exit 0
