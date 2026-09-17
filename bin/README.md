@@ -4,9 +4,9 @@ Deterministic. No model in the loop, so it cannot improvise on stage.
 
 ```sh
 ./bin/demo profiles           # which profile is which, and are they logged in
-./bin/demo preflight 2        # is this machine ready? --fix repairs what is safe
-./bin/demo run 2              # teleprompt the segment, beat by beat
-./bin/demo fallback 2         # abandon a wandering live run
+./bin/demo preflight 3        # is this machine ready? --fix repairs what is safe
+./bin/demo run 3              # teleprompt the segment, beat by beat (levels 1-3)
+./bin/demo fallback 3         # abandon a wandering live run
 ```
 
 ## Teleprompter keys
@@ -30,8 +30,15 @@ installed and loaded · (L1) the launcher has *no* plugin · correct branch, cle
 the branch is not checked out in another worktree · fallback branches pushed · Maven
 cache warm.
 
+Level 3 additionally checks that git hooks are enabled in this clone, that both
+enforcement scripts are executable, and that PR #1 is open and red — the merge gate is
+demonstrated from that pre-opened pull request, never a live CI wait.
+
 It cannot check terminal font size, cleared scrollback, or notifications. Those are on
 you.
+
+Levels 2 and 3 share one launch profile: from Level 3 on, what changes is in the
+repository, not the launcher.
 
 ## The agent-driven variant
 

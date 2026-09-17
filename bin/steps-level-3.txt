@@ -6,7 +6,7 @@ SAY: "This got past us two levels ago." The reflection entry is still in the log
 SAY: where Level 2 left it: the decisions went into a chat message, there was no PR,
 SAY: and nothing in the repository remembered.
 SAY: Do not re-explain Level 2. Fifteen seconds, then move.
-CMD: git show level-2-commanding:REFLECTION_LOG.md | sed -n '25,40p'
+CMD: git show level-2-commanding:REFLECTION_LOG.md | grep '\*\*Surprise\*\*' | grep -v 'anything unexpected' | fmt -w 88 | head -7
 MODE: run
 
 ### Promote it — /harness-constrain live
@@ -36,8 +36,8 @@ SAY: breaks for the wrong reason.
 SAY: This adds an email column to the H2 schema only, with no decision record - the
 SAY: Level 2 drift, reproduced exactly.
 SAY: The advisory warning comes first: it tells you, and lets you carry on.
-CMD: cat level-3/catch-verbatim.txt
-MODE: manual
+CMD: cat $NOTES/level-3/catch-verbatim.txt
+MODE: run
 
 ### Try to merge it — the beat this segment exists for
 TIME: 60s
@@ -54,8 +54,8 @@ TIME: 30s
 SAY: This is the one that matters for the argument. No model is involved. No prompt, no
 SAY: context, no judgement. A test reads three files and fails.
 SAY: The rule survives the agent being absent, wrong, or replaced.
-CMD: cat level-3/catch-strict.txt
-MODE: manual
+CMD: cat $NOTES/level-3/catch-strict.txt
+MODE: run
 
 ### The advisory constraint, and its weakness
 TIME: 30s
@@ -76,8 +76,8 @@ SAY: and a hook timeout shorter than a cold Maven start - which would have faile
 SAY: silently.
 SAY: Do not say "your repo is rotting". Say: a harness drifts from its own description
 SAY: immediately, and none of that was visible by reading the files.
-CMD: sed -n '/## Mismatches I found/,$p' level-3/health.txt
-MODE: manual
+CMD: sed -n '/## Mismatches I found/,$p' $NOTES/level-3/health.txt
+MODE: run
 
 ### Name the ceiling
 TIME: 30s

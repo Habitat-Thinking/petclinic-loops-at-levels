@@ -2,6 +2,7 @@
 # Demo assistant for "(Agentic) Loops At Levels, Live".
 #
 #   ./bin/demo preflight <level>   check the machine is ready; --fix repairs what is safe
+#                                  levels 1-3; 2 and 3 share the same launch profile
 #   ./bin/demo run <level>         teleprompt the segment, one beat at a time
 #   ./bin/demo fallback <level>    abandon a wandering live run
 #   ./bin/demo profiles            show the profile table and auth state
@@ -32,8 +33,17 @@ bad(){ print -r -- "${RED} FAIL ${R} $1"; FAILED=$((FAILED+1)) }
 warn(){ print -r -- "${YEL} warn ${R} $1"; WARNED=$((WARNED+1)) }
 hdr(){ print -r -- ""; print -r -- "${B}$1${R}" }
 
+# Levels 2 and 3 deliberately share a profile: from Level 3 on, what changes is in the
+# repository, not the launcher.
 profile_dir(){ [[ $1 == 1 ]] && print -r -- "$HOME/.claude-loops-at-levels" || print -r -- "$HOME/.claude-loops-at-levels-l2" }
-branch_for(){ [[ $1 == 1 ]] && print -r -- "level-1-dictating" || print -r -- "level-2-commanding" }
+branch_for(){
+  case $1 in
+    1) print -r -- "level-1-dictating" ;;
+    2) print -r -- "level-2-commanding" ;;
+    3) print -r -- "level-3-regulating" ;;
+    *) print -r -- "level-$1" ;;
+  esac
+}
 after_for(){ print -r -- "$(branch_for $1)-after" }
 
 # Auth check must not export USER: with a custom CLAUDE_CONFIG_DIR a set USER breaks
@@ -85,7 +95,7 @@ preflight(){
   fi
 
   # Level 2 only: the plugin, pinned.
-  if [[ $level == 2 ]]; then
+  if [[ $level == 2 || $level == 3 ]]; then
     local pdir=$profile/plugins/cache/ai-literacy-superpowers/ai-literacy-superpowers/$PIN_PLUGIN_VERSION
     [[ -d $pdir ]] && ok "plugin ai-literacy-superpowers $PIN_PLUGIN_VERSION" \
       || bad "plugin $PIN_PLUGIN_VERSION missing at $pdir"
@@ -117,12 +127,37 @@ preflight(){
 
     # Fallback branches must be pushed: you may need one mid-sentence.
     local missing=0
-    for b in level-1-dictating-after level-2-commanding-after; do
+    for b in level-1-dictating-after level-2-commanding-after level-3-regulating-after; do
       git -C $REPO show-ref -q --verify refs/remotes/origin/$b || { warn "$b not on origin"; missing=1 }
     done
     (( missing == 0 )) && ok "fallback branches pushed"
   else
     bad "no repository at $REPO"
+  fi
+
+  # Level 3 only: the enforcement has to be live in THIS clone.
+  if [[ $level == 3 ]]; then
+    local hp=$(git -C $REPO config --get core.hooksPath 2>/dev/null)
+    if [[ $hp == .githooks ]]; then
+      ok "git hooks enabled (core.hooksPath=.githooks)"
+    elif [[ $fix == --fix ]]; then
+      git -C $REPO config core.hooksPath .githooks && ok "enabled git hooks in this clone"
+    else
+      bad "git hooks NOT enabled — the advisory beat will silently do nothing.
+         git -C $REPO config core.hooksPath .githooks   (--fix does it)"
+    fi
+    for f in scripts/check-decision-record.sh scripts/harness-advisory.sh; do
+      [[ -x $REPO/$f ]] && ok "$f executable" || bad "$f missing or not executable"
+    done
+    # The merge gate is demonstrated from a pre-opened red PR, never a live CI wait.
+    local pr=$(gh pr view 1 -R Habitat-Thinking/petclinic-loops-at-levels --json state,statusCheckRollup \
+      --jq '"\(.state) \(([.statusCheckRollup[]? | select(.conclusion=="FAILURE")] | length))"' 2>/dev/null)
+    case $pr in
+      "OPEN 0") warn "PR #1 is open but nothing is failing — re-check before the merge-gate beat" ;;
+      "OPEN "*) ok "PR #1 open and red (${pr##* } failing check(s))" ;;
+      "") warn "could not reach GitHub to check PR #1 — open the tab manually before you start" ;;
+      *) bad "PR #1 is $pr, not OPEN — the merge-gate beat needs it open and red" ;;
+    esac
   fi
 
   # Maven cache: a cold cache turns a 21s build into 134s of dead air.
@@ -198,7 +233,7 @@ run_segment(){
       f) fallback $level; continue ;;
       *)
         case ${modes[$i]} in
-          run)  [[ -n ${cmds[$i]} ]] && { print -r -- ""; eval "cd $REPO && ${cmds[$i]}" } ;;
+          run)  [[ -n ${cmds[$i]} ]] && { print -r -- ""; NOTES=$NOTES eval "cd $REPO && ${cmds[$i]}" } ;;
           copy) [[ -n ${cmds[$i]} ]] && { print -rn -- "${cmds[$i]}" | pbcopy; print -r -- "  ${GRN}copied${R}" } ;;
         esac
         i=$((i+1))
@@ -233,5 +268,5 @@ case ${1:-} in
   run)       run_segment ${2:?level} ;;
   fallback)  fallback ${2:?level} ;;
   profiles)  profiles ;;
-  *) print -r -- "usage: demo {preflight|run|fallback} <level> | demo profiles" ; exit 2 ;;
+  *) print -r -- "usage: demo {preflight|run|fallback} <level 1-3> | demo profiles" ; exit 2 ;;
 esac

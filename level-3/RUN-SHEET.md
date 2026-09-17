@@ -66,3 +66,11 @@ itself.
 `.claude/settings.json` declares an edit-time hook that did not fire in headless
 testing — project-scope hooks appear to need per-clone approval. The commit-time hook
 does fire and is what the advisory beat shows. See FINDINGS.md.
+
+## Slide decks for this segment
+
+- [slides/BEFORE-L3.md](slides/BEFORE-L3.md) — before the demo.
+- [slides/AFTER-L3.md](slides/AFTER-L3.md) — after it.
+
+Slide plans for Claude Design: takeaway, content, visual and speaker note per slide,
+with deck-level design direction at the top.

@@ -176,3 +176,11 @@ narrate the difference. Do not show a prepared diff that no longer matches the s
 The plugin's hooks write `observability/affordance-invocations.json` into the working
 tree during any Level 2 session. It is untracked and harmless. If someone spots it, it is
 an honest preview of Level 3: the plugin is already recording what tools were invoked.
+
+## Slide decks for this segment
+
+- [slides/BEFORE-L2.md](slides/BEFORE-L2.md) — before the demo.
+- [slides/AFTER-L2.md](slides/AFTER-L2.md) — after it.
+
+Slide plans for Claude Design: takeaway, content, visual and speaker note per slide,
+with deck-level design direction at the top.
