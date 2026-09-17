@@ -38,6 +38,12 @@ git show level-1-dictating-after --stat | head
 Name one specific miss: at Level 1 the decision on whether email is required was made
 alone, differently on different runs, and reported only in chat.
 
+**If asked which run this is:** `level-1-dictating-after` holds **run 3 of 3** — the
+typical one (email optional, 118 s, $0.76, 78 tests). Runs 1 and 2 are on `demo-notes`
+under `level-1/runs/`. Run 1 is the outlier that made email *required* and cost $1.85.
+Say so plainly if the 3× spread came up in the Level 1 segment: you are comparing
+against the median run, not the flattering one.
+
 ### 2. Run `/extract-conventions` live (2–3 min)
 
 ```sh
@@ -65,6 +71,22 @@ cat .github/copilot-instructions.md   # points at the same source
 ```
 
 The tool-independence argument, made without a slide.
+
+### 3b. Aside — the pointer that did nothing (45 s, optional but strong)
+
+Use it if the room is technical, or hold it for Level 3.
+
+`CLAUDE.md` started as a plain link to `AGENTS.md`. A fresh session then reported
+**zero directives** — it knew the filename and nothing else. Claude Code auto-loads
+`CLAUDE.md` only. The habitat looked complete on disk and was doing nothing; the Level 2
+run would have behaved exactly like Level 1 and this entire comparison would have been
+worthless.
+
+The fix is the `@AGENTS.md` import line they just saw in `CLAUDE.md`.
+
+**The point:** a pointer file a tool ignores is indistinguishable from one that works,
+right up until the demo. You cannot verify a habitat by looking at it. Evidence:
+[agents-md-not-loaded-audit.txt](agents-md-not-loaded-audit.txt).
 
 ### 4. Re-run the identical prompt (2 min)
 
@@ -96,6 +118,17 @@ git diff level-1-dictating..level-2-commanding --stat
 ```
 
 6 files, 190 insertions, **zero source files**.
+
+### 5b. What it cost (20 s)
+
+Someone will ask, and it is better volunteered than extracted.
+
+- **$0.76 at Level 1, $1.06 at Level 2** — about 40% more, for the larger prompt.
+- **Time did not move:** 118 s against 120 s.
+- Compare with Level 1's own spread for the *same* prompt: **$0.61 to $1.85**.
+
+**The point:** habitat is not free and it is not slow. It costs less than the variance
+it removes. You are buying determinism, not speed.
 
 ### 6. Then show the drift (1 min) — while the win is warm
 

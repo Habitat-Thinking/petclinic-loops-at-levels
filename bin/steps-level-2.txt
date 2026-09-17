@@ -1,0 +1,101 @@
+# Level 2 — Commanding. Beats for ./bin/demo run 2
+
+### Show the gap, not the fix
+TIME: 10s
+SAY: Name one specific miss from Level 1: the required-vs-optional decision was made
+SAY: alone, differently on different runs, and reported only in chat.
+SAY: Do not re-run Level 1.
+SAY: If asked which run this is: run 3 of 3 — the typical one, email optional, 118s,
+SAY: $0.76. Runs 1 and 2 are on demo-notes if anyone wants them.
+CMD: git show level-1-dictating-after --stat | head -20
+MODE: run
+
+### Launch the Level 2 profile
+TIME: 15s
+SAY: Same clean room as Level 1 plus one flag: --plugin-dir, loading
+SAY: ai-literacy-superpowers 0.91.0. Everything else is identical and pinned.
+CMD: ~/.claude-loops-at-levels-l2/launch
+MODE: manual
+
+### Run /extract-conventions live
+TIME: 2-3 min
+SAY: Five questions, one at a time, each with a follow-up and a categorisation.
+SAY: The value on screen: the questions are about YOUR project, not about AI.
+SAY: Answer crisply. A vague "carry on" made it commit and launch /harness-audit on its
+SAY: own initiative in rehearsal. If it offers to go further, say "no, stop there".
+SAY: CUT POINT: past ~3 minutes at question 3, say "I have answered the rest already"
+SAY: and move on. Your answers are in level-2/extract-conventions-exchange.md.
+CMD: /extract-conventions
+MODE: copy
+
+### Open the three files
+TIME: 20s
+SAY: AGENTS.md holds the substance. CLAUDE.md is 7 lines. The Copilot file points at the
+SAY: same source. One source, many readers — tool independence without a slide.
+CMD: head -30 AGENTS.md; echo '--- CLAUDE.md ---'; cat CLAUDE.md; echo '--- copilot ---'; cat .github/copilot-instructions.md
+MODE: run
+
+### Aside — the pointer that did nothing
+TIME: 45s
+SAY: Optional but strong. CLAUDE.md started as a plain link to AGENTS.md. A fresh
+SAY: session then reported ZERO directives — it knew the filename and nothing else.
+SAY: Claude Code auto-loads CLAUDE.md only. The habitat looked complete on disk and was
+SAY: doing nothing. The fix is the @AGENTS.md import line you just saw.
+SAY: The point: a pointer file a tool ignores is indistinguishable from one that works,
+SAY: right up until the demo. You cannot verify a habitat by looking at it.
+CMD: cat level-2/agents-md-not-loaded-audit.txt
+MODE: manual
+
+### Re-run the identical prompt
+TIME: 2 min
+SAY: Say it while it runs: same model, same prompt, same machine. The only change is
+SAY: what the repository says about itself.
+SAY: Rehearsed: 120s, 10 turns, $1.06, 78 tests green.
+CMD: Add an email address to owners. It should be shown on the owner details page and be editable when creating or editing an owner.
+MODE: copy
+
+### The moment — diff the two outputs
+TIME: 60s
+SAY: Point at three things: email kept OUT of Owner.toString() as personal data, where
+SAY: Level 1 put it in. Both integration tests extended, proving the column on MySQL and
+SAY: Postgres. Six numbered Decisions, where Level 1 decided silently.
+SAY: Then stop talking for a beat.
+CMD: git diff level-1-dictating-after..level-2-commanding-after -- src/
+MODE: run
+
+### The habitat that caused it
+TIME: 20s
+SAY: Six files, 190 insertions, zero source files. The -- src/ restriction on the last
+SAY: diff is what keeps it honest: habitat files live outside src/, so they can never
+SAY: flatter the output comparison.
+CMD: git diff level-1-dictating..level-2-commanding --stat
+MODE: run
+
+### What it cost
+TIME: 20s
+SAY: $0.76 at Level 1, $1.06 at Level 2 — about 40% more, for the larger prompt. Time
+SAY: did not move: 118s against 120s.
+SAY: Habitat is not free, and it is not slow. You are buying determinism, not speed.
+SAY: Compare with Level 1's own spread: $0.61 to $1.85 for the same prompt. The habitat
+SAY: costs less than the variance it removes.
+
+### The drift — while the win is warm
+TIME: 60s
+SAY: The decisions went into the chat. There is no PR. Nothing in the working tree
+SAY: records them. Close the terminal and the reasoning is gone — the Level 1 failure,
+SAY: wearing a compliance badge.
+SAY: Directive 12 named a destination that does not exist, and nothing checked where the
+SAY: decisions actually landed.
+SAY: Second, if time: it knowingly shipped VARCHAR(255) with no @Size, so an over-length
+SAY: email is a database error not a form error. It surfaced it as Decision 2 rather
+SAY: than fixing it. Advice can note a defect. It cannot stop one.
+CMD: git log -1 --format=%B level-2-commanding-after | head -25
+MODE: run
+
+### End on the reflection
+TIME: 30s
+SAY: The entry is already in the log, and it already proposes the two checks that become
+SAY: constraints at Level 3.
+SAY: Last line: we will come back for this.
+CMD: cat REFLECTION_LOG.md
+MODE: run

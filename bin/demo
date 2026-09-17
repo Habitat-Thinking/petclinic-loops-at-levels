@@ -1,0 +1,237 @@
+#!/bin/zsh
+# Demo assistant for "(Agentic) Loops At Levels, Live".
+#
+#   ./bin/demo preflight <level>   check the machine is ready; --fix repairs what is safe
+#   ./bin/demo run <level>         teleprompt the segment, one beat at a time
+#   ./bin/demo fallback <level>    abandon a wandering live run
+#   ./bin/demo profiles            show the profile table and auth state
+#
+# Beats live in bin/steps-level-<n>.txt so they can be edited without touching this file.
+# Nothing here talks to a model: it is deliberately boring, so it cannot surprise you
+# on stage.
+
+set -u
+emulate -L zsh
+setopt no_nomatch
+
+HERE=${0:A:h}
+NOTES=${HERE:h}
+REPO=${REPO:-$HOME/code/Habitat-Thinking/petclinic-loops-at-levels}
+PIN_CC_VERSION="2.1.273"   # clean room re-verified on this build, 2026-09-17
+PIN_PLUGIN_VERSION="0.91.0"
+
+# Colours, dropped when not a terminal.
+if [[ -t 1 ]]; then
+  B=$'\e[1m'; DIM=$'\e[2m'; R=$'\e[0m'; GRN=$'\e[32m'; RED=$'\e[31m'; YEL=$'\e[33m'; CYN=$'\e[36m'
+else
+  B=""; DIM=""; R=""; GRN=""; RED=""; YEL=""; CYN=""
+fi
+
+ok(){ print -r -- "${GRN}  ok  ${R} $1" }
+bad(){ print -r -- "${RED} FAIL ${R} $1"; FAILED=$((FAILED+1)) }
+warn(){ print -r -- "${YEL} warn ${R} $1"; WARNED=$((WARNED+1)) }
+hdr(){ print -r -- ""; print -r -- "${B}$1${R}" }
+
+profile_dir(){ [[ $1 == 1 ]] && print -r -- "$HOME/.claude-loops-at-levels" || print -r -- "$HOME/.claude-loops-at-levels-l2" }
+branch_for(){ [[ $1 == 1 ]] && print -r -- "level-1-dictating" || print -r -- "level-2-commanding" }
+after_for(){ print -r -- "$(branch_for $1)-after" }
+
+# Auth check must not export USER: with a custom CLAUDE_CONFIG_DIR a set USER breaks
+# the keychain lookup. This is the trap that would fail on stage and never in rehearsal.
+auth_ok(){
+  local p=$1
+  env -i HOME="$HOME" PATH="$PATH" CLAUDE_CONFIG_DIR="$p" claude auth status 2>/dev/null \
+    | grep -q '"loggedIn": true'
+}
+
+preflight(){
+  local level=$1 fix=${2:-}
+  local profile=$(profile_dir $level) branch=$(branch_for $level) after=$(after_for $level)
+  FAILED=0; WARNED=0
+
+  hdr "Preflight — Level $level"
+
+  # Docker: the database integration tests skip silently without it.
+  if docker info >/dev/null 2>&1; then
+    ok "Docker running ($(docker info --format '{{.ServerVersion}}' 2>/dev/null))"
+  elif [[ $fix == --fix ]]; then
+    print -r -- "      starting Docker Desktop…"
+    open -a Docker
+    local n=0
+    while ! docker info >/dev/null 2>&1 && (( n < 60 )); do sleep 2; n=$((n+1)); done
+    docker info >/dev/null 2>&1 && ok "Docker started" || bad "Docker did not start"
+  else
+    bad "Docker not running — 2 tests will skip and '78 tests' becomes 76. (--fix starts it)"
+  fi
+
+  # Claude Code version: the clean-room behaviour was verified against one build.
+  local v=$(claude --version 2>/dev/null | awk '{print $1}')
+  [[ $v == $PIN_CC_VERSION ]] && ok "Claude Code $v (as verified)" \
+    || warn "Claude Code $v, notes were verified against $PIN_CC_VERSION — re-run the context audit"
+
+  # Profile: logged in, and clean of rehearsal state.
+  if [[ -x $profile/launch ]]; then ok "launcher $profile/launch"; else bad "no launcher at $profile/launch"; fi
+  if auth_ok $profile; then
+    ok "profile logged in"
+  else
+    bad "profile NOT logged in — run:
+         env -i HOME=\"\$HOME\" PATH=\"\$PATH\" TERM=\"\$TERM\" CLAUDE_CONFIG_DIR=\"$profile\" claude auth login"
+  fi
+  if [[ -d $profile/projects ]]; then
+    if [[ $fix == --fix ]]; then rm -rf $profile/projects; ok "cleared rehearsal state"
+    else warn "rehearsal state present ($profile/projects) — stale session history. (--fix clears it)"; fi
+  else
+    ok "no rehearsal state"
+  fi
+
+  # Level 2 only: the plugin, pinned.
+  if [[ $level == 2 ]]; then
+    local pdir=$profile/plugins/cache/ai-literacy-superpowers/ai-literacy-superpowers/$PIN_PLUGIN_VERSION
+    [[ -d $pdir ]] && ok "plugin ai-literacy-superpowers $PIN_PLUGIN_VERSION" \
+      || bad "plugin $PIN_PLUGIN_VERSION missing at $pdir"
+    grep -q -- "--plugin-dir" $profile/launch 2>/dev/null && ok "launcher loads the plugin" \
+      || bad "launcher is missing --plugin-dir"
+  else
+    grep -q -- "--plugin-dir" $profile/launch 2>/dev/null \
+      && bad "Level 1 launcher has --plugin-dir — that is the Level 2 profile" \
+      || ok "launcher has no plugin (correct for Level 1)"
+  fi
+
+  # Repository state.
+  if [[ -d $REPO/.git ]]; then
+    local cur=$(git -C $REPO rev-parse --abbrev-ref HEAD)
+    # A branch checked out in another worktree cannot be switched to here.
+    local holder=$(git -C $REPO worktree list --porcelain | awk -v b="refs/heads/$branch" '
+      /^worktree /{w=$2} /^branch /{if ($2==b) print w}')
+    if [[ -n $holder && $holder != $(cd $REPO && pwd -P) ]]; then
+      bad "$branch is checked out in another worktree: $holder — remove it (git worktree remove) or run the demo there"
+    fi
+    if [[ $cur == $branch ]]; then ok "on $branch"
+    elif [[ $fix == --fix ]]; then
+      if [[ -n $(git -C $REPO status --porcelain) ]]; then bad "cannot switch: working tree dirty"
+      else git -C $REPO switch -q $branch && ok "switched to $branch"; fi
+    else
+      bad "on $cur, expected $branch (--fix switches)"
+    fi
+    [[ -z $(git -C $REPO status --porcelain) ]] && ok "working tree clean" || bad "working tree dirty — commit or discard first"
+
+    # Fallback branches must be pushed: you may need one mid-sentence.
+    local missing=0
+    for b in level-1-dictating-after level-2-commanding-after; do
+      git -C $REPO show-ref -q --verify refs/remotes/origin/$b || { warn "$b not on origin"; missing=1 }
+    done
+    (( missing == 0 )) && ok "fallback branches pushed"
+  else
+    bad "no repository at $REPO"
+  fi
+
+  # Maven cache: a cold cache turns a 21s build into 134s of dead air.
+  [[ -d $HOME/.m2/repository/org/springframework/boot ]] && ok "Maven cache warm" \
+    || warn "Maven cache looks cold — run ./mvnw -B verify once in $REPO"
+
+  hdr "Result"
+  if (( FAILED > 0 )); then
+    print -r -- "${RED}$FAILED blocking problem(s)${R}, $WARNED warning(s). Fix before going on."
+    return 1
+  fi
+  print -r -- "${GRN}Ready.${R} $WARNED warning(s)."
+  print -r -- "${DIM}Not checkable from here: terminal font size, scrollback cleared, notifications off.${R}"
+  return 0
+}
+
+# Teleprompter. Each beat: what to say, then the command — run for you, or copied to
+# the clipboard when it must be typed into an agent session.
+run_segment(){
+  local level=$1
+  local steps=$HERE/steps-level-$level.txt
+  [[ -f $steps ]] || { print -r -- "No steps file: $steps"; return 1 }
+
+  preflight $level || {
+    print -r -- ""
+    print -rn -- "${YEL}Preflight failed.${R} Continue anyway? [y/N] "
+    read -r a; [[ $a == [yY] ]] || return 1
+  }
+
+  local -a titles times says cmds modes
+  local title="" time="" say="" cmd="" mode=""
+  flush(){
+    [[ -z $title ]] && return
+    titles+=("$title"); times+=("$time"); says+=("$say"); cmds+=("$cmd"); modes+=("${mode:-manual}")
+    title=""; time=""; say=""; cmd=""; mode=""
+  }
+  while IFS= read -r line; do
+    case $line in
+      "### "*) flush; title=${line#\#\#\# } ;;
+      "TIME: "*) time=${line#TIME: } ;;
+      "SAY: "*)  say+="${line#SAY: }"$'\n' ;;
+      "CMD: "*)  cmd=${line#CMD: } ;;
+      "MODE: "*) mode=${line#MODE: } ;;
+    esac
+  done < $steps
+  flush
+
+  local total=${#titles[@]} i=1
+  print -r -- ""; print -r -- "${B}Level $level — $total beats${R}  ${DIM}[Enter] next · [r] repeat · [s] skip · [f] fallback · [q] quit${R}"
+  print -r -- "${DIM}Working directory: $REPO${R}"
+
+  while (( i <= total )); do
+    print -r -- ""; print -r -- "${CYN}────────────────────────────────────────────────────────${R}"
+    print -r -- "${B}Beat $i/$total — ${titles[$i]}${R}  ${DIM}${times[$i]}${R}"
+    print -r -- ""
+    print -rn -- "${says[$i]}" | sed 's/^/  /'
+    if [[ -n ${cmds[$i]} ]]; then
+      print -r -- ""
+      print -r -- "  ${B}\$ ${cmds[$i]}${R}"
+      case ${modes[$i]} in
+        run)  print -r -- "  ${DIM}[Enter] runs it here${R}" ;;
+        copy) print -r -- "  ${DIM}[Enter] copies it to the clipboard — paste into the agent session${R}" ;;
+        *)    print -r -- "  ${DIM}type this yourself${R}" ;;
+      esac
+    fi
+    print -r -- ""
+    print -rn -- "${DIM}beat $i>${R} "
+    read -r key
+    case $key in
+      q) print -r -- "Stopped."; return 0 ;;
+      s) i=$((i+1)); continue ;;
+      r) continue ;;
+      f) fallback $level; continue ;;
+      *)
+        case ${modes[$i]} in
+          run)  [[ -n ${cmds[$i]} ]] && { print -r -- ""; eval "cd $REPO && ${cmds[$i]}" } ;;
+          copy) [[ -n ${cmds[$i]} ]] && { print -rn -- "${cmds[$i]}" | pbcopy; print -r -- "  ${GRN}copied${R}" } ;;
+        esac
+        i=$((i+1))
+        ;;
+    esac
+  done
+  print -r -- ""; print -r -- "${GRN}Segment complete.${R}"
+}
+
+fallback(){
+  local level=$1 after=$(after_for $1)
+  print -r -- ""; print -r -- "${YEL}Fallback:${R} switching to $after (committed, unedited, builds green)."
+  print -r -- "Say it is a recording. The audience forgives a fallback, not a fiction."
+  git -C $REPO switch -q $after && git -C $REPO log --oneline -1
+}
+
+profiles(){
+  print -r -- ""; print -r -- "${B}Profiles${R}"
+  local p="" a=""
+  for l in 1 2; do
+    p=$(profile_dir $l)
+    if auth_ok $p; then a="${GRN}logged in${R}"; else a="${RED}logged OUT${R}"; fi
+    print -r -- "  Level $l  $p  [$a]"
+    print -r -- "           launcher: $p/launch"
+  done
+  print -r -- ""; print -r -- "${DIM}The launchers differ by one flag: Level 2 adds --plugin-dir.${R}"
+  print -r -- "${DIM}Neither passes USER: with a custom config dir that breaks the keychain lookup.${R}"
+}
+
+case ${1:-} in
+  preflight) preflight ${2:?level} ${3:-} ;;
+  run)       run_segment ${2:?level} ;;
+  fallback)  fallback ${2:?level} ;;
+  profiles)  profiles ;;
+  *) print -r -- "usage: demo {preflight|run|fallback} <level> | demo profiles" ; exit 2 ;;
+esac

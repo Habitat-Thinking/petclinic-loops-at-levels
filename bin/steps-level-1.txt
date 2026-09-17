@@ -1,0 +1,52 @@
+# Level 1 — Dictating. Beats for ./bin/demo run 1
+# MODE: run = the script runs it | copy = copied to clipboard to paste into the agent
+#       manual = you type it
+
+### Launch the clean room
+TIME: 20s
+SAY: Say what it is while it starts: a Claude Code with no memory file, no plugins,
+SAY: no MCP servers, no project context. Nothing but the model and the repository.
+SAY: This is the Level 1 profile — no plugin. Check the launcher path on screen.
+CMD: ~/.claude-loops-at-levels/launch
+MODE: manual
+
+### Paste the frozen prompt
+TIME: 10s
+SAY: Verbatim. This exact wording is reused at every level; changing a word breaks
+SAY: the comparison. It is copied to your clipboard now — do not retype it.
+CMD: Add an email address to owners. It should be shown on the owner details page and be editable when creating or editing an owner.
+MODE: copy
+
+### While it runs
+TIME: 90s-300s
+SAY: Observed 91s to 294s. Plan for two minutes, be ready for five.
+SAY: Talk over it: the model is re-deriving what your team already knows, and you are
+SAY: paying for that rediscovery every single time.
+SAY: Three questions for the room: does it do the job? what does it decide that nobody
+SAY: asked it to decide? and where does that decision live when the terminal closes?
+
+### Point 1 — it did the work well
+TIME: 30s
+SAY: Do not undersell this. All three schemas, seed data, real translations in 10
+SAY: locale bundles, tests, green build. The argument is stronger if they believe you
+SAY: would have told them it failed.
+
+### Point 2 — why it did so well
+TIME: 30s
+SAY: The repository already had a harness: I18nPropertiesSyncTest fails the build on an
+SAY: unlocalised string or an out-of-sync bundle. The agent did not need a maintainer's
+SAY: knowledge — a failing test told it.
+SAY: Enforced context is the context that survives. That is Level 3, arriving early and
+SAY: uninvited, from upstream.
+
+### Point 3 — the decision it made alone
+TIME: 45s
+SAY: Scroll to the final message. It chose whether email is required, decided alone, and
+SAY: told you in chat. Run 1 decided the opposite way from runs 2 and 3.
+SAY: Where does that decision live now? Nowhere. Close the terminal and it is gone.
+
+### Point 4 — what re-deriving costs
+TIME: 30s
+SAY: 294s and $1.85 against 91s and $0.61. Same prompt, same model, same commit.
+SAY: 3.2x the time, 3.0x the cost. For the managers in the room: you cannot plan around
+SAY: a workflow whose cost swings 3x at random.
