@@ -1,0 +1,13 @@
+#!/bin/sh
+# Advisory commit-time checks from HARNESS.md. Warns; never blocks a commit.
+# Enable once per clone: git config core.hooksPath .githooks
+
+if [ ! -x scripts/check-decision-record.sh ]; then
+	echo "warning: scripts/check-decision-record.sh not found; decision record not checked" >&2
+	exit 0
+fi
+
+if ! scripts/check-decision-record.sh --staged; then
+	echo "warning: decision record constraint failed (advisory at commit; blocking on pull request)" >&2
+fi
+exit 0

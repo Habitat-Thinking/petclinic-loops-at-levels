@@ -20,5 +20,5 @@ source. They are not repeated here, so this file cannot drift from them.
 
 ## Constraints
 
-None at this level. Everything in this repository is advisory: it is written down,
-and nothing verifies it. That is the point of Level 2.
+Which AGENTS.md rules are checked, and how, is declared in
+[HARNESS.md](../HARNESS.md). They are not repeated here.

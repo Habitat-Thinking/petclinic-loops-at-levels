@@ -7,9 +7,26 @@ vendor file point here and add nothing of their own.
 Extracted from the maintainer on 2026-09-16 via `/extract-conventions`, answering
 five questions about tacit team knowledge.
 
-**At this level everything here is advisory.** It is written down, and nothing
-verifies it. What that is worth, and where it runs out, is the subject of the next
-level.
+**This file governs the turn**: what to do while making a change. `HARNESS.md`
+governs the loop: what must be true of a change before it is allowed in, checked by
+tools that run whether or not anyone is watching.
+
+Most of what is here is still advice. Where a directive is also enforced, it says so,
+and the enforcing constraint is named in `HARNESS.md`.
+
+Three directives moved to `HARNESS.md` when the harness was built, because each named
+a loop artefact — a passing build, a clean formatter run, a record attached to a
+change — rather than describing how to make the change:
+
+| Was | Now |
+|-----|-----|
+| "No failing or skipped tests" | `HARNESS.md` → **Tests must pass** (deterministic, PR) |
+| "Formatting is clean" | `HARNESS.md` → **Consistent formatting** (deterministic, commit + PR) |
+| "Judgement calls are surfaced … in the PR description" | `HARNESS.md` → **Decision record for source changes** (deterministic, commit + PR) |
+
+The third one changed as it moved, and the change is the point: it used to name the PR
+description, a destination that does not exist while you are working and vanishes
+afterwards. It now names a file in the repository, which a script can check.
 
 ## Must follow
 
@@ -20,6 +37,7 @@ level.
 2. **Schema changes land in all three databases.** Any change to `db/*/schema.sql`
    lands in `h2`, `mysql` and `postgres` in the same change, with each `data.sql`
    updated to match. The `.txt` setup notes and `user.sql` are out of scope.
+   *Enforced:* `HARNESS.md` → **Schema parity across databases** (`SchemaParityTest`).
 3. **Templates use message keys.** No hardcoded display text in templates; all of it
    comes from `messages*.properties` keys.
 4. **Real translations only.** Never copy English text into non-English locale bundles
@@ -37,21 +55,16 @@ level.
 8. **Every dependency is a supply-chain decision.** No new dependency without a stated
    reason, confirmation that the existing stack can't do the job, and provenance: from
    Maven Central, version pinned, approved by a human in the PR.
-9. **No failing or skipped tests.** No new `@Disabled`, `assume*` calls, or deleted or
-   commented-out tests. Any change touching `db/**`, entities or repositories must show
-   that `MySqlIntegrationTests` and `PostgresIntegrationTests` actually ran — not
-   skipped for lack of Docker.
-10. **Formatting is clean.** `./mvnw spring-javaformat:validate` passes. (Already
-    enforced by the build: the plugin runs in the `validate` phase.)
-11. **No unrelated reformatting.** Every changed hunk is needed by the change's stated
-    purpose; reformatting untouched code drowns the review.
-12. **Judgement calls are surfaced.** Every choice the task didn't state — required vs
+9. **No unrelated reformatting.** Every changed hunk is needed by the change's stated
+   purpose; reformatting untouched code drowns the review.
+10. **Write down what you decided.** Every choice the task didn't state — required vs
     optional, nullability, length limits, defaults, user-visible naming, error handling
-    — is listed in a "Decisions" section of the PR description.
+    — goes in `decisions/<yyyy-mm-dd>-<slug>.md` as part of the same change. If there
+    genuinely were none, say so there explicitly.
 
 ## Should follow
 
-Exceptions are allowed, but state the reason in the PR's "Decisions" section.
+Exceptions are allowed, but state the reason in the change's decision record.
 
 1. **Reuse the existing fragments.** Form fields use `fragments/inputField` and
    `fragments/selectField`. Add a new fragment only for a genuinely new kind of field,
