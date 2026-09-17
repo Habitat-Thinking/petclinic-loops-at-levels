@@ -1,0 +1,21 @@
+ .../samples/petclinic/owner/Owner.java             | 15 +++++++++
+ src/main/resources/db/h2/data.sql                  | 20 ++++++------
+ src/main/resources/db/h2/schema.sql                |  3 +-
+ src/main/resources/db/mysql/data.sql               | 20 ++++++------
+ src/main/resources/db/mysql/schema.sql             |  1 +
+ src/main/resources/db/postgres/data.sql            | 20 ++++++------
+ src/main/resources/db/postgres/schema.sql          |  3 +-
+ src/main/resources/messages/messages.properties    |  2 ++
+ src/main/resources/messages/messages_de.properties |  2 ++
+ src/main/resources/messages/messages_es.properties |  2 ++
+ src/main/resources/messages/messages_fa.properties |  2 ++
+ src/main/resources/messages/messages_hi.properties |  2 ++
+ src/main/resources/messages/messages_ja.properties |  2 ++
+ src/main/resources/messages/messages_ko.properties |  2 ++
+ src/main/resources/messages/messages_pt.properties |  2 ++
+ src/main/resources/messages/messages_ru.properties |  2 ++
+ src/main/resources/messages/messages_tr.properties |  2 ++
+ .../templates/owners/createOrUpdateOwnerForm.html  |  1 +
+ .../resources/templates/owners/ownerDetails.html   |  4 +++
+ .../petclinic/owner/OwnerControllerTests.java      | 36 +++++++++++++++++++++-
+ 20 files changed, 110 insertions(+), 33 deletions(-)
