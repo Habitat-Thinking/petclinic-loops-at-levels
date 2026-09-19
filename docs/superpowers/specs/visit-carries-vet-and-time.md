@@ -3,7 +3,7 @@ slice: S2
 slice_record: docs/superpowers/slices/owner-books-visit-against-vet-availability.md
 title: "What a booked visit becomes — vet, time of day, and the existing visit rows"
 date: 2026-09-19
-revised: 2026-09-19 — objection adjudication (O1 and O2 closed; O3–O11 deferred)
+revised: 2026-09-19 — objection adjudication (O1 and O2 closed; O3–O11 deferred); choice story #10 accepted (stance stated, no decision added)
 objections: docs/superpowers/objections/visit-carries-vet-and-time.md
 status: draft — awaiting maintainer adjudication of the decisions below
 ---
@@ -150,6 +150,23 @@ The form pre-fills tomorrow's date, as it does today, and pre-fills a start
 time of 09:00. Reasoning: consistency with the existing default, and a
 pre-filled control that a user can change is plainer than an empty required
 field.
+
+### The stance these decisions add up to: shape is guaranteed, meaning is not
+
+Every constraint this change buys is about a field being **present** — a vet and
+a start time on every visit, with a foreign key to `vets`, in all three
+dialects. None is about the recorded value being **true**: nothing makes a
+vet-and-time pair unique, binds the date to the time, bounds how far ahead a
+visit may be, or says anything about working hours or duration.
+
+That is deliberate. This change guarantees the *shape* of a booking and
+guarantees nothing about its *meaning*. The slices that add meaning — S1
+(availability) and S5 (contention) — inherit that as a stated position rather
+than as an accident of what was cheap to land here, and S4 inherits it too.
+
+*(Source: choice story #10, "Constraint spent on presence, not on truth", in
+[`docs/superpowers/stories/visit-carries-vet-and-time.md`](../stories/visit-carries-vet-and-time.md).
+The full argument lives there and is not restated here.)*
 
 ## User story
 

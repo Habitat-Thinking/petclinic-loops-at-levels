@@ -52,8 +52,8 @@ stories:
   - id: 10
     lens: [coherence]
     title: Constraint spent on presence, not on truth
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "Send #10 back to the spec — one sentence stating the position, so the later slices inherit it deliberately."
 ---
 
 # Choice stories — visit carries a vet and a time of day
