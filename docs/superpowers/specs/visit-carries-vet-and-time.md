@@ -3,7 +3,7 @@ slice: S2
 slice_record: docs/superpowers/slices/owner-books-visit-against-vet-availability.md
 title: "What a booked visit becomes — vet, time of day, and the existing visit rows"
 date: 2026-09-19
-revised: 2026-09-19 — objection adjudication (O1 and O2 closed; O3–O11 deferred); choice story #10 accepted (stance stated, no decision added); choice story #6 accepted (D8 fixes the English words behind the two new keys; FR-18 and AS-14 key the form's two existing labels); choice stories #12, #15 and #17 accepted (FR-18 re-keyed to `visitDate`; FR-19 keys the form heading; FR-20 keys the confirmation message; the stance subsection routed to the decision record)
+revised: 2026-09-19 — objection adjudication (O1 and O2 closed; O3–O11 deferred); choice story #10 accepted (stance stated, no decision added); choice story #6 accepted (D8 fixes the English words behind the two new keys; FR-18 and AS-14 key the form's two existing labels); choice stories #12, #15 and #17 accepted (FR-18 re-keyed to `visitDate`; FR-19 keys the form heading; FR-20 keys the confirmation message; the stance subsection routed to the decision record); FR-19 re-keyed to a single `newVisit` heading key (the two-key composition abandoned, the `visit` key dropped unused, the `visit['new']` conditional removed from the heading)
 objections: docs/superpowers/objections/visit-carries-vet-and-time.md
 status: draft — awaiting maintainer adjudication of the decisions below
 ---
@@ -385,7 +385,7 @@ Each is testable and traces to at least one scenario above.
 | **FR-16** | No owner personal data is added to any output. The vet's first and last name is vet data, already published on the vets page, and is the only new personal-ish field rendered. |
 | **FR-17** | No availability is consulted and no clash is prevented: any vet may be recorded at any time of day on any future date, including a time another visit already uses. *(D4, AS-13)* |
 | **FR-18** | The two labels already on the new-visit form — its date field and its description field — come from existing message keys instead of the hardcoded English literals `Date` and `Description` they are given today. The date field uses `visitDate`, the same key the owner's page already uses for that column; the description field uses `description`. The form's own previous-visits table heads its date column with that same `visitDate` key, so the day a visit happens is named identically on both screens. No key is added and no translation is written: both keys already exist in `messages.properties` and are already translated in all ten locale bundles. *(AS-14)* |
-| **FR-19** | The new-visit form's page heading comes entirely from message keys, with no English word rendered as template text. This adds one key, `visit`, holding the English `Visit`, to `messages.properties` and to every locale bundle with a genuine translation, under the same never-copy-English rule as FR-15. *(AS-16)* |
+| **FR-19** | The new-visit form's page heading comes entirely from **one** message key, with no English word rendered as template text and no heading assembled from separate keys. This adds one key, `newVisit`, holding the English `New Visit`, to `messages.properties` and to every locale bundle with a genuine translation **of the whole heading**, under the same never-copy-English rule as FR-15. The form creates only new visits, so the heading has no second form: the condition that today selects the word `New` is removed with the composition, and no `visit` key is added. *(AS-16)* |
 | **FR-20** | The confirmation message shown after a visit is recorded comes from a message key rather than a hardcoded English sentence in the controller. This adds one key, `visitBooked`, holding the existing English sentence `Your visit has been booked`, to `messages.properties` and to every locale bundle with a genuine translation, under the same never-copy-English rule as FR-15. The sentence's wording is carried across unchanged. *(AS-15, AS-2)* |
 
 ### Note on FR-18 — a directive-3 violation closed, as a stated exception to directive 9
@@ -459,36 +459,95 @@ draws: a violation in a file this change already edits, not one gone looking
 for. FR-19 closes it on exactly that ground, and the exception to directive 9 is
 the one already stated for FR-18, not a second one.
 
-**This one is not free.** No `visit` or `visits` key exists in
-`messages.properties` today, so FR-19 adds a key and therefore ten translations.
-That cost is named here rather than buried: the honest alternative was to record
-the heading as a known remaining violation and stop, and it was not taken.
+**This one is not free.** No `newVisit` key exists in `messages.properties`
+today, so FR-19 adds a key and therefore ten translations. That cost is named
+here rather than buried: the honest alternative was to record the heading as a
+known remaining violation and stop, and it was not taken.
 
-The English word is **`Visit`**, and the criterion for choosing it is **D8's,
-extended rather than replaced**. D8 chose its two words by asking whether a
-translator can derive the new string from one the bundle already holds. `Visit`
-passes that test by a slightly weaker route than D8's two did: the word does not
-stand alone in any bundle, but it is already carried *inside* phrases that every
-bundle has. A German translator holding `addVisit=Besuch hinzufügen` and
-`visitDate=Besuchsdatum` has "Besuch" twice in front of them; the same holds in
-every bundle that translates those two keys. So this is a derivation from an
-existing entry, as D8 requires, with the derivation being extraction from a
-phrase rather than inflection of a word. D8 is unchanged and gains no clause;
-this is FR-19 applying D8's criterion to a third word.
+**One key, not two — and why the composition was abandoned.** An earlier
+revision of FR-19 keyed this heading as `#{new}` + a new `#{visit}`, and named,
+as a translator's problem it was leaving open, that a heading assembled from two
+keys inherits the grammar of neither: English `New` + `Visit` reads correctly,
+German `Neu` + `Besuch` gives *Neu Besuch* where German wants *Neuer Besuch*,
+because the adjective inflects before the noun. That is not an implementation
+defect that a better composition would fix — **no two-key composition can
+express the inflection**, in German or in any other language that inflects a
+word before a noun. So the maintainer has taken the alternative that revision
+recorded as wider than the change: **the whole heading is one key per locale.**
+`newVisit` holds the English `New Visit`, each bundle holds its own whole
+heading — `Neuer Besuch` — and the grammar defect is closed rather than
+documented.
 
-**A cost this creates, stated because it is a translator's problem and not an
-implementer's.** A heading assembled from two keys inherits the grammar of
-neither. English `New` + `Visit` reads correctly; German `Neu` + `Besuch` gives
-*Neu Besuch* where German wants *Neuer Besuch*, because the adjective inflects
-before the noun. FR-19 requires only that no English word survives in the
-heading; it does not decide whether the fix is two keys composed or one key
-holding the whole heading per locale. That is a plan-level choice, and the plan
-records it.
+**The English words are `New Visit`, and D8's criterion is met only in part.**
+D8 chose its two words by asking whether a translator can derive the new string
+from one the bundle already holds, and FR-19's earlier `Visit` passed that test
+by extraction: every bundle carries the noun inside `addVisit` and `visitDate`.
+`New Visit` does not pass it as cleanly. The *vocabulary* is present — a German
+translator has `new=Neu` and `Besuch` twice over — but the *grammar* that joins
+them is in no bundle, and getting `Neuer` rather than `Neu` is a judgement only
+a speaker of the language can make. So `newVisit` sits between D8's two words
+and FR-20's sentence: dearer than a noun, cheaper than a claim, and **not
+derivable in D8's sense**. D8 is unchanged and gains no clause; this records
+where FR-19 no longer meets it.
+
+**The `visit['new']` conditional does not survive, and this was checked before
+it was decided.** Today the heading reads
+`<th:block th:if="${visit['new']}" th:text="#{new}">New </th:block> Visit`, a
+construction that distinguishes a new visit from an existing one. **That
+distinction is unreachable.** `VisitController` declares exactly two mappings, a
+GET and a POST, both on `/owners/{ownerId}/pets/{petId}/visits/new`, and the
+`@ModelAttribute("visit")` method that runs before both constructs a brand-new
+`Visit` on every request. No path in the application renders this form against a
+persisted visit, so the condition is always true and the heading's other form
+has never been rendered by anything. **The conditional is therefore removed**
+along with the composition, and the heading is unconditionally the one key.
+There is no non-new heading and this requirement does not invent one: if a later
+slice ever edits an existing visit, that slice needs a heading of its own and
+pays for it then.
+
+Two consequences of removing `#{new}` from this template, both checked:
+`pets/createOrUpdatePetForm.html` still uses the `new` key, so the key is not
+orphaned in eleven bundles and this change does not touch that file; and the
+`${!visit['new']}` condition further down this same template, on the
+previous-visits rows, is untouched and unaffected — its `visit` is the row
+being iterated, not the model attribute, which is precisely how the blank
+visit the controller attaches is kept out of the list.
+
+**The `visit` key is not added.** The previous revision added `visit` = `Visit`
+for this heading and for nothing else. With the heading resolving from
+`newVisit`, nothing in this change references it: the form's previous-visits
+table heads its columns with `visitDate` (FR-18), `description`, `visitTime` and
+`vet`; its button uses `addVisit`; its section uses `previousVisits`; and the
+owner's page adds no heading beyond `visitTime` and `vet`. `visit` is therefore
+**dropped from this requirement** rather than written into eleven properties
+files with no consumer. The change still adds four keys and no more:
+`visitTime`, `vet`, `newVisit`, `visitBooked`.
+
+**This is the second increase to this change's translation obligation in one
+sitting, and it enlarges deferred objection O6 again.** The count does not move:
+four keys and forty translations, as the previous revision left it. What moves
+is what those forty cost. Before this revision, thirty of them were derivable
+from something a bundle already held and ten were not. Now **twenty are
+derivable and twenty are not** — `visitBooked`'s ten sentences, composed from
+nothing at all, and `newVisit`'s ten headings, whose words every bundle holds
+but whose grammar none of them supplies. The share of this change's translation
+bill that no translator can derive has **doubled**, in the same sitting in which
+the bill itself first doubled from twenty strings to forty. O6 objects that a
+missing translation becomes a blocked pull request under the harness's *Tests
+must pass* gate, with no sanctioned route out; every string a translator must
+compose rather than derive is a string likelier to arrive late or wrong, so this
+revision widens exactly the surface O6 names, for the second time today.
+**O6 is not closed, reduced or worked around by this revision either.** It
+remains deferred, with no stated trigger, and the maintainer has accepted this
+second increase knowing that.
 
 *(Source: choice story #15, "The rule stops at the field labels", which named
 extending FR-18 by one line to the heading, and named honestly that if no
 existing key fits then this one does cost a translation. It does, and it is
-taken anyway.)*
+taken anyway. The single-key form of that fix was named in the previous
+revision — in this note and in the plan's risk list — as an option wider than
+the change; the maintainer has now taken it, on the grammar ground stated
+above.)*
 
 ### Note on FR-20 — ten fresh sentence translations, and what that does to O6
 
@@ -509,10 +568,14 @@ an inflection of it. `visitBooked` is a fresh coinage in ten languages, and a
 sentence is harder to translate well than a noun — it carries tense, agency and
 a claim about what the clinic has agreed to. FR-20 therefore adds **ten fresh
 sentence translations** to this change. Counted against the rest: FR-18 adds
-zero, FR-15's two keys add twenty derivable words, FR-19 adds ten extractable
-words, and FR-20 adds ten sentences nobody can derive. Forty translations in
-total, of which these ten are the only ones a translator must compose from
-nothing.
+zero, FR-15's two keys add twenty derivable words, FR-19 adds ten headings whose
+words are in every bundle but whose grammar is in none, and FR-20 adds ten
+sentences nobody can derive at all. Forty translations in total, of which twenty
+are derivable and twenty are not; these ten are the only ones a translator must
+compose from nothing whatever. *(FR-19's line in this count was ten derivable,
+extractable words when this note was first written; the later re-keying of
+FR-19 to a single `newVisit` heading moved them, and the note under FR-19
+records that as the second increase in the same sitting.)*
 
 **This raises O6's exposure, and O6 is still deferred.** O6 objects that
 FR-15's "flag the missing locale for a human" becomes, under the harness's
@@ -578,6 +641,18 @@ amended FR-8's and FR-15's wording to stay consistent with FR-20 and with the
 new key count. D1–D8 are untouched, nothing is renumbered, and again the new
 scenarios are placed beside their relatives: AS-15 beside AS-2, AS-16 beside
 AS-14.)
+
+(The revision after *that* changed FR-19 only. The heading now resolves from a
+single `newVisit` key instead of a `#{new}` + `#{visit}` composition, the
+`visit` key is dropped unused rather than written into eleven files with no
+consumer, and the heading's `visit['new']` condition goes with the composition
+because `VisitController` can only ever render this form for a new visit.
+AS-16 is unmoved and unchanged, D1–D8 are untouched, no other FR's subject
+changes — FR-20's note has one sentence restated so its count of what is
+derivable stays true — and nothing is renumbered. Four keys and forty
+translations still; what changed is that **twenty of the forty are now
+underivable where ten were**. That is the second enlargement of O6's exposure in
+one sitting, and **O6 is still deferred**. See the note under FR-19.)
 
 ### Deferred — not fixed, by decision
 
