@@ -9,78 +9,78 @@ objections:
     severity: high
     claim: "The user story promises the owner knowledge of who they will see and when to arrive, but FR-17 explicitly declines to support that claim, so the change ships a display that reads as an appointment the clinic never agreed to."
     evidence: "User story: 'I want a visit to record which vet my pet will see and at what time of day, so that when I look at my pet's visits I know who we are seeing and when to arrive.' FR-17: 'No availability is consulted and no clash is prevented: any vet may be recorded at any time of day on any future date, including a time another visit already uses.'"
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "need the spec tightened"
   - id: O2
     category: scope
     severity: high
     claim: "D2 makes vet_id NOT NULL in three schemas, which settles a question the accepted slice record assigns to S4, and makes the S4 option 'the free-date form coexists' materially more expensive to choose."
     evidence: "Spec D2: 'The column is NOT NULL with a foreign key to vets, and no path in the application can create a visit without one.' Slice record S4 decision_focus: 'It decides whether the system has one booking concept or two, whether VisitController keeps its current POST and its typeMismatch.visitDate rejection, and whether the vet field from S2 can ever be required.'"
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "need the spec tightened"
   - id: O3
     category: scope
     severity: high
     claim: "FR-11 and AS-10 describe the visits table 'gaining' required columns, but mysql and postgres schema.sql use CREATE TABLE IF NOT EXISTS, so no already-provisioned database gains them, and the schema-parity check compares files rather than databases."
     evidence: "FR-11: 'The visits table in db/h2, db/mysql and db/postgres each gains a required start-time column and a required vet reference.' src/main/resources/db/mysql/schema.sql:50 'CREATE TABLE IF NOT EXISTS visits ('; src/main/resources/db/postgres/schema.sql:47 same. AS-10 verifies via 'the schema-parity check', and HARNESS.md scopes SchemaParityTest to 'Every column present in db/h2/schema.sql exists in db/mysql/schema.sql and db/postgres/schema.sql'."
-    disposition: pending
-    disposition_rationale: null
+    disposition: deferred
+    disposition_rationale: "need the spec tightened"
   - id: O4
     category: alternatives
     severity: high
     claim: "D2 weighs only 'required now' against 'optional forever' and does not weigh 'optional now, required when S4 decides', which delivers every observable outcome this spec claims at materially lower cost."
     evidence: "D2: 'the alternative leaves two kinds of visit in the system indefinitely — one that answers \"who will see the pet\" and one that cannot — and every screen then has to render the empty case forever.'"
-    disposition: pending
-    disposition_rationale: null
+    disposition: deferred
+    disposition_rationale: "need the spec tightened"
   - id: O5
     category: specification quality
     severity: high
     claim: "FR-3 specifies a vet chooser with no empty or placeholder option, so a browser preselects the first vet, making AS-5's precondition unreachable through the UI and silently assigning a vet the owner never chose."
     evidence: "FR-3: 'The new-visit form offers a choice of every vet in the clinic, each shown by first and last name.' AS-5: 'When I submit the new-visit form with a future date, a start time and a description but no vet chosen.' The existing fragment it extends emits no blank option — templates/fragments/selectField.html:14 '<option th:each=\"item : ${items}\" th:value=\"${item}\" th:text=\"${item}\">dog</option>'."
-    disposition: pending
-    disposition_rationale: null
+    disposition: deferred
+    disposition_rationale: "need the spec tightened"
   - id: O6
     category: specification quality
     severity: high
     claim: "FR-15 names a failure outcome — flag the missing locale for a human — without saying what becomes of this change when it fires, and HARNESS.md's 'Tests must pass' gate turns that flag into a blocked pull request."
     evidence: "FR-15: 'Any locale left without a trustworthy translation is flagged for a human.' AGENTS.md directive 4: 'add the key to messages.properties only, let the sync test fail, and flag the missing locales for a human.' HARNESS.md, Tests must pass: 'The project's test suite must pass with zero failures before any code is merged' — Enforcement deterministic, Scope pr."
-    disposition: pending
-    disposition_rationale: null
+    disposition: deferred
+    disposition_rationale: "need the spec tightened"
   - id: O7
     category: specification quality
     severity: medium
     claim: "FR-14's 'identically in every locale' is unachievable for the form's time control, whose rendered format is chosen by the browser locale and cannot be forced by the application."
     evidence: "FR-14: 'Dates display as yyyy-MM-dd and times as HH:mm, identically in every locale.' Plan, fragments/inputField.html: 'Add <input th:case=\"'time'\" class=\"form-control\" type=\"time\" th:field=\"*{__${name}__}\" /> to the existing th:switch.'"
-    disposition: pending
-    disposition_rationale: null
+    disposition: deferred
+    disposition_rationale: "need the spec tightened"
   - id: O8
     category: specification quality
     severity: medium
     claim: "AS-11 is not falsifiable under the project's stated test convention, because @OrderBy is a persistence-layer mechanism that never runs in a @WebMvcTest with a mocked repository, so the only test of FR-13 asserts the fixture's insertion order."
     evidence: "AS-11: 'Given a pet with two visits on the same date, one at 09:00 and one at 15:00 / When I open the owner's page / Then the 09:00 visit is listed before the 15:00 visit.' Plan: 'Ordering is delegated to @OrderBy on the association' and T-12 'ownerDetailsOrdersSameDayVisitsByTime — a pet with 09:00 and 15:00 visits on one date; the 09:00 row appears first in the rendered page' in OwnerControllerTests."
-    disposition: pending
-    disposition_rationale: null
+    disposition: deferred
+    disposition_rationale: "need the spec tightened"
   - id: O9
     category: specification quality
     severity: medium
     claim: "The spec asserts every requirement is testable, but FR-17 and AS-13 are satisfied by absence and left untested, so the deliberate decision not to prevent clashes is unprotected against silent reversal."
     evidence: "Spec, Functional requirements preamble: 'Each is testable and traces to at least one scenario above.' AS-13: 'It is asserted so that the absence of contention handling is a recorded decision rather than an oversight.' Plan FR mapping, FR-17: 'Asserted by absence; AS-13 is left untested at controller level because there is no code to test.'"
-    disposition: pending
-    disposition_rationale: null
+    disposition: deferred
+    disposition_rationale: "need the spec tightened"
   - id: O10
     category: implementation
     severity: medium
     claim: "D1 states one cost of the two-column representation but not the durable one: nothing binds visit_date and start_time together, so when S1's slots arrive there will be two independent descriptions of when a booking is, with no constraint reconciling them."
     evidence: "D1: 'The cost, stated honestly: two columns can in principle hold a date with no time. FR-2 and FR-11 close that by making the start time required in both the schema and the form.' Slice record S2 decision content: 'each puts the truth about a booking in a different place, and that determines how \"taken\" is computed and what happens when a published slot is withdrawn after someone has booked it.'"
-    disposition: pending
-    disposition_rationale: null
+    disposition: deferred
+    disposition_rationale: "need the spec tightened"
   - id: O11
     category: specification quality
     severity: low
     claim: "FR-9 adds two columns to the owner page's per-pet visits table without saying what happens to the two-cell action row that shares that table, leaving the rendered layout undetermined."
     evidence: "FR-9: 'The owner's page shows, for every visit of every pet, the visit's start time and the vet's name, alongside the existing date and description.' templates/owners/ownerDetails.html:71-74 places '<td><a ... th:text=\"#{editPet}\">Edit Pet</a></td><td><a ... th:text=\"#{addVisit}\">Add Visit</a></td>' inside the same table as the visit rows."
-    disposition: pending
-    disposition_rationale: null
+    disposition: deferred
+    disposition_rationale: "need the spec tightened"
 ---
 
 # Objections — visit carries a vet and a time of day
