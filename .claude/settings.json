@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "scripts/harness-advisory.sh",
+            "command": "scripts/harness-advisory.sh --json",
             "timeout": 120
           }
         ]
