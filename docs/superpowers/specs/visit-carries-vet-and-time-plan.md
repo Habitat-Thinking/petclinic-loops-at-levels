@@ -12,6 +12,23 @@ Implements the functional requirements in
 adds behaviour the spec does not state; where this file names a class or a
 column it is an implementation choice, not a new requirement.
 
+## Adjudication note (2026-09-19)
+
+The spec was revised after the maintainer adjudicated
+[the objection record](../objections/visit-carries-vet-and-time.md): O1 and O2
+accepted, O3–O11 deferred. **Neither accepted objection changes this plan.** O1
+narrowed the spec's user story only — no screen text, no new message key, so
+the template and `messages*.properties` work below is unchanged. O2 kept
+`NOT NULL` and a foreign key exactly as planned and only required the spec to
+name what that forecloses for S4. Every file, test and mapping below stands as
+written.
+
+The nine deferred objections are not addressed here. Several name this plan
+directly — O5 (the vet chooser's missing blank option), O7 (`type="time"` and
+FR-14), O8 (T-12's placement in `OwnerControllerTests`), O9 (FR-17 untested) —
+and the plan is deliberately left as it was. See the spec's *Adjudication of
+objections* section; the deferrals have no stated trigger.
+
 ## Constraints this plan is shaped by
 
 - **Layering** stays controller → repository → entity. No service layer. The
@@ -29,7 +46,9 @@ column it is an implementation choice, not a new requirement.
   `fragments/selectField.html` rather than adding new fragment files.
 - **Decision record**: `decisions/2026-09-19-visit-carries-vet-and-time.md` is
   part of this change (HARNESS.md gate). It restates decisions D1–D7 from the
-  spec.
+  spec, including D2's nullability choice *and* what that choice forecloses for
+  S4 — AGENTS.md directive 10 names nullability as a decision that must be
+  written down, and the foreclosure is part of the decision, not a footnote.
 
 ## Module structure
 

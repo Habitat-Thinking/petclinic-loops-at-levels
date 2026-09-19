@@ -3,6 +3,8 @@ slice: S2
 slice_record: docs/superpowers/slices/owner-books-visit-against-vet-availability.md
 title: "What a booked visit becomes — vet, time of day, and the existing visit rows"
 date: 2026-09-19
+revised: 2026-09-19 — objection adjudication (O1 and O2 closed; O3–O11 deferred)
+objections: docs/superpowers/objections/visit-carries-vet-and-time.md
 status: draft — awaiting maintainer adjudication of the decisions below
 ---
 
@@ -79,6 +81,37 @@ so it gains a vet chooser in this slice (FR-3). This spec does **not** decide
 whether that form survives S4 — only that, for as long as it is the only way to
 create a visit, it can create a valid one.
 
+#### What this decision forecloses, and at whose expense
+
+The slice record contradicts itself about who owns this question, and the
+contradiction is named here rather than left for a later reader to find:
+
+- S2's `scope` says this slice must "decide whether a vet is required or
+  optional on a visit".
+- S4's `decision_focus` says the same question is S4's: it decides "whether the
+  vet field from S2 can ever be required".
+
+Both entries were accepted. **This spec resolves the contradiction in S2's
+favour**: the vet is required, and it is required now. That is not a
+consequence of D2, it is half of S4's stated question, decided here.
+
+What that costs if S4 chooses otherwise. S4 may still decide that slot-booking
+replaces the free-date form, or that the two coexist. But if S4 chooses a
+coexisting free-date form that creates visits *without* a vet, that choice is
+no longer free: it requires dropping a `NOT NULL` constraint and a foreign key
+in `db/h2`, `db/mysql` and `db/postgres` together, in one change, under the
+schema-parity rule. S4 is not blocked; it is made more expensive, and the price
+is a three-dialect schema change.
+
+The inconsistency in this document, named rather than hidden. D1 rejected a
+single-timestamp representation partly because it "would be a type migration of
+an existing column across three dialects". D2 accepts a three-dialect migration
+as the price S4 would pay to reverse it. The same cost is treated as
+prohibitive for the representation decision and as acceptable for the
+nullability decision, in the same spec. The maintainer has adjudicated this
+knowingly and D2 stands as written; the asymmetry is recorded so that whoever
+specs S4 sees the bill before they choose.
+
 ### D3 — The four existing visits are backfilled, not deleted
 
 Each seed file keeps its four visit rows, with the same pet, the same date and
@@ -120,9 +153,19 @@ field.
 
 ## User story
 
-> As a pet owner, I want a visit to record which vet my pet will see and at what
-> time of day, so that when I look at my pet's visits I know who we are seeing
-> and when to arrive, rather than only which day.
+> As a pet owner, I want a visit to record which vet I am asking for and at what
+> time of day, so that the visit carries that vet and that time rather than only
+> a date.
+
+The story claims only what this change delivers. It does **not** claim that the
+owner knows who they will see or when to arrive: FR-17 consults no availability
+and prevents no clash, so nothing in the system agrees to the recorded vet or
+time. Whether a recorded visit ever becomes an agreed appointment is S1's and
+S4's question, and this spec does not answer it.
+
+This narrowing is confined to the spec. No screen gains request-versus-
+confirmation wording and no message key is added to express it; FR-15's two new
+keys are the labels named there and nothing more.
 
 ## Acceptance scenarios
 
@@ -259,3 +302,44 @@ Each is testable and traces to at least one scenario above.
 - No cancellation, rescheduling, notification, working-hours or
   choose-by-specialty behaviour (dropped as adjacent features in the slice
   record).
+
+## Adjudication of objections
+
+Eleven objections were raised against this spec and its plan and are recorded in
+[`docs/superpowers/objections/visit-carries-vet-and-time.md`](../objections/visit-carries-vet-and-time.md).
+The maintainer adjudicated all eleven on 2026-09-19. Two were accepted and are
+closed by this revision. Nine were deferred and are deliberately untouched: the
+spec still says what it said when they were raised.
+
+### Accepted and closed here
+
+| Id | Objection | Remedy chosen by the maintainer, and what changed |
+|---|---|---|
+| **O1** | The user story promised the owner knows who they are seeing and when to arrive, while FR-17 declines to support that. | Narrow the user story. It now claims only that the visit records the vet being asked for and the time of day; the knowledge claim is gone, and the note under it points at FR-17. The alternative remedy — request-versus-confirmation wording on the screens — was considered and **not** chosen: no screen text and no message key changes. |
+| **O2** | A `NOT NULL` vet settles half of the question the slice record assigns to S4. | Keep `NOT NULL`, name the foreclosure. D2's design is unchanged. D2 now states that the slice record contradicts itself (S2's scope and S4's `decision_focus` both claim the required-versus-optional question), that this spec resolves it in S2's favour, what reversal costs S4 (dropping a `NOT NULL` and a foreign key across h2, mysql and postgres together), and that D1 and D2 apply opposite cost standards to the same three-dialect migration. |
+
+No acceptance scenario, no functional requirement and no other decision
+(D1, D3–D7) was changed by this revision. Nothing was renumbered.
+
+### Deferred — not fixed, by decision
+
+Each of the nine below was adjudicated `deferred` with the maintainer's
+rationale recorded verbatim as **"need the spec tightened"**.
+
+| Id | Severity | In one line |
+|---|---|---|
+| **O3** | high | mysql and postgres `schema.sql` use `CREATE TABLE IF NOT EXISTS`, so an already-provisioned database never gains the new columns, and the parity check compares files rather than databases. |
+| **O4** | high | D2 weighs "required now" against "optional forever" and does not weigh "optional now, required when S4 decides". |
+| **O5** | high | FR-3's vet chooser specifies no blank or placeholder option, so a browser preselects the first vet and AS-5's precondition is unreachable through the UI. |
+| **O6** | high | FR-15 says a missing translation is flagged for a human, but the harness's "Tests must pass" gate turns that flag into a blocked pull request, and the spec offers no sanctioned route out. |
+| **O7** | medium | FR-14's "identically in every locale" cannot hold for the form's `type="time"` control, whose painted format the browser chooses. |
+| **O8** | medium | AS-11 is placed where `@OrderBy` never runs — a `@WebMvcTest` with a mocked repository — so the only test of FR-13 asserts the fixture's insertion order. |
+| **O9** | medium | FR-17 and AS-13 are satisfied by absence and left untested, against a preamble that claims every requirement is testable. |
+| **O10** | medium | D1 does not state the durable cost: nothing binds `visit_date` and `start_time` together, so S1's slots will meet two unreconciled descriptions of when a booking is. |
+| **O11** | low | FR-9 widens the owner page's per-pet visits table without saying what happens to the two-cell action row inside the same table. |
+
+**The deferrals carry no stated trigger.** The adjudication records a rationale
+but no condition, date, slice or gate at which any of these nine is revisited.
+Nothing in this spec, the plan or the harness will raise them again. Whoever
+specs S1, S3, S4 or S5 — and whoever implements this one — should read the
+objection record as live, not closed.
