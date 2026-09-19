@@ -29,10 +29,15 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import org.springframework.samples.petclinic.vet.Vet;
+
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItem;
@@ -254,6 +259,55 @@ class OwnerControllerTests {
 			.andExpect(model().attribute("owner",
 					hasProperty("pets", hasItem(hasProperty("visits", hasSize(greaterThan(0)))))))
 			.andExpect(view().name("owners/ownerDetails"));
+	}
+
+	// T-11 — AS-3, FR-9, FR-14
+	@Test
+	void ownerDetailsShowsVisitTimeAndVet() throws Exception {
+		Owner owner = george();
+		owner.getPet("Max").getVisits().add(visit(LocalDate.now().plusDays(1), LocalTime.of(14, 30), helenLeary()));
+		given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(owner));
+
+		mockMvc.perform(get("/owners/{ownerId}", TEST_OWNER_ID))
+			.andExpect(status().isOk())
+			.andExpect(content().string(containsString("14:30")))
+			.andExpect(content().string(containsString("Helen Leary")));
+	}
+
+	// T-12 — AS-11, FR-13
+	@Test
+	void ownerDetailsOrdersSameDayVisitsByTime() throws Exception {
+		LocalDate sameDay = LocalDate.now().plusDays(1);
+		Owner owner = george();
+		owner.getPet("Max").getVisits().add(visit(sameDay, LocalTime.of(9, 0), helenLeary()));
+		owner.getPet("Max").getVisits().add(visit(sameDay, LocalTime.of(15, 0), helenLeary()));
+		given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(owner));
+
+		String body = mockMvc.perform(get("/owners/{ownerId}", TEST_OWNER_ID))
+			.andExpect(status().isOk())
+			.andReturn()
+			.getResponse()
+			.getContentAsString();
+
+		assertThat(body.indexOf("09:00")).as("the 09:00 visit is rendered").isGreaterThan(-1);
+		assertThat(body.indexOf("09:00")).as("the 09:00 visit is listed first").isLessThan(body.indexOf("15:00"));
+	}
+
+	private Visit visit(LocalDate date, LocalTime startTime, Vet vet) {
+		Visit visit = new Visit();
+		visit.setDate(date);
+		visit.setStartTime(startTime);
+		visit.setVet(vet);
+		visit.setDescription("rabies shot");
+		return visit;
+	}
+
+	private Vet helenLeary() {
+		Vet vet = new Vet();
+		vet.setId(2);
+		vet.setFirstName("Helen");
+		vet.setLastName("Leary");
+		return vet;
 	}
 
 	@Test

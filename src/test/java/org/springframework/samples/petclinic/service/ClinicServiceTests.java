@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.springframework.dao.DataIntegrityViolationException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collection;
 import java.util.Optional;
 
@@ -225,13 +226,17 @@ class ClinicServiceTests {
 		int found = pet7.getVisits().size();
 		Visit visit = new Visit();
 		visit.setDescription("test");
+		visit.setStartTime(LocalTime.of(14, 30));
+		visit.setVet(EntityUtils.getById(this.vets.findAll(), Vet.class, 2));
 
 		owner6.addVisit(pet7.getId(), visit);
 		this.owners.save(owner6);
 
 		assertThat(pet7.getVisits()) //
 			.hasSize(found + 1) //
-			.allMatch(value -> value.getId() != null);
+			.allMatch(value -> value.getId() != null) //
+			.allMatch(value -> value.getStartTime() != null) //
+			.allMatch(value -> value.getVet() != null);
 	}
 
 	@Test
@@ -245,9 +250,9 @@ class ClinicServiceTests {
 
 		assertThat(visits) //
 			.hasSize(2) //
-			.element(0)
-			.extracting(Visit::getDate)
-			.isNotNull();
+			.allMatch(visit -> visit.getDate() != null) //
+			.allMatch(visit -> visit.getStartTime() != null) //
+			.allMatch(visit -> visit.getVet() != null);
 	}
 
 	@Test
