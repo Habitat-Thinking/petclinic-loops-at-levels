@@ -99,6 +99,35 @@ Level 2 pointer failure wearing different clothes.
 whether the advisory appears. If it does not, the commit-time hook is the edit-time loop
 and the beat should say so.
 
+**Correction, 2026-09-17 (plugin 0.92.0, Claude Code 2.1.274).** The hook does fire in
+a headless session. The debug log for an edit to `db/h2/schema.sql` shows
+`Slow PostToolUse hooks: 4166ms for Edit (2 hooks)`: the plugin's
+`commit-constraint-check.sh`, which was silent, and this script, which returned
+`HARNESS advisory: src/ has changed with no record under decisions/.` The agent saw
+none of it. A `PostToolUse` hook's plain stdout on exit 0 goes only to the debug log,
+so the loop runs and nobody hears it. The earlier conclusion ("did not execute") came
+from that silence.
+
+**Fixed the same day.** `scripts/harness-advisory.sh` now takes `--json` and wraps the
+same words in `{"systemMessage": ...}`, which is the form Claude Code shows the person
+at the keyboard; `.claude/settings.json` passes the flag. Run by hand with no flag it
+prints the identical text, so `catch-verbatim.txt` and the edit-time beat are unchanged.
+The debug log now shows the output parsed rather than discarded:
+`Hooks: Parsed initial response: {"systemMessage":"HARNESS advisory: src/ has changed
+with no record under decisions/..."}`.
+
+**Still to confirm on a screen.** A `systemMessage` is shown to the person, not sent to
+the agent, so a headless run cannot prove it renders — in `-p` there is no screen, and
+the agent correctly reports seeing nothing. Rehearse the catch beat interactively once
+and watch for the advisory line. That is also the run that clears any post-upgrade
+first-run screen, so it is one errand, not two.
+
+**Which makes the beat's own point sharper.** Three times now, an enforcement in this
+repository has run and said nothing anyone could hear: the `AGENTS.md` pointer that
+loaded nothing, the hook believed dead that was only inaudible, and a plugin hook that
+reported a missing HARNESS.md that was there all along. None was visible by reading the
+files. Each needed the loop run and watched.
+
 ## The instruments, on a one-day-old harness
 
 Run and recorded: [health.txt](health.txt), [gc.txt](gc.txt). They were told not to

@@ -7,14 +7,17 @@ The segment that proves the talk's claim. Same model, same prompt, different hab
 | Level | Config dir | Launcher | What's in it |
 |-------|-----------|----------|--------------|
 | 1 | `~/.claude-loops-at-levels` | `~/.claude-loops-at-levels/launch` | Clean room, **no plugin** |
-| 2 | `~/.claude-loops-at-levels-l2` | `~/.claude-loops-at-levels-l2/launch` | Clean room **+ ai-literacy-superpowers 0.91.0** |
+| 2 | `~/.claude-loops-at-levels-l2` | `~/.claude-loops-at-levels-l2/launch` | Clean room **+ ai-literacy-superpowers 0.92.0** |
 
 Both scrub the environment identically and pin `claude-opus-5`, `--effort high`,
 `--permission-mode auto`. The Level 2 launcher differs by exactly one flag:
-`--plugin-dir …/ai-literacy-superpowers/0.91.0`. Each profile has its own login.
+`--plugin-dir …/ai-literacy-superpowers/0.92.0`. Each profile has its own login.
 
-The plugin version is pinned deliberately: your everyday profile has 0.89.0, this has
-0.91.0. Do not "update" before the talk.
+The plugin version is pinned deliberately at 0.92.0 (2026-09-17). It is the first
+release where the plugin's edit hook is a script rather than a model call. Under 0.91.0
+that hook claimed HARNESS.md did not exist, and in a repository without one it could end
+the turn mid-task (#615, fixed in #616). Do not "update" again before the talk without
+re-running the Level 2 and Level 3 smoke checks.
 
 ## Before you walk on
 

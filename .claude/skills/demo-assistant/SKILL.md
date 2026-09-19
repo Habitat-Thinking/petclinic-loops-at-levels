@@ -58,7 +58,7 @@ Do not guess these. If it is not here or in the notes, say you do not have it.
 - **Level 2:** 120s, 10 turns, $1.06, 78 tests green. Habitat diff: 6 files, 0 source.
   Output diff vs Level 1: 9 files under `src/`.
 - **Pinned:** `claude-opus-5`, effort high, permission-mode auto, Claude Code 2.1.273,
-  plugin `ai-literacy-superpowers` 0.91.0.
+  plugin `ai-literacy-superpowers` 0.92.0.
 
 ## Things that have actually gone wrong
 

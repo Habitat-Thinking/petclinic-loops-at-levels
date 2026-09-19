@@ -35,7 +35,9 @@ enforcement scripts are executable, and that PR #1 is open and red — the merge
 demonstrated from that pre-opened pull request, never a live CI wait.
 
 It cannot check terminal font size, cleared scrollback, or notifications. Those are on
-you.
+you. Nor can it tell whether a profile will show a first-run screen: after a Claude Code
+upgrade, launch each profile interactively once and quit, or the theme picker gets its
+own slot in your segment.
 
 Levels 2 and 3 share one launch profile: from Level 3 on, what changes is in the
 repository, not the launcher.

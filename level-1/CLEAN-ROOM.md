@@ -94,6 +94,21 @@ Registered 0 hooks from 0 plugins
 Watching for changes in setting files /Users/russellmiles/.claude-loops-at-levels/settings.json...
 ```
 
+### Re-verified on 2026-09-19, Claude Code 2.1.275
+
+Claude Code auto-updated twice in two days (2.1.273 → 2.1.274 → 2.1.275), so the clean
+room was re-checked on the current build. It still holds: `Found 0 plugins (0 enabled,
+0 disabled)`, no MCP servers, no `CLAUDE.md` or `AGENTS.md` seen at any depth, and
+`claude-opus-5`. The Level 2 profile was checked in the same pass for the opposite
+property — that its habitat still loads — and it reported all 18 directives, with
+directive 6 quoted correctly.
+
+**A first interactive launch after an upgrade can show a first-run screen** (the theme
+picker appeared on one). A headless `-p` run never shows it, so rehearsal on its own
+will not flush it out, and preflight cannot see it either. Launch each profile
+interactively once after any upgrade, answer whatever it asks, and quit. Then the
+launcher on stage goes straight to the prompt.
+
 ### The agent's self-report was wrong in one place
 
 It listed `~/.claude/settings.json` as "in effect". It is not: `--setting-sources

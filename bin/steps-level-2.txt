@@ -13,7 +13,7 @@ MODE: run
 ### Launch the Level 2 profile
 TIME: 15s
 SAY: Same clean room as Level 1 plus one flag: --plugin-dir, loading
-SAY: ai-literacy-superpowers 0.91.0. Everything else is identical and pinned.
+SAY: ai-literacy-superpowers 0.92.0. Everything else is identical and pinned.
 CMD: ~/.claude-loops-at-levels-l2/launch
 MODE: manual
 

@@ -63,9 +63,18 @@ itself.
 
 ## Known wrinkle, say it if asked
 
-`.claude/settings.json` declares an edit-time hook that did not fire in headless
-testing — project-scope hooks appear to need per-clone approval. The commit-time hook
-does fire and is what the advisory beat shows. See FINDINGS.md.
+`.claude/settings.json` declares an edit-time hook. Re-tested on 2026-09-17 with plugin
+0.92.0, it **does** fire — the earlier "it never runs" was it running inaudibly, since
+plain stdout from a `PostToolUse` hook reaches only the debug log. It now emits
+`{"systemMessage": ...}`, the channel Claude Code puts on screen. Watch for the advisory
+line the first time you rehearse the catch beat interactively; if it appears, the
+edit-time loop is demonstrable live and not only from the capture. See FINDINGS.md.
+
+The rehearsed exchange (`harness-constrain-exchange.md`) was recorded on plugin 0.91.0.
+Two of its closing remarks no longer apply on 0.92.0, so don't expect them live: "the
+hook that fires after writes twice reported that HARNESS.md doesn't exist", and "the
+plugin's commit-time hook uses an LLM to review files". That hook is now a script. On
+this repository it stays silent, because it only checks shell-script constraints.
 
 ## Slide decks for this segment
 
