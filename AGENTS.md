@@ -9,7 +9,12 @@ five questions about tacit team knowledge.
 
 **This file governs the turn**: what to do while making a change. `HARNESS.md`
 governs the loop: what must be true of a change before it is allowed in, checked by
-tools that run whether or not anyone is watching.
+tools that run whether or not anyone is watching. `PIPELINE.md` governs the sequence:
+which agent runs when, and where the work stops and waits for a person.
+`MODEL_ROUTING.md` governs the dispatch: which model tier each agent is sent to.
+
+Every directive below applies to work done through the pipeline exactly as it applies
+to work typed by hand. A gate is somewhere a person decides; it is not an exemption.
 
 Most of what is here is still advice. Where a directive is also enforced, it says so,
 and the enforcing constraint is named in `HARNESS.md`.
