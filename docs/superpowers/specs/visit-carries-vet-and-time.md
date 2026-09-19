@@ -3,7 +3,7 @@ slice: S2
 slice_record: docs/superpowers/slices/owner-books-visit-against-vet-availability.md
 title: "What a booked visit becomes — vet, time of day, and the existing visit rows"
 date: 2026-09-19
-revised: 2026-09-19 — objection adjudication (O1 and O2 closed; O3–O11 deferred); choice story #10 accepted (stance stated, no decision added)
+revised: 2026-09-19 — objection adjudication (O1 and O2 closed; O3–O11 deferred); choice story #10 accepted (stance stated, no decision added); choice story #6 accepted (D8 fixes the English words behind the two new keys; FR-18 and AS-14 key the form's two existing labels)
 objections: docs/superpowers/objections/visit-carries-vet-and-time.md
 status: draft — awaiting maintainer adjudication of the decisions below
 ---
@@ -34,7 +34,9 @@ Explicitly **not** in this spec, and not assumed to exist:
 
 The slice record names three decisions that must be settled before a coherent
 spec can exist. They are settled here, with the reasoning visible, so a
-maintainer can overturn any of them at the plan-approval gate.
+maintainer can overturn any of them at the plan-approval gate. D8 was added in a
+later revision, from choice story #6, and settles a question the spec had left
+undefined rather than one the slice record raised.
 
 ### D1 — A visit stores a date and a separate start time, on the visit itself
 
@@ -150,6 +152,39 @@ The form pre-fills tomorrow's date, as it does today, and pre-fills a start
 time of 09:00. Reasoning: consistency with the existing default, and a
 pre-filled control that a user can change is plainer than an empty required
 field.
+
+### D8 — The two new keys hold "Visit Time" and "Veterinarian"
+
+FR-15 named two keys, `visitTime` and `vet`, and never said what English words
+they hold — while obliging a trustworthy translation of those words into ten
+locale bundles. AGENTS.md directive 10 names user-visible naming as a decision
+that must be written down, so the words are decided here rather than left to
+whoever types the properties file:
+
+- **`visitTime` = `Visit Time`**
+- **`vet` = `Veterinarian`**
+
+Reasoning — translation tractability. Each string was chosen to mirror a key
+that already exists, already translated, in all ten locale bundles, so a
+translator derives the new phrase from one already in front of them instead of
+inventing it:
+
+- `visitTime` is an exact parallel of the existing `visitDate` = `Visit Date`.
+  A translator holding `visitDate=Besuchsdatum` writes `Besuchszeit`; holding
+  `visitDate=Fecha de visita` writes `Hora de visita`.
+- `vet` mirrors the existing `vets` = `Veterinarians`, whose plural every bundle
+  already carries (`Tierärzte`, `Veterinarios`, `Veterinerler`, …), so the
+  singular is derivable rather than invented.
+
+This is what keeps FR-15's obligation honest: twenty translations are still
+twenty translations, but each one is a derivation of a phrase the bundle already
+holds, not a fresh coinage a translator has to guess the intent of. Neither
+string introduces a new concept name to the product's vocabulary.
+
+*(Source: choice story #6, "New labels keyed, their neighbours left English", in
+[`docs/superpowers/stories/visit-carries-vet-and-time.md`](../stories/visit-carries-vet-and-time.md),
+which recorded that twenty translations were required of a string nobody had
+decided.)*
 
 ### The stance these decisions add up to: shape is guaranteed, meaning is not
 
@@ -274,6 +309,16 @@ When the visit tables are rendered
 Then the time and vet headings come from message keys, and no English heading
 text is hardcoded in the template.
 
+**AS-14 — Every label on the new-visit form is translated, not hardcoded**
+Given a user whose locale is one of the translated locales
+When I open the new-visit form
+Then every field label on the form — date, description, start time and vet —
+is shown in that locale
+And no English label text is hardcoded in the template.
+(AS-12 covers table *headings* only. The date and description labels on this
+form are passed as English literals today; see the note under the requirements
+table.)
+
 ### What is deliberately not prevented
 
 **AS-13 — Two visits may name the same vet at the same time**
@@ -304,9 +349,41 @@ Each is testable and traces to at least one scenario above.
 | **FR-12** | Each `data.sql` keeps its four visits — same pet, same date, same description as today — each given a vet and a start time, written with an explicit column list. *(D3, AS-9, AS-10)* |
 | **FR-13** | Visits listed for a pet are ordered by date ascending, then start time ascending. *(D6, AS-11)* |
 | **FR-14** | Dates display as `yyyy-MM-dd` and times as `HH:mm`, identically in every locale. *(D5, AS-3)* |
-| **FR-15** | All new display text — the time heading/label and the vet heading/label — comes from message keys. New keys are added to `messages.properties` and to every locale bundle only with a genuine translation; English text is never copied into a locale bundle to satisfy the sync check. Any locale left without a trustworthy translation is flagged for a human. *(AS-12)* |
+| **FR-15** | All new display text comes from message keys. Exactly two keys are added: `visitTime`, holding the English `Visit Time`, for the time heading and label; and `vet`, holding the English `Veterinarian`, for the vet heading and label. Both are added to `messages.properties` and to every locale bundle only with a genuine translation; English text is never copied into a locale bundle to satisfy the sync check. Any locale left without a trustworthy translation is flagged for a human. *(D8, AS-12)* |
 | **FR-16** | No owner personal data is added to any output. The vet's first and last name is vet data, already published on the vets page, and is the only new personal-ish field rendered. |
 | **FR-17** | No availability is consulted and no clash is prevented: any vet may be recorded at any time of day on any future date, including a time another visit already uses. *(D4, AS-13)* |
+| **FR-18** | The two labels already on the new-visit form — its date field and its description field — come from the existing message keys `date` and `description` instead of the hardcoded English literals `Date` and `Description` they are given today. No key is added and no translation is written: both keys already exist in `messages.properties` and are already translated in all ten locale bundles. *(AS-14)* |
+
+### Note on FR-18 — a directive-3 violation closed, as a stated exception to directive 9
+
+The new-visit form passes the literals `Date` and `Description` as the labels of
+its two existing fields. That is hardcoded display text in a template, which
+AGENTS.md directive 3 forbids, and it sits in the one template this change is
+already editing. Shipping FR-3's two new fields with keyed labels beside two
+literal ones would leave the form half-translated, with the newer half keyed —
+an inversion that reads as deliberate and explains itself to nobody.
+
+FR-18 is therefore a **deliberate exception to directive 9** ("no unrelated
+reformatting — every changed hunk is needed by the change's stated purpose").
+The exception is taken because:
+
+- the violation is inside the file this change edits, not somewhere it was gone
+  looking for;
+- the fix is two lines, swapping two literals for two key references;
+- it costs no translation work at all — `date` and `description` are already
+  present and already translated in every one of the ten bundles, so FR-15's
+  translation obligation is unchanged at twenty strings; and
+- it removes the alternative, which is a form that demonstrates both idioms at
+  once with no explanation.
+
+Directive 9's own exception route applies: this reason belongs in the change's
+decision record. Nothing else in the template, and no other file, is tidied on
+the same grounds — the same violation exists on the pet form, which this change
+does not otherwise edit and therefore leaves alone.
+
+*(Source: choice story #6, which named the options not taken — key the two
+existing labels, leave all four, or record the violation as a known exception.
+The first is the one taken.)*
 
 ## Out of scope, restated as non-requirements
 
@@ -336,7 +413,10 @@ spec still says what it said when they were raised.
 | **O2** | A `NOT NULL` vet settles half of the question the slice record assigns to S4. | Keep `NOT NULL`, name the foreclosure. D2's design is unchanged. D2 now states that the slice record contradicts itself (S2's scope and S4's `decision_focus` both claim the required-versus-optional question), that this spec resolves it in S2's favour, what reversal costs S4 (dropping a `NOT NULL` and a foreign key across h2, mysql and postgres together), and that D1 and D2 apply opposite cost standards to the same three-dialect migration. |
 
 No acceptance scenario, no functional requirement and no other decision
-(D1, D3–D7) was changed by this revision. Nothing was renumbered.
+(D1, D3–D7) was changed by the objection revision. Nothing was renumbered.
+(The later choice-story revision that added D8, FR-18 and AS-14 left D1–D7,
+FR-1..FR-14, FR-16, FR-17 and AS-1..AS-13 as they were, and renumbered nothing:
+AS-14 is placed beside AS-12, which it extends, rather than at the end.)
 
 ### Deferred — not fixed, by decision
 

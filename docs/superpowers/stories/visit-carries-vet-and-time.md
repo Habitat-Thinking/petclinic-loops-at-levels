@@ -32,8 +32,8 @@ stories:
   - id: 6
     lens: [forces, coherence]
     title: New labels keyed, their neighbours left English
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "Labels decided: visitTime = 'Visit Time', vet = 'Veterinarian'. And: key the adjacent Date and Description labels in the same change — keys exist, no new translations."
   - id: 7
     lens: [consequences]
     title: The confirmation still says booked, in English
