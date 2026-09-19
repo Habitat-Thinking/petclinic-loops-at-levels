@@ -38,8 +38,8 @@ stories:
   - id: 7
     lens: [consequences]
     title: The confirmation still says booked, in English
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "Fix all four, then approve."
   - id: 8
     lens: [consequences, alternatives]
     title: Vets are written about, never written to
@@ -63,8 +63,8 @@ stories:
   - id: 12
     lens: [consequences, coherence]
     title: Visit Time beside Date, on one screen only
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "Fix all four, then approve."
   - id: 13
     lens: [forces, alternatives]
     title: English chosen for how well it translates
@@ -78,8 +78,8 @@ stories:
   - id: 15
     lens: [consequences]
     title: The rule stops at the field labels
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "Fix all four, then approve."
   - id: 16
     lens: [consequences, patterns]
     title: A German word becomes a build-gating fact
@@ -88,8 +88,8 @@ stories:
   - id: 17
     lens: [coherence, consequences]
     title: A stance stated where nothing carries it
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "Fix all four, then approve."
   - id: 18
     lens: [consequences, alternatives]
     title: The slice record still says the opposite

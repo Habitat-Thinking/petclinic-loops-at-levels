@@ -303,6 +303,23 @@ the journey are separately reviewable, and because the coexistence question —
 one booking concept or two — is a user-visible commitment that deserves its own
 decision rather than being settled as a side effect of a form rewrite.
 
+**Amendment — 2026-09-19.** Half of this slice's stated decision has already been
+taken, and not here. S4's `decision_focus` above says it decides "whether the vet
+field from S2 can ever be required"; S2's `scope` says S2 decides "whether a vet
+is required or optional on a visit". Both entries were accepted, and they
+contradict each other. The S2 spec resolved the contradiction in S2's favour:
+`vet_id` is `NOT NULL` with a foreign key in all three schemas, so whatever S4
+builds must supply a vet. S4 is not blocked — choosing a coexisting vet-less form
+remains possible, and the price is dropping a `NOT NULL` constraint and a foreign
+key across h2, mysql and postgres in one change. See *What this decision
+forecloses, and at whose expense* under D2 in
+`docs/superpowers/specs/visit-carries-vet-and-time.md`.
+
+Recorded here rather than only downstream because this record is what whoever
+specs S4 will read first, and it was telling them they had a free choice they no
+longer have. The frontmatter entry, its disposition and its rationale are
+unchanged: this note corrects what a reader is told, not what was decided.
+
 ---
 
 ## S5 — What happens when two owners want the same slot — decision-boundary

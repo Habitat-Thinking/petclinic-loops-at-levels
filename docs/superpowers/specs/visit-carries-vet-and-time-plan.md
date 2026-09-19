@@ -3,7 +3,7 @@ slice: S2
 spec: docs/superpowers/specs/visit-carries-vet-and-time.md
 title: "Plan — visit carries a vet and a time of day"
 date: 2026-09-19
-revised: 2026-09-19 — choice story #6 accepted (D8 fixes the two new keys' English words; FR-18 keys the form's two existing labels)
+revised: 2026-09-19 — choice story #6 accepted (D8 fixes the two new keys' English words; FR-18 keys the form's two existing labels); choice stories #12, #15 and #17 accepted (FR-18 re-keyed to `visitDate`; FR-19 keys the form heading; FR-20 keys the confirmation message; the stance subsection routed to the decision record)
 ---
 
 # Plan — visit carries a vet and a time of day
@@ -39,12 +39,42 @@ maintainer in the spec:
   and `vet` = `Veterinarian`. This changes no file in the table below, only what
   goes in the properties values.
 - **FR-18** swaps the hardcoded `'Date'` and `'Description'` literals in
-  `pets/createOrUpdateVisitForm.html` for the existing `date` and `description`
-  keys, closing a directive-3 violation in the file this change already edits.
-  It is a stated exception to directive 9 and adds **no** new keys and **no**
-  translations. It adds one test, T-19, and one requirement row to the mapping.
+  `pets/createOrUpdateVisitForm.html` for existing keys, closing a directive-3
+  violation in the file this change already edits. It is a stated exception to
+  directive 9 and adds **no** new keys and **no** translations. It adds one
+  test, T-19, and one requirement row to the mapping.
 
 Nothing else in this plan changed. No test was renumbered.
+
+## Revision note (2026-09-19, choice stories #12, #15 and #17)
+
+Four narrow changes, all settled by the maintainer in the spec. Three of them
+move the translation count; one moves nothing but a list.
+
+- **FR-18 is re-keyed** (#12). The form's date label takes `visitDate`, not
+  `date`. Both keys already exist and are already translated in all ten
+  bundles, so the cost is still zero — but `visitDate` is the key the owner's
+  page already uses for the same column, so after this change the two screens
+  head it identically in every locale instead of reading `Datum` against
+  `Besuchsdatum`. The form's previous-visits table heading (line 48, already
+  keyed to `date`) moves with the label for the same reason; that one line is
+  consistency rather than compliance and is flagged as separable. T-19's German
+  assertion changes with it.
+- **FR-19 keys the form's `<h2>`** (#15). One new key, `visit` = `Visit`.
+  **+10 translations.** Derivable by extraction — every bundle that translates
+  `addVisit` and `visitDate` already contains the word inside a phrase.
+- **FR-20 keys the confirmation message** (#7, via the #15 boundary argument).
+  One new key, `visitBooked` = `Your visit has been booked`. **+10
+  translations, and these are the expensive ones**: a full sentence, derivable
+  from nothing any bundle already holds. This is the line item that raises
+  deferred objection O6's exposure; see the i18n constraint below.
+- **The stance subsection joins the decision record** (#17). A list entry, no
+  new decision, no D-number, nothing renumbered.
+
+The change's translation obligation therefore goes from **twenty strings to
+forty**, across four keys and ten bundles. Two new tests, T-20 and T-21, and one
+new constructor dependency on `VisitController`. Nothing else changed and no
+test was renumbered.
 
 ## Constraints this plan is shaped by
 
@@ -54,29 +84,62 @@ Nothing else in this plan changed. No test was renumbered.
 - **Schema parity**: all three `schema.sql` and all three `data.sql` change in
   the same commit; `SchemaParityTest` compares column presence across h2, mysql
   and postgres, and length limits where h2 and mysql both declare one.
-- **Message keys, real translations**: two new keys and no more —
-  `visitTime` = `Visit Time` and `vet` = `Veterinarian` (spec D8) — added to
+- **Message keys, real translations**: **four** new keys and no more, added to
   `messages.properties` and to the ten locale bundles with genuine
-  translations. That is still twenty translations across ten bundles, but each
-  one mirrors a phrase the bundle already carries: `visitTime` parallels the
-  translated `visitDate` (`Besuchsdatum` → `Besuchszeit`, `Fecha de visita` →
-  `Hora de visita`), and `vet` is the singular of the translated `vets`
-  (`Tierärzte`, `Veterinarios`, …). `I18nPropertiesSyncTest` will fail for any
-  locale left out — that failure is the flag for a human, and is never to be
-  silenced by copying English. FR-18's relabelling of the form's existing date
-  and description fields adds nothing to this count: `date` and `description`
-  already exist and are already translated in all ten bundles.
+  translations — **forty translations in total**, up from twenty. They are not
+  equally expensive, and the difference matters more than the count:
+
+  | Key | English | From | Cost per bundle |
+  |---|---|---|---|
+  | `visitTime` | `Visit Time` | FR-15, D8 | Derivable: parallels the translated `visitDate` (`Besuchsdatum` → `Besuchszeit`, `Fecha de visita` → `Hora de visita`) |
+  | `vet` | `Veterinarian` | FR-15, D8 | Derivable: the singular of the translated `vets` (`Tierärzte`, `Veterinarios`, …) |
+  | `visit` | `Visit` | FR-19 | Derivable by extraction: the word already sits inside `addVisit` (`Besuch hinzufügen`) and `visitDate` (`Besuchsdatum`) in every bundle that translates them |
+  | `visitBooked` | `Your visit has been booked` | FR-20 | **Not derivable.** A full sentence, composed from nothing the bundle already holds |
+
+  `I18nPropertiesSyncTest` will fail for any locale left out of any of the four
+  — that failure is the flag for a human, and is never to be silenced by
+  copying English (directive 4).
+
+  **This is where deferred objection O6 bites hardest.** O6 says that flag
+  becomes a blocked pull request under the harness's *Tests must pass* gate,
+  with no sanctioned route out. `visitBooked` is the key most likely to fire
+  it: ten sentence translations that no translator can derive, and that a
+  reviewer cannot sanity-check against a neighbouring entry the way they can
+  for the other three. O6 remains **deferred and unaddressed**; the maintainer
+  accepted FR-20 knowing it enlarges the exposure. Implementers should expect
+  `visitBooked` to be the last key to go green and should raise it with a human
+  early rather than at the gate.
+
+  FR-18's relabelling of the form's existing date and description fields adds
+  nothing to this count: `visitDate` and `description` already exist and are
+  already translated in all ten bundles.
 - **Fragments**: extend `fragments/inputField.html` and
   `fragments/selectField.html` rather than adding new fragment files.
 - **Decision record**: `decisions/2026-09-19-visit-carries-vet-and-time.md` is
-  part of this change (HARNESS.md gate). It restates decisions D1–D8 from the
-  spec, including D2's nullability choice *and* what that choice forecloses for
-  S4 — AGENTS.md directive 10 names nullability as a decision that must be
-  written down, and the foreclosure is part of the decision, not a footnote.
-  Directive 10 also covers D8's user-visible naming (`Visit Time`,
-  `Veterinarian`), and directive 9's exception route requires FR-18's reason —
-  a directive-3 violation closed in the file this change edits, at the cost of
-  two lines and no translations — to be recorded there too.
+  part of this change (HARNESS.md gate). It must carry, by name:
+
+  1. **Decisions D1–D8** from the spec, including D2's nullability choice *and*
+     what that choice forecloses for S4 — AGENTS.md directive 10 names
+     nullability as a decision that must be written down, and the foreclosure is
+     part of the decision, not a footnote.
+  2. **The spec's stance subsection, *"The stance these decisions add up to:
+     shape is guaranteed, meaning is not"*** — reproduced as the spec states it,
+     and kept **unnumbered**: it is a summary of what D1–D8 add up to, not a
+     ninth decision, and it gets no D-number. It is listed here because it is
+     the one cross-slice position this spec takes, and the decision record is
+     the artefact a future reader of the *code* will find. Without this entry,
+     D1–D8 would reach that reader and the sentence explaining them would not.
+  3. **D8's user-visible naming** (`Visit Time`, `Veterinarian`) under directive
+     10, and with it the two further names this revision settles: `visit` =
+     `Visit` (FR-19) and `visitBooked` = `Your visit has been booked` (FR-20,
+     wording carried across unchanged from the existing controller literal).
+  4. **Directive 9's exception**, which FR-18's reason supplies — a directive-3
+     violation closed in the file this change edits, at the cost of two lines
+     and no translations. FR-19 and FR-20 are closed on the same boundary and
+     under the same exception, so record with them the part FR-18 did not have
+     to: FR-19 costs ten translations and FR-20 costs ten more, of a sentence.
+  5. **That FR-20 knowingly enlarges deferred objection O6's exposure**, and
+     that O6 was left deferred anyway.
 
 ## Module structure
 
@@ -120,7 +183,7 @@ each file is untouched (no unrelated reformatting).
 |---|---|
 | `owner/Visit.java` | Add `@Column(name = "start_time") @DateTimeFormat(pattern = "HH:mm") private LocalTime startTime;` and `@ManyToOne @JoinColumn(name = "vet_id") private Vet vet;` with plain accessors. The no-arg constructor keeps `date = tomorrow` and adds `startTime = LocalTime.of(9, 0)` (FR-4). |
 | `owner/Pet.java` | `@OrderBy("date ASC, startTime ASC")` on the visits association (FR-13). |
-| `owner/VisitController.java` | Constructor also takes `VetRepository`. New `@ModelAttribute("vets") Collection<Vet> populateVets()` returning `vets.findAll()` for the chooser. In `processNewVisitForm`, alongside the existing date check, reject a null vet and a null start time. |
+| `owner/VisitController.java` | Constructor also takes `VetRepository` and (FR-20) a `MessageSource`. New `@ModelAttribute("vets") Collection<Vet> populateVets()` returning `vets.findAll()` for the chooser. In `processNewVisitForm`, alongside the existing date check, reject a null vet and a null start time. **Also (FR-20):** line 110's `addFlashAttribute("message", "Your visit has been booked")` becomes `addFlashAttribute("message", messageSource.getMessage("visitBooked", null, LocaleContextHolder.getLocale()))`. One line, one new key, and the sentence itself is unchanged. |
 | `vet/VetFormatter.java` *(new)* | `Formatter<Vet>` mirroring `PetTypeFormatter`: `print` returns the vet's id as a string; `parse` loops `vets.findAll()` and matches on id, throwing `ParseException` for an unknown id. Lives in `vet` because it formats a `Vet`; `@Component`, so it is registered globally exactly as `PetTypeFormatter` is. |
 
 `VetRepository` is **not** changed: `findAll()` already exists and is cached,
@@ -133,13 +196,13 @@ and six vets do not justify a new query method. This also keeps the standing
 |---|---|
 | `fragments/inputField.html` | Add `<input th:case="'time'" class="form-control" type="time" th:field="*{__${name}__}" />` to the existing `th:switch`. |
 | `fragments/selectField.html` | Add a second fragment in the same file, `selectVet (label, name, items)`, whose options carry `th:value="${item.id}"` and `th:text="${item.firstName + ' ' + item.lastName}"`. The existing `select` fragment cannot express a label that differs from its value, which is what a vet chooser needs. |
-| `pets/createOrUpdateVisitForm.html` | Add the time input and the vet select to the form; add Time and Vet columns to the previous-visits table. Labels and headings via `#{visitTime}` and `#{vet}`. **Also (FR-18):** the two existing `fragments/inputField` calls on lines 32–33 have their literal labels `'Date'` and `'Description'` replaced with `#{date}` and `#{description}` — two lines, two keys that already exist and are already translated everywhere. |
-| `owners/ownerDetails.html` | Add Time and Vet columns to each pet's visits table, headings via `#{visitTime}` and `#{vet}`. |
-| `messages/messages.properties` + 10 bundles | Two new keys and no others: `visitTime=Visit Time` and `vet=Veterinarian` in `messages.properties` (D8), with a real translation of each in every bundle. No new error key: missing vet and missing start time are rejected with the existing, already-translated `required` code. FR-18 touches this file **not at all** — `date` and `description` are already present in all eleven files. |
+| `pets/createOrUpdateVisitForm.html` | Add the time input and the vet select to the form; add Time and Vet columns to the previous-visits table. Labels and headings via `#{visitTime}` and `#{vet}`. **Also (FR-18):** the two existing `fragments/inputField` calls on lines 32–33 have their literal labels `'Date'` and `'Description'` replaced with `#{visitDate}` and `#{description}` — two lines, two keys that already exist and are already translated everywhere. `visitDate`, not `date`, so the form's label matches the heading `owners/ownerDetails.html:63` already uses for the same column. **And one line further (FR-18, consistency not compliance):** the previous-visits table heading on line 48 moves from `#{date}` to `#{visitDate}` as well — already-keyed markup, so this closes no violation; it is changed so the column is named identically on both screens in what a user actually sees, at zero translation cost. It is the one part of FR-18 a maintainer can drop without affecting the rest. **Also (FR-19):** the `<h2>` on lines 7–10 loses its literal `Visit`; the heading is composed from `#{new}` and the new `#{visit}` so no English word is rendered as template text. |
+| `owners/ownerDetails.html` | Add Time and Vet columns to each pet's visits table, headings via `#{visitTime}` and `#{vet}`. The existing `#{visitDate}` heading on line 63 is unchanged — FR-18 moves the *form* onto this key, not the other way round. |
+| `messages/messages.properties` + 10 bundles | **Four** new keys and no others: `visitTime=Visit Time` and `vet=Veterinarian` (D8, FR-15), `visit=Visit` (FR-19) and `visitBooked=Your visit has been booked` (FR-20), with a real translation of each in every bundle. No new error key: missing vet and missing start time are rejected with the existing, already-translated `required` code. FR-18 touches these files **not at all** — `visitDate` and `description` are already present in all eleven. See the i18n constraint above for which of the four are derivable and which is not. |
 
-Reusing `required` rather than inventing error keys keeps the i18n surface of
-this change to two labels — the smallest translation obligation that satisfies
-FR-15.
+Reusing `required` rather than inventing error keys still keeps error text off
+the translation bill entirely; the four keys above are all labels and one
+sentence, and there is no fifth.
 
 Passing a `#{...}` expression as the fragment's label argument is the idiom
 `owners/createOrUpdateOwnerForm.html` already uses for all five of its fields,
@@ -148,6 +211,25 @@ string it is handed, and the change is only in what is handed to it.
 `pets/createOrUpdatePetForm.html` carries the same literal-label violation and
 is **not** edited — it is not a file this change otherwise touches, so it stays
 outside the directive-9 exception.
+
+**How the FR-19 heading is composed, and the grammar problem it inherits.** The
+`<h2>` becomes two keyed blocks — the existing `th:text="#{new}"` conditional
+block, followed by `<th:block th:text="#{visit}">Visit</th:block>` — which is
+the smallest diff and leaves the `visit['new']` conditional exactly as it is.
+It is also the construction that inherits a translator's problem: a heading
+assembled from two keys has the grammar of neither. English `New ` + `Visit`
+reads correctly; German `Neu` + `Besuch` gives *Neu Besuch* where German wants
+*Neuer Besuch*, because the adjective inflects before the noun, and the same
+class of problem will appear in other bundles. The alternatives, both wider
+than this change: one key per heading (`newVisit=New Visit`, so each locale
+composes its own heading, at the cost of a second new key and of the
+`#{new}` key losing its only remaining consumer here), or parameterised
+composition. **The two-key composition is what this plan specifies**, and
+FR-19's requirement is only that no English word survives in the heading — so a
+locale whose grammar the composition mangles is a translation-quality defect to
+raise with a human, not a test failure. T-20 asserts the absence of the English
+literal and the presence of the translated noun; it does not assert the
+heading's grammar, because no assertion available here could.
 
 ## Algorithm notes
 
@@ -171,6 +253,25 @@ outside the directive-9 exception.
 - **Nothing checks availability.** There is no lookup of other visits at POST
   time. FR-17 is satisfied by absence, and AS-13 asserts that absence so it is
   not mistaken for a missing check later.
+- **Where the confirmation message is resolved (FR-20).** In the controller, at
+  the point the flash attribute is set, against
+  `LocaleContextHolder.getLocale()` — **not** in the template. The template that
+  renders it, `owners/ownerDetails.html:9-10`, displays whatever `${message}`
+  holds, and four other flash messages reach that same span from
+  `OwnerController` (lines 85, 160) and `PetController` (135, 177), all of them
+  still hardcoded English. Putting a `#{...}` lookup in the template would
+  therefore break the other four. Resolving in the controller keeps FR-20 to one
+  line in one file. The cost is that the locale is captured at POST time rather
+  than at render time, which for a redirect-and-render in a single request is
+  the same locale.
+- **The other four flash literals are not touched.** `OwnerController` and
+  `PetController` carry the same hardcoded-English pattern, and this change
+  edits neither file — so by the boundary criterion FR-18's note states, they
+  stay outside the exception, exactly as `pets/createOrUpdatePetForm.html`
+  does. After this change, one of the application's five flash messages is
+  keyed and four are not, which is a smaller inconsistency than the one FR-20
+  closes but is a real one, and it belongs in the decision record beside FR-20's
+  reason.
 
 ## Test cases
 
@@ -195,7 +296,9 @@ fictional vet list. (The `includeFilters` pattern is already used by
 | T-8 | `processNewVisitFormHasErrorsWhenVisitDateIsNotInFuture` — existing test, extended with the new params; still expects `typeMismatch.visitDate`. |
 | T-9 | `processNewVisitFormRejectsBlankDescription` — existing error test, extended with the new params; still 200 and form view. |
 | T-10 | `previousVisitsShowVetAndTime` — GET for a pet with an existing visit; rendered content contains `14:30` and the vet's full name. |
-| T-19 | `visitFormLabelsAllComeFromMessageKeys` — GET the form with `Accept-Language: de`; rendered content contains the German label for the date field (`Datum`) and for the description field (`Beschreibung`), and contains neither `>Date<` nor `>Description<`. Covers FR-18 and AS-14. *(Numbered after the existing tests so nothing is renumbered; it belongs to this class.)* |
+| T-19 | `visitFormLabelsAllComeFromMessageKeys` — GET the form with `Accept-Language: de`; rendered content contains the German label for the date field (`Besuchsdatum`, the value of `visitDate`) and for the description field (`Beschreibung`), and contains neither `>Date<` nor `>Description<`. `Besuchsdatum` should appear twice — once as the field label and once as the previous-visits table heading — and the rendered page should contain no `>Datum<`, which is what pins the form to the same key as the owner page. Match on `>Datum<` and not on `Datum`: `Geburtsdatum` (the pet table's `birthDate` heading, eight lines up) contains the substring and must not trip the assertion. Covers FR-18 and AS-14. *(Numbered after the existing tests so nothing is renumbered; it belongs to this class.)* |
+| T-20 | `visitFormHeadingComesEntirelyFromMessageKeys` — GET the form with `Accept-Language: de`; the rendered `<h2>` contains the German for `visit` (`Besuch`) and the rendered page contains no bare `Visit` heading text. Scope the assertion to the `<h2>`, because `Besuch` also appears in the `addVisit` button and in `Besuchsdatum`. Asserts no English word survives in the heading; deliberately asserts **nothing** about the composed heading's grammar (see *Templates and messages*). Covers FR-19 and AS-16. |
+| T-21 | `confirmationMessageComesFromAMessageKey` — POST a valid visit with `Accept-Language: de`; the flash attribute `message` equals the German value of `visitBooked` and is **not** the English literal `Your visit has been booked`. Covers FR-20 and AS-15. |
 
 `OwnerControllerTests`
 
@@ -223,7 +326,7 @@ Harness tests — no new test files, but both must pass unchanged:
 | # | Test |
 |---|---|
 | T-17 | `SchemaParityTest` — `visits` declares `vet_id` and `start_time` in h2, mysql and postgres. |
-| T-18 | `I18nPropertiesSyncTest` — `visitTime` and `vet` present in every bundle, with real translations of `Visit Time` and `Veterinarian`. A failure here means a locale is missing a trustworthy translation and must be raised with a human, not patched with English. FR-18 cannot affect this test: it adds no key. |
+| T-18 | `I18nPropertiesSyncTest` — all four new keys (`visitTime`, `vet`, `visit`, `visitBooked`) present in every bundle, with real translations of `Visit Time`, `Veterinarian`, `Visit` and `Your visit has been booked`. A failure here means a locale is missing a trustworthy translation and must be raised with a human, not patched with English. FR-18 cannot affect this test: it adds no key. FR-19 and FR-20 each can, and `visitBooked` is the likeliest to hold the change up — see the i18n constraint and O6. |
 
 ## FR mapping
 
@@ -236,17 +339,19 @@ Harness tests — no new test files, but both must pass unchanged:
 | FR-5 | T-5, T-7 |
 | FR-6 | T-6 |
 | FR-7 | T-8, T-9 |
-| FR-8 | T-3, T-4 |
+| FR-8 | T-3, T-4, T-21 |
 | FR-9 | T-11 |
 | FR-10 | T-10 |
 | FR-11 | T-17, plus T-15/T-16 booting against the real H2 schema |
 | FR-12 | T-15, T-17 |
 | FR-13 | T-12 |
 | FR-14 | T-10, T-11 |
-| FR-15 | T-18 |
+| FR-15 | T-18 (all four keys present and translated); T-19, T-20, T-21 (each new string reaching a rendered page from a key) |
 | FR-16 | No new test; enforced by review — no owner field is added to any template or message in this change |
 | FR-17 | Asserted by absence; AS-13 is left untested at controller level because there is no code to test. If the maintainer wants it pinned, add an integration test creating two visits with the same vet and time and asserting both persist. |
 | FR-18 | T-19 |
+| FR-19 | T-20, T-18 |
+| FR-20 | T-21, T-18 |
 
 ## Risks and things to check while implementing
 
@@ -260,12 +365,34 @@ Harness tests — no new test files, but both must pass unchanged:
 - **Existing POSTs in tests.** Every existing test that posts a visit will fail
   until it supplies `vet` and `startTime`. That is expected and is the point of
   D2; updating them is part of this change, not a separate cleanup.
-- **T-19 needs the message source in the web slice.** `@WebMvcTest`
+- **T-19 and T-20 need the message source in the web slice.** `@WebMvcTest`
   auto-configures `MessageSource`, so `Accept-Language: de` should resolve
-  `date` and `description` from `messages_de.properties`. If it does not in this
-  project's setup, assert instead that the rendered form contains no label text
-  that is absent from the bundles — but do not weaken T-19 into a test of the
-  template's source text, which is structure rather than observable behaviour.
+  `visitDate`, `description` and `visit` from `messages_de.properties`. If it
+  does not in this project's setup, assert instead that the rendered form
+  contains no label text that is absent from the bundles — but do not weaken
+  T-19 or T-20 into a test of the template's source text, which is structure
+  rather than observable behaviour.
+- **T-21 needs the message source in the controller, not just the view.** FR-20
+  resolves the sentence in `VisitController`, so `@WebMvcTest` must supply a
+  `MessageSource` bean to the controller's constructor as well as to the view
+  layer. If the slice does not inject one, the controller will fail to
+  construct and every test in the class fails at startup rather than at the
+  assertion — a failure that looks nothing like the thing it is.
+- **`visitBooked` will be the last key to go green.** Ten sentence
+  translations, derivable from nothing (see the i18n constraint). Under the
+  harness's *Tests must pass* gate this blocks the merge, which is deferred
+  objection O6 firing exactly as O6 predicted. Raise the translations with a
+  human at the **start** of implementation, not when `I18nPropertiesSyncTest`
+  goes red. Do not, under any circumstances, satisfy the sync test by copying
+  the English sentence into a bundle — directive 4 forbids it and the whole
+  point of FR-20's cost being written down is that this shortcut is the
+  tempting one.
+- **The composed FR-19 heading may read ungrammatically in some locales.**
+  `#{new}` + `#{visit}` gives *Neu Besuch* in German where *Neuer Besuch* is
+  correct. This is a known, accepted consequence of the two-key composition;
+  it is not a test failure and T-20 does not assert grammar. If a translator
+  raises it, the fix is a per-locale `newVisit` key, which is a wider change
+  than this one and belongs to whoever takes it.
 - **`start_time` as a reserved word.** It is not reserved in any of the three
   dialects, but `TIME` as a bare column name would be — hence `start_time`,
   which also leaves room for an end time later without renaming.
