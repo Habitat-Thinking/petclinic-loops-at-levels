@@ -177,12 +177,19 @@ preflight(){
   # Level 4 only: the segment enters the pipeline at a checkpoint, so the checkpoints
   # are the demo. A missing one is a beat that cannot be shown.
   if [[ $level == 4 ]]; then
-    local missing_cp=0 unpushed_cp=0 cp=""
+    local missing_cp=0 unpushed_cp=0 held_cp=0 cp="" cp_holder=""
     for cp in $L4_CHECKPOINTS; do
       git -C $REPO show-ref -q --verify refs/heads/$cp || { bad "checkpoint $cp missing locally"; missing_cp=1 }
       git -C $REPO show-ref -q --verify refs/remotes/origin/$cp || { warn "checkpoint $cp not on origin"; unpushed_cp=1 }
+      # A checkpoint held in another worktree cannot be switched to, and the beat that
+      # needs it fails mid-segment. Found the hard way: a scratch worktree holding one
+      # produces "fatal: already used by worktree at ...".
+      cp_holder=$(git -C $REPO worktree list --porcelain | awk -v b="refs/heads/$cp" '
+        /^worktree /{w=$2} /^branch /{if ($2==b) print w}')
+      [[ -n $cp_holder ]] && { bad "checkpoint $cp is checked out in another worktree: $cp_holder — that beat would fail (git worktree remove)"; held_cp=1 }
     done
     (( missing_cp == 0 )) && ok "all 5 checkpoints present (${L4_CHECKPOINTS})"
+    (( held_cp == 0 )) && ok "no checkpoint held in another worktree"
     (( unpushed_cp == 0 )) && ok "checkpoints pushed"
     # The harness beat shows captured output, but the hook has to be live if anyone
     # asks to see it fire — it is the same clone setting Level 3 needs.
