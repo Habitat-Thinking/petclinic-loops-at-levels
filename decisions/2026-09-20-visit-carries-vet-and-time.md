@@ -188,13 +188,15 @@ foreseen.
   translates. `@NotNull` would produce `NotNull.visit.vet` codes that no bundle carries,
   adding error text to a translation bill this change is already straining.
 
-- **Decision**: the missing-vet rejection is skipped when the binder has already
-  recorded a field error on `vet`.
+- **Decision**: the missing-vet and missing-start-time rejections are each skipped when
+  the binder has already recorded a field error on that field.
   **Alternatives**: reject unconditionally.
-  **Why**: an unknown vet id fails in `VetFormatter.parse`, which leaves a
-  `typeMismatch` error and a null vet. Rejecting again would stack a second, misleading
-  "is required" on a field the user did fill in. The user-visible outcome of an unknown
-  id is unchanged — back to the form with an error on the vet field.
+  **Why**: an unknown vet id fails in `VetFormatter.parse` and an unparseable time (a
+  non-browser client posting `startTime=9am`) fails in the `HH:mm` binder; either leaves
+  a `typeMismatch` error and a null value. Rejecting again would stack a second,
+  misleading "is required" on a field the user did fill in, and `th:errors` renders
+  both. The user-visible outcome of either bad value is unchanged — back to the form
+  with one error on the field concerned.
 
 - **Decision**: `VetFormatter` parses by **id**, not by displayed name.
   **Alternatives**: mirror `PetTypeFormatter` exactly and parse the name.

@@ -131,11 +131,16 @@ class VisitController {
 		// Rejected here rather than with bean validation so that the error code is the
 		// project's existing, already-translated "required" rather than a NotNull code
 		// no message bundle carries.
+		//
+		// Both rejections are skipped when the binder has already recorded a field
+		// error: an unknown vet id or an unparseable time leaves a typeMismatch error
+		// and a null value, and rejecting again would stack a second, misleading
+		// "is required" on a field the user did fill in.
 		if (visit.getVet() == null && !result.hasFieldErrors("vet")) {
 			result.rejectValue("vet", "required");
 		}
 
-		if (visit.getStartTime() == null) {
+		if (visit.getStartTime() == null && !result.hasFieldErrors("startTime")) {
 			result.rejectValue("startTime", "required");
 		}
 

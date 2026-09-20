@@ -41,6 +41,7 @@ import org.springframework.samples.petclinic.vet.Vet;
 import org.springframework.samples.petclinic.vet.VetFormatter;
 import org.springframework.samples.petclinic.vet.VetRepository;
 import org.springframework.test.context.aot.DisabledInAotMode;
+import org.springframework.validation.BindingResult;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.util.StringUtils;
@@ -207,6 +208,32 @@ class VisitControllerTests {
 			.andExpect(status().isOk())
 			.andExpect(view().name("pets/createOrUpdateVisitForm"))
 			.andExpect(model().attributeHasFieldErrors("visit", "vet"));
+
+		verify(this.owners, never()).save(any());
+	}
+
+	// FR-6 — an unparseable start time. Unreachable from a browser, whose time
+	// input posts HH:mm or nothing, but reachable from any other client. The
+	// binder already records a typeMismatch on the field and leaves it null, so
+	// the controller's "required" rejection must stand aside or th:errors would
+	// render two errors for one bad value.
+	@Test
+	void processNewVisitFormReportsOneErrorForAnUnparseableStartTime() throws Exception {
+		BindingResult result = (BindingResult) mockMvc
+			.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID)
+				.param("date", LocalDate.now().plusDays(1).toString())
+				.param("startTime", "9am")
+				.param("vet", String.valueOf(TEST_VET_ID))
+				.param("description", "Visit Description"))
+			.andExpect(status().isOk())
+			.andExpect(view().name("pets/createOrUpdateVisitForm"))
+			.andExpect(model().attributeHasFieldErrors("visit", "startTime"))
+			.andReturn()
+			.getModelAndView()
+			.getModel()
+			.get(BindingResult.MODEL_KEY_PREFIX + "visit");
+
+		assertThat(result.getFieldErrors("startTime")).as("errors on the start time field").hasSize(1);
 
 		verify(this.owners, never()).save(any());
 	}

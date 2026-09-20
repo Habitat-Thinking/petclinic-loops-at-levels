@@ -104,6 +104,9 @@ class OwnerControllerTests {
 		given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(george));
 		Visit visit = new Visit();
 		visit.setDate(LocalDate.now());
+		// A visit carries a vet from this slice on: vet_id is NOT NULL in all three
+		// schemas, so a fixture without one models a state the product forbids.
+		visit.setVet(helenLeary());
 		george.getPet("Max").getVisits().add(visit);
 
 	}
