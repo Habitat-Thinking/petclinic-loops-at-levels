@@ -199,7 +199,11 @@ class VisitControllerTests {
 	// T-7 — AS-5, FR-5
 	@Test
 	void processNewVisitFormRejectsUnknownVet() throws Exception {
-		mockMvc
+		// An unknown id is the vet's version of an unparseable time: the formatter
+		// rejects it, so the field already carries a typeMismatch. Asserting the
+		// count, not just the presence, is what pins the controller's guard —
+		// without it the guard can be deleted and this test stays green.
+		BindingResult result = (BindingResult) mockMvc
 			.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID)
 				.param("date", LocalDate.now().plusDays(1).toString())
 				.param("startTime", "14:30")
@@ -207,7 +211,13 @@ class VisitControllerTests {
 				.param("description", "Visit Description"))
 			.andExpect(status().isOk())
 			.andExpect(view().name("pets/createOrUpdateVisitForm"))
-			.andExpect(model().attributeHasFieldErrors("visit", "vet"));
+			.andExpect(model().attributeHasFieldErrors("visit", "vet"))
+			.andReturn()
+			.getModelAndView()
+			.getModel()
+			.get(BindingResult.MODEL_KEY_PREFIX + "visit");
+
+		assertThat(result.getFieldErrors("vet")).as("errors on the vet field").hasSize(1);
 
 		verify(this.owners, never()).save(any());
 	}
