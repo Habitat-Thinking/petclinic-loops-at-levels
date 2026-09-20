@@ -47,7 +47,7 @@ INSERT INTO pets VALUES (default, 'Freddy', '2010-03-09', 5, 9);
 INSERT INTO pets VALUES (default, 'Lucky', '2010-06-24', 2, 10);
 INSERT INTO pets VALUES (default, 'Sly', '2012-06-08', 1, 10);
 
-INSERT INTO visits VALUES (default, 7, '2013-01-01', 'rabies shot');
-INSERT INTO visits VALUES (default, 8, '2013-01-02', 'rabies shot');
-INSERT INTO visits VALUES (default, 8, '2013-01-03', 'neutered');
-INSERT INTO visits VALUES (default, 7, '2013-01-04', 'spayed');
+INSERT INTO visits (pet_id, vet_id, visit_date, start_time, description) VALUES (7, 1, '2013-01-01', '09:00:00', 'rabies shot');
+INSERT INTO visits (pet_id, vet_id, visit_date, start_time, description) VALUES (8, 2, '2013-01-02', '10:30:00', 'rabies shot');
+INSERT INTO visits (pet_id, vet_id, visit_date, start_time, description) VALUES (8, 3, '2013-01-03', '14:00:00', 'neutered');
+INSERT INTO visits (pet_id, vet_id, visit_date, start_time, description) VALUES (7, 4, '2013-01-04', '15:30:00', 'spayed');

@@ -55,7 +55,7 @@ public class Pet extends NamedEntity {
 
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name = "pet_id")
-	@OrderBy("date ASC")
+	@OrderBy("date ASC, startTime ASC")
 	private final Set<Visit> visits = new LinkedHashSet<>();
 
 	public void setBirthDate(LocalDate birthDate) {

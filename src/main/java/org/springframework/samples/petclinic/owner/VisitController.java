@@ -16,9 +16,15 @@
 package org.springframework.samples.petclinic.owner;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.samples.petclinic.vet.Vet;
+import org.springframework.samples.petclinic.vet.VetRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
@@ -44,8 +50,14 @@ class VisitController {
 
 	private final OwnerRepository owners;
 
-	public VisitController(OwnerRepository owners) {
+	private final VetRepository vets;
+
+	private final MessageSource messages;
+
+	public VisitController(OwnerRepository owners, VetRepository vets, MessageSource messages) {
 		this.owners = owners;
+		this.vets = vets;
+		this.messages = messages;
 	}
 
 	@InitBinder
@@ -80,6 +92,16 @@ class VisitController {
 		return visit;
 	}
 
+	/**
+	 * Every vet in the clinic, for the form's vet chooser. A visit names exactly one vet
+	 * and the whole list is small and cached, so there is no query to add here.
+	 * @return every vet
+	 */
+	@ModelAttribute("vets")
+	public Collection<Vet> populateVets() {
+		return this.vets.findAll();
+	}
+
 	@ModelAttribute("minVisitDate")
 	public LocalDate minVisitDate() {
 		return LocalDate.now().plusDays(1);
@@ -88,7 +110,12 @@ class VisitController {
 	// Spring MVC calls method loadPetWithVisit(...) before initNewVisitForm is
 	// called
 	@GetMapping("/owners/{ownerId}/pets/{petId}/visits/new")
-	public String initNewVisitForm() {
+	public String initNewVisitForm(@ModelAttribute("visit") Visit visit) {
+		// The form is offered tomorrow at nine (FR-4). The date default comes from the
+		// Visit constructor; the start time cannot, because a constructor default is
+		// indistinguishable from a submitted one and a submission that omits the start
+		// time has to be rejected.
+		visit.setStartTime(LocalTime.of(9, 0));
 		return "pets/createOrUpdateVisitForm";
 	}
 
@@ -101,13 +128,25 @@ class VisitController {
 			result.rejectValue("date", "typeMismatch.visitDate");
 		}
 
+		// Rejected here rather than with bean validation so that the error code is the
+		// project's existing, already-translated "required" rather than a NotNull code
+		// no message bundle carries.
+		if (visit.getVet() == null && !result.hasFieldErrors("vet")) {
+			result.rejectValue("vet", "required");
+		}
+
+		if (visit.getStartTime() == null) {
+			result.rejectValue("startTime", "required");
+		}
+
 		if (result.hasErrors()) {
 			return "pets/createOrUpdateVisitForm";
 		}
 
 		owner.addVisit(petId, visit);
 		this.owners.save(owner);
-		redirectAttributes.addFlashAttribute("message", "Your visit has been booked");
+		redirectAttributes.addFlashAttribute("message",
+				this.messages.getMessage("visitBooked", null, LocaleContextHolder.getLocale()));
 		return "redirect:/owners/{ownerId}";
 	}
 

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+<!--/* A chooser whose option label differs from the value it posts: each option shows a
+       vet's name and posts that vet's id. fragments/selectField cannot express this — its
+       option uses the same item for value and text — and this fragment cannot live beside
+       it in that file either: `~{fragments/selectField :: select (...)}` is a markup
+       selector that matches every <select> element in the file as well as the fragment of
+       that name, so a second <select> there renders into the pet form's type chooser. */-->
+<html xmlns:th="https://www.thymeleaf.org">
+
+<body>
+  <form>
+    <th:block th:fragment="selectVet (label, name, items)">
+      <div th:with="valid=${!#fields.hasErrors(name)}" th:class="${'form-group' + (valid ? '' : ' has-error')}"
+        class="form-group">
+        <label th:for="${name}" class="col-sm-2 control-label" th:text="${label}">Label</label>
+
+        <div class="col-sm-10">
+          <select th:field="*{__${name}__}">
+            <option th:each="item : ${items}" th:value="${item.id}"
+              th:text="${item.firstName + ' ' + item.lastName}">James Carter</option>
+          </select>
+          <span th:if="${valid}" class="fa fa-ok form-control-feedback" aria-hidden="true"></span>
+          <th:block th:if="${!valid}">
+            <span class="fa fa-remove form-control-feedback" aria-hidden="true"></span>
+            <span class="help-inline" th:errors="*{__${name}__}" th:text="#{error}">Error</span>
+          </th:block>
+        </div>
+      </div>
+    </th:block>
+  </form>
+</body>
+
+</html>

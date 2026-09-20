@@ -4,10 +4,7 @@
 
 <body>
 
-  <h2>
-    <th:block th:if="${visit['new']}" th:text="#{new}">New </th:block>
-    Visit
-  </h2>
+  <h2 th:text="#{newVisit}">New Visit</h2>
 
   <b th:text="#{pet}">Pet</b>
   <table class="table table-striped">
@@ -29,8 +26,10 @@
 
   <form th:object="${visit}" class="form-horizontal" method="post">
     <div class="form-group has-feedback">
-      <input th:replace="~{fragments/inputField :: input ('Date', 'date', 'date')}" />
-      <input th:replace="~{fragments/inputField :: input ('Description', 'description', 'text')}" />
+      <input th:replace="~{fragments/inputField :: input (#{visitDate}, 'date', 'date')}" />
+      <input th:replace="~{fragments/inputField :: input (#{visitTime}, 'startTime', 'time')}" />
+      <input th:replace="~{fragments/selectVetField :: selectVet (#{vet}, 'vet', ${vets})}" />
+      <input th:replace="~{fragments/inputField :: input (#{description}, 'description', 'text')}" />
     </div>
 
     <div class="form-group">
@@ -45,11 +44,15 @@
   <b th:text="#{previousVisits}">Previous Visits</b>
   <table class="table table-striped">
     <tr>
-      <th th:text="#{date}">Date</th>
+      <th th:text="#{visitDate}">Visit Date</th>
+      <th th:text="#{visitTime}">Visit Time</th>
+      <th th:text="#{vet}">Veterinarian</th>
       <th th:text="#{description}">Description</th>
     </tr>
     <tr th:if="${!visit['new']}" th:each="visit : ${pet.visits}">
       <td th:text="${#temporals.format(visit.date, 'yyyy-MM-dd')}"></td>
+      <td th:text="${#temporals.format(visit.startTime, 'HH:mm')}"></td>
+      <td th:text="${visit.vet?.firstName + ' ' + visit.vet?.lastName}"></td>
       <td th:text=" ${visit.description}"></td>
     </tr>
   </table>

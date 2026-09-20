@@ -16,12 +16,16 @@
 package org.springframework.samples.petclinic.owner;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.samples.petclinic.model.BaseEntity;
+import org.springframework.samples.petclinic.vet.Vet;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 
@@ -39,11 +43,24 @@ public class Visit extends BaseEntity {
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
 	private LocalDate date;
 
+	@Column(name = "start_time")
+	@DateTimeFormat(pattern = "HH:mm")
+	private LocalTime startTime;
+
+	@ManyToOne
+	@JoinColumn(name = "vet_id")
+	private Vet vet;
+
 	@NotBlank
 	private String description;
 
 	/**
-	 * Creates a new instance of Visit for tomorrow
+	 * Creates a new instance of Visit for tomorrow.
+	 *
+	 * The start time is deliberately left unset here, unlike the date. A value set in
+	 * this constructor survives a submission that omits the field, and the start time is
+	 * required (FR-6), so the form's 09:00 default is applied by the controller when the
+	 * form is rendered instead.
 	 */
 	public Visit() {
 		this.date = LocalDate.now().plusDays(1);
@@ -55,6 +72,22 @@ public class Visit extends BaseEntity {
 
 	public void setDate(LocalDate date) {
 		this.date = date;
+	}
+
+	public LocalTime getStartTime() {
+		return this.startTime;
+	}
+
+	public void setStartTime(LocalTime startTime) {
+		this.startTime = startTime;
+	}
+
+	public Vet getVet() {
+		return this.vet;
+	}
+
+	public void setVet(Vet vet) {
+		this.vet = vet;
 	}
 
 	public String getDescription() {
