@@ -5,7 +5,7 @@ Deterministic. No model in the loop, so it cannot improvise on stage.
 ```sh
 ./bin/demo profiles           # which profile is which, and are they logged in
 ./bin/demo preflight 3        # is this machine ready? --fix repairs what is safe
-./bin/demo run 3              # teleprompt the segment, beat by beat (levels 1-3)
+./bin/demo run 4              # teleprompt the segment, beat by beat (levels 1-4)
 ./bin/demo fallback 3         # abandon a wandering live run
 ```
 
@@ -39,8 +39,19 @@ you. Nor can it tell whether a profile will show a first-run screen: after a Cla
 upgrade, launch each profile interactively once and quit, or the theme picker gets its
 own slot in your segment.
 
-Levels 2 and 3 share one launch profile: from Level 3 on, what changes is in the
+Levels 2, 3 and 4 share one launch profile: from Level 3 on, what changes is in the
 repository, not the launcher.
+
+Level 4 additionally checks that all five checkpoint branches exist locally and on
+origin. The segment is built on them, because the pipeline does not fit in stage time.
+
+**Level 4 switches branches as it goes**, which no earlier segment does — beats 3, 5,
+6, 8, 9 and 10 each `git switch` to the checkpoint they need. Two consequences worth
+knowing before you rehearse it: the working tree must be clean when you start or the
+switches fail mid-beat, and you will finish the segment on `level-4-orchestrating`
+rather than where you began. `./bin/demo fallback 4` prints the checkpoint-to-beat map
+rather than switching for you, because at Level 4 a fallback is a navigation choice
+rather than an escape.
 
 ## The agent-driven variant
 

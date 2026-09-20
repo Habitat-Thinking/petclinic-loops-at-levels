@@ -1,0 +1,106 @@
+# Level 4 — Orchestrating. Beats for ./bin/demo run 4
+# MODE: run = the script runs it | copy = copied to clipboard to paste into the agent
+#       manual = you type it
+#
+# Beat 10 is not cuttable. If you are over time, skip beats 6 and 9.
+
+### The task had to change, and say why
+TIME: 30s
+SAY: Levels 1 to 3 added an email field. It was chosen because it had no interesting
+SAY: decisions in it - which is exactly what made it a fair comparison of output, and
+SAY: exactly what makes it useless here. This level is about decisions, so the task grew.
+SAY: The new one: an owner books a visit against a vet's published availability.
+SAY: A visit today has a pet, a bare date and a description. No vet, no time of day.
+SAY: It cannot be added as a column, which is the point.
+CMD: sed -n '/class Visit/,/^}/p' src/main/java/org/springframework/samples/petclinic/owner/Visit.java
+MODE: run
+
+### Run /carpaccio live
+TIME: 2-4 min
+SAY: Rehearsed at 3 minutes 33 of agent time. Talk while it reads the directives.
+SAY: It is slicing a feature into pieces that each ship something observable, and it is
+SAY: about to hand every one of them back undecided.
+SAY: CUT POINT: past four minutes, switch to l4-1-sliced and say you have run it before.
+CMD: /carpaccio An owner books a visit online against a vet's published availability. From the pet's page, an owner picks a vet and an open slot and books a visit; someone publishes what is open.
+MODE: copy
+
+### Open the record and point at pending
+TIME: 45s
+SAY: Five slices. Every disposition: pending. Every rationale: null.
+SAY: The agent produced the slices. It will not produce the dispositions, and the gate
+SAY: will not advance while one is pending. That word is the whole mechanism.
+CMD: git switch -q l4-1-sliced && grep -n 'disposition\|title:' docs/superpowers/slices/owner-books-visit-against-vet-availability.md | head -20
+MODE: run
+
+### Disposition one slice, live
+TIME: 60s
+SAY: Type it. Let it feel slow - this is the beat the whole talk has been building to.
+SAY: Say what you are doing while you type: accepted, and why, in your own words.
+SAY: Do not narrate the pipeline here. Narrate the decision.
+CMD: $EDITOR docs/superpowers/slices/owner-books-visit-against-vet-availability.md
+MODE: manual
+
+### Jump to the spec checkpoint
+TIME: 30s
+SAY: Do not watch a spec being written. This is the state after the dispositions:
+SAY: S2 progressed, spec and plan produced, seven decisions taken and written down
+SAY: where a human can overturn them.
+CMD: git switch -q l4-2-spec && sed -n '/## Decisions taken/,/^### D2/p' docs/superpowers/specs/visit-carries-vet-and-time.md | head -30
+MODE: run
+
+### The objections, grounded in the spec's own words
+TIME: 60s
+SAY: Eleven objections, all pending, each quoting the spec text it objects to.
+SAY: Read O1 out: the user story promises the owner knows who they are seeing, and
+SAY: FR-17 declines to support it. That is not generic advice. It read the document.
+SAY: CUT THIS BEAT FIRST if you are over time.
+CMD: git switch -q l4-3-objections && sed -n '/## O1 —/,/## O2 —/p' docs/superpowers/objections/visit-carries-vet-and-time.md
+MODE: run
+
+### Adjudicate one objection live
+TIME: 60s
+SAY: Accept it or reject it, out loud, and say why. Then the line:
+SAY: the purpose is not that objections get found. It is that a human engages with them.
+SAY: An objection nobody reads is a slower way of not having reviewed the spec.
+CMD: $EDITOR docs/superpowers/objections/visit-carries-vet-and-time.md
+MODE: manual
+
+### The decisions the spec made without saying so
+TIME: 60s
+SAY: Ten choice stories. Read #10 aloud - every constraint this change buys is about a
+SAY: field being present, and none is about the value being true.
+SAY: Nobody wrote that decision down. Nobody would have. It is the shape of eight
+SAY: decisions taken one at a time, and it only exists when something reads them together.
+CMD: git switch -q l4-4-choices && sed -n '/## Story #10/,/^## /p' docs/superpowers/stories/visit-carries-vet-and-time.md | head -34
+MODE: run
+
+### The code review, briefly
+TIME: 30s
+SAY: Thirty seconds. The implementation is not the point and has never been the point.
+SAY: Ninety-four tests green, review returned PASS, two claimed deviations verified
+SAY: rather than trusted.
+SAY: CUT THIS BEAT SECOND if you are over time.
+CMD: git switch -q l4-5-reviewed && git log --oneline -3
+MODE: run
+
+### The reckoning — UNCUTTABLE
+TIME: 2 min
+SAY: Numbers first, all from this one run. Twenty agent dispatches, one stalled.
+SAY: Five hours of agent time. 1.4 million tokens. Ninety-six tests. Twenty commits.
+SAY: Sixty-two decisions surfaced. Forty disposed. Twenty-two carried knowingly.
+SAY: And forty-five minutes of my attention, against nineteen hours on the clock.
+SAY: Do not quote the nineteen hours as work. The forty-five minutes is the finding.
+SAY: Then say where the attention went, and be specific, because it is recorded:
+SAY: at the first gate, eleven decisions got "works for me" in one line. At the second,
+SAY: eleven objections shared one rationale: "need the spec tightened".
+SAY: Then the shape of it: two accepted objections produced eight more decisions, four
+SAY: of those produced three more, and the translation bill went from twenty strings to
+SAY: forty, with the part nobody can derive going from ten to twenty.
+SAY: No single step was wrong. Nothing in the pipeline was watching the trajectory.
+SAY: Hard gates block on pending. Soft gates report a count. The harness sees markdown.
+SAY: The only thing that can notice what this is costing is me, and I am the one
+SAY: resource in the system that nothing measures.
+SAY: Last line, then stop: we have built something that decides well. We have not built
+SAY: anything that notices what deciding costs.
+CMD: git switch -q level-4-orchestrating && sed -n '/## Beat 10/,/^## If the live/p' $NOTES/level-4/RUN-SHEET.md
+MODE: run
