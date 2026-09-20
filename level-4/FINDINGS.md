@@ -5,7 +5,7 @@ owner books a visit against a vet's published availability*. Every disposition a
 adjudication in the committed artefacts is the maintainer's. Nothing here is
 reconstructed.
 
-These are the raw materials for `slides/AFTER-L4.md`. The five headline findings are
+These are the raw materials for `slides/AFTER-L4.md`. The six headline findings are
 in the order they'd carry a deck; the numbers are in beat 10's section of the run
 sheet.
 
