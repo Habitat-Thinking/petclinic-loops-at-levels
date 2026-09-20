@@ -1,0 +1,17 @@
+$ grep -A2 '^tools:' agents/{reservoir-warden,mast}.agent.md
+
+reservoir-warden:  tools: [Read, Glob, Grep, Bash]
+mast:              tools: [Read, Glob, Grep, Bash]
+
+# and the agents that DO act on the repository, from the same plugin:
+
+spec-writer:       tools: [Read, Write, Edit, Glob, Grep]
+tdd-agent:         tools: [Read, Write, Edit, Glob, Grep, Bash]
+integration-agent: tools: [Read, Write, Edit, Bash]
+harness-gc:        tools: ["Read", "Write", "Edit", "Glob", "Grep", "Bash"]
+
+# no Write. no Edit. no Agent. a sentinel cannot change the thing it watches,
+# and cannot delegate to something that can.
+
+$ grep -c 'Write\|Edit' agents/reservoir-warden.agent.md   # in the tool list
+0

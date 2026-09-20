@@ -20,4 +20,5 @@ exec env -i \
     --settings "$PROFILE/pinned-settings.json" \
     --strict-mcp-config \
     --plugin-dir "/Users/russellmiles/.claude-loops-at-levels-l2/plugins/cache/ai-literacy-superpowers/ai-literacy-superpowers/0.92.0" \
+    --plugin-dir "/Users/russellmiles/.claude-loops-at-levels-l2/plugins/cache/ai-literacy-superpowers/diagnostic-legibility/0.11.0" \
     "$@"
