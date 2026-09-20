@@ -104,9 +104,13 @@ class OwnerControllerTests {
 		given(this.owners.findById(TEST_OWNER_ID)).willReturn(Optional.of(george));
 		Visit visit = new Visit();
 		visit.setDate(LocalDate.now());
-		// A visit carries a vet from this slice on: vet_id is NOT NULL in all three
-		// schemas, so a fixture without one models a state the product forbids.
+		// A visit carries a vet and a start time from this slice on: vet_id,
+		// start_time and visit_date are all NOT NULL in the three schemas, so a
+		// fixture missing any of them models a state the product forbids. The vet
+		// was added first and the time was not, which left the owner page's Visit
+		// Time cell rendered empty here and unasserted anywhere.
 		visit.setVet(helenLeary());
+		visit.setStartTime(LocalTime.of(14, 30));
 		george.getPet("Max").getVisits().add(visit);
 
 	}
@@ -261,6 +265,9 @@ class OwnerControllerTests {
 			.andExpect(model().attribute("owner", hasProperty("pets", not(empty()))))
 			.andExpect(model().attribute("owner",
 					hasProperty("pets", hasItem(hasProperty("visits", hasSize(greaterThan(0)))))))
+			// FR-9 says the page shows the start time for every visit of every pet.
+			// Without this the fixture's empty time cell satisfied the test either way.
+			.andExpect(content().string(containsString("14:30")))
 			.andExpect(view().name("owners/ownerDetails"));
 	}
 

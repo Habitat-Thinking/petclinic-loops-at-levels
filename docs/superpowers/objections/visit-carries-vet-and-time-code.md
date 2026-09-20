@@ -17,43 +17,44 @@ objections:
     severity: high
     claim: "The new fragment written by this change puts th:errors and th:text on the same span, so the text a user reads when the new vet or start-time field is rejected is the generic word from the `error` key, not the field's error message; nothing in the suite asserts rendered error text, and the comment that justifies the controller's two new guards asserts a rendering behaviour the template does not have."
     evidence: "src/main/resources/templates/fragments/selectVetField.html:26 `<span class=\"help-inline\" th:errors=\"*{__${name}__}\" th:text=\"#{error}\">Error</span>` — both attributes set the element body, and th:text (precedence 1300) runs after th:errors (1200). src/main/java/.../owner/VisitController.java:134-138 comment: `rejecting again would stack a second, misleading \"is required\" on a field the user did fill in`; src/test/java/.../owner/VisitControllerTests.java:228-229 `the controller's \"required\" rejection must stand aside or th:errors would render two errors for one bad value`. VisitControllerTests.java:206-220 and 232-246 assert against `BindingResult.MODEL_KEY_PREFIX + \"visit\"` pulled out of the ModelAndView, never against the response body."
-    disposition: pending
-    disposition_rationale: null
+    disposition: rejected
+    disposition_rationale: "Reject O2, and pin it with a test. The premise is disproved: the span renders the field's message (`<span class=\"help-inline\">is required</span>`), th:errors is precedence 1700 not 1200 — 1200 is th:field — so th:errors runs after th:text and wins the body. Proved by rendering all three fragments and by javap on the jar on this build's classpath. The untested-span gap was real and is now pinned."
   - id: O3
     category: risk
     severity: high
     claim: "D2's NOT NULL on vet_id is the decision this change spends S4's option on, and no test anywhere asserts that either new constraint actually rejects anything; SchemaParityTest compares column presence and declared length only and never reads nullability, so a later change that drops NOT NULL from one dialect passes every gate in HARNESS.md."
     evidence: "src/test/java/.../harness/SchemaParityTest.java:55 `Pattern.compile(\"^\\\\s*([a-z_]+)\\\\s+([A-Za-z_]+)(?:\\\\((\\\\d+)\\\\))?\")` — name, type, length; line 148 `columns.put(name, column.group(3) == null ? null : Integer.valueOf(column.group(3)))`. ClinicServiceTests already owns the idiom at lines 279-281 (`assertThrows(DataIntegrityViolationException.class, ...)`) and does not use it for visits: shouldAddNewVisitForPet (220-240) and shouldFindVisitsByPetId (243-256) assert only that vet and startTime are non-null on rows that were written with them. FR-1 and FR-2: 'A visit cannot be created without one.'"
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "Accept — teach SchemaParityTest nullability."
+    disposition_note: "The parity half only. The second half of the claim — that no test asserts a database actually rejects a null — is not done: the check compares the three files to each other and starts no container. Spec O3 (provisioned databases never gaining the columns) is a different objection with the same number and stays deferred. This note is the dispatcher's record of scope, not the maintainer's rationale; the rationale line above is his words."
   - id: O4
     category: risk
     severity: medium
     claim: "Both screens dereference visit.vet with no safe navigation, on the line directly above one that keeps it for description, so a single visit row without a vet takes the whole owner page down with a template exception rather than rendering one empty cell."
     evidence: "src/main/resources/templates/owners/ownerDetails.html:72 `<td th:text=\"${visit.vet.firstName + ' ' + visit.vet.lastName}\"></td>` against line 73 `<td th:text=\"${visit?.description}\"></td>`. src/main/resources/templates/pets/createOrUpdateVisitForm.html:55 the same expression, with line 56 `<td th:text=\" ${visit.description}\"></td>` having lost the `?` the owner page kept."
-    disposition: pending
-    disposition_rationale: null
+    disposition: rejected
+    disposition_rationale: "Fail loud, the reviewer is right. vet_id is NOT NULL in three dialects, the controller rejects a null vet, and O3 now guards the constraint itself. A vet-less visit is corruption, and a blank cell would hide it. The time cell is the lenient one, not the vet cell the strict one."
   - id: O5
     category: implementation
     severity: medium
     claim: "The fixture comment added to OwnerControllerTests states the principle that a visit fixture without a vet models a state the product forbids, and the next line leaves startTime null although start_time is NOT NULL in the same three schemas; showOwner then renders a visit row with an empty Visit Time cell and passes."
     evidence: "src/test/java/.../owner/OwnerControllerTests.java:105-110 `Visit visit = new Visit(); visit.setDate(LocalDate.now()); // A visit carries a vet from this slice on: vet_id is NOT NULL in all three / // schemas, so a fixture without one models a state the product forbids. visit.setVet(helenLeary()); george.getPet(\"Max\").getVisits().add(visit);`. ownerDetails.html:71 renders `${#temporals.format(visit.startTime, 'HH:mm')}`, which returns null for a null target. showOwner (252-265) renders that fixture and is green."
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "Accept — finish the fixture."
   - id: O6
     category: implementation
     severity: medium
     claim: "FR-20's remedy puts a MessageSource into a controller and flashes an already-resolved string, making VisitController the only place in the codebase where user-visible text is composed outside a template; the decision record's account of what is left hardcoded names four remaining flash messages and omits three more."
     evidence: "src/main/java/.../owner/VisitController.java:24, 55, 57 and 153-154 `redirectAttributes.addFlashAttribute(\"message\", this.messages.getMessage(\"visitBooked\", null, LocaleContextHolder.getLocale()))` — no other controller imports MessageSource. owners/ownerDetails.html:10 renders it as `<span th:text=\"${message}\"></span>`, which cannot re-resolve a string. decisions/2026-09-20-visit-carries-vet-and-time.md:135-138: 'OwnerController and PetController carry the same hardcoded flash-message pattern in four more places ... one of the application's five flash messages is keyed and four are not' — against OwnerController.java:80, 148 and 154, three hardcoded English `error` flash strings the count does not reach."
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "Accept — correct the count."
   - id: O7
     category: implementation
     severity: low
     claim: "FR-18's third line moved the last consumer of the `date` key to `visitDate`, leaving `date` present and translated in eleven properties files with nothing referencing it — the same condition the spec refused to create for the `visit` key — and I18nPropertiesSyncTest can only ever report keys that are missing, never keys that are unused."
     evidence: "No `#{date}` remains in src/main/resources/templates (grep). src/main/resources/messages/messages.properties:40 `date=Date`, messages_de.properties:40 `date=Datum`, and the same line in ru, tr, hi, es, pt, ja, fa, ko. Spec FR-19: '`visit` is therefore dropped from this requirement rather than written into eleven properties files with no consumer.' src/test/java/.../system/I18nPropertiesSyncTest.java:124-125 `Set<String> missingKeys = new TreeSet<>(baseKeys); missingKeys.removeAll(props.stringPropertyNames());`"
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "Accept — note it, do not delete."
 ---
 
 # Objections — visit carries a vet and a time of day (code)

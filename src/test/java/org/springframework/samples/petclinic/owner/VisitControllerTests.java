@@ -169,6 +169,12 @@ class VisitControllerTests {
 	// T-5 — AS-5, FR-5
 	@Test
 	void processNewVisitFormRejectsMissingVet() throws Exception {
+		// The rendered assertion is here because a code-mode objection claimed this
+		// span shows the generic word "Error" rather than the field's message, on the
+		// reading that th:text (1300) runs after th:errors (1200). It does not:
+		// th:errors is 1700 — 1200 is th:field — so th:errors runs last and wins the
+		// element body. Pinned so the next reader of those precedences does not have
+		// to re-derive it from a rendered page.
 		mockMvc
 			.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID)
 				.param("date", LocalDate.now().plusDays(1).toString())
@@ -176,7 +182,8 @@ class VisitControllerTests {
 				.param("description", "Visit Description"))
 			.andExpect(status().isOk())
 			.andExpect(view().name("pets/createOrUpdateVisitForm"))
-			.andExpect(model().attributeHasFieldErrorCode("visit", "vet", "required"));
+			.andExpect(model().attributeHasFieldErrorCode("visit", "vet", "required"))
+			.andExpect(content().string(containsString("<span class=\"help-inline\">is required</span>")));
 
 		verify(this.owners, never()).save(any());
 	}
