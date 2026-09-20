@@ -139,7 +139,8 @@ database operator; it ran, it is in the repository, and it is off the beats.
 |---|---|
 | Agent dispatches | **20**, one of which stalled and was re-run |
 | Agent time | **~5 h** |
-| Tokens | **~1.4M** |
+| Tokens | **169M** — 0.89M out, 13.7M cache write, 154.4M cache read |
+| Cost | **~$211** at list price · **£0.00** billed (Max subscription) |
 | Decisions | **62 surfaced, 40 disposed, 22 carried** |
 | Human engaged time | **~45 min** (elapsed wall clock ~19 h) |
 | Output | 20 commits, 96 tests, 40 translations across 10 bundles |

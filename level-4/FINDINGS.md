@@ -124,6 +124,40 @@ One real property worth the aside: the **commit-scope** check is noisier than th
 fires the warning; the PR gate diffs the whole branch, where the record is present.
 Level 4 makes that visible because it makes many small commits where Level 3 made one.
 
+## 6. The bill is what the pipeline re-read, not what it produced
+
+Captured after the run, from the session transcripts rather than a dashboard:
+`observability/costs/2026-09-20-costs.md` on `level-4-orchestrating`.
+
+| Component | Tokens | List cost | Share |
+|---|---|---|---|
+| Output | 894,918 | $22.37 | 11% |
+| Cache writes | 13,749,531 | $111.47 | 53% |
+| Cache reads | 154,373,847 | $77.19 | 37% |
+| Uncached input | 2,494 | $0.01 | ~0% |
+
+**169 million tokens, ~$211 at list prices, £0.00 actually spent** — Claude Code ran
+on a Max subscription, which is not metered per token. Quote both figures or neither.
+
+Two things in here are worth stage time.
+
+**The output tokens are 11% of the bill.** The part anyone would call "the work" is a
+ninth of the cost. The rest is context written to cache and read back, twenty
+dispatches deep, each agent re-reading an accumulating pile of slicing records,
+objection records and choice stories. A pipeline that surfaces decisions pays,
+mostly, for carrying the decisions it has already surfaced.
+
+**And this figure was first published wrong, by two orders of magnitude.** The run was
+recorded as "~1.4M tokens", taken from the per-agent counts in the task notifications.
+The true number is 169M. Those notifications do not count cache reads, which are 91%
+of the total. It was only caught because someone went looking for a dollar figure —
+which is the same lesson as the rest of this level, arriving through the accounting:
+**a number nothing checks is a number that drifts, and the agent reporting it had no
+idea it was incomplete.**
+
+The constraint that actually bites on this plan is not money. One feature slice
+consumed **49% of a weekly Max allowance**.
+
 ## Smaller things worth a sentence each
 
 - **The convener earned its keep off stage.** It produced the cheapest route to

@@ -62,7 +62,11 @@ Nothing is merged. PR #1 belongs to Level 3 and must stay open and red.
 - **20 agent dispatches**, one of which stalled and had to be re-run.
 - **~5 h of agent time**, dominated by two things no pipeline diagram predicts:
   Testcontainers, and a 76-minute implementation run.
-- **~1.4M tokens.**
+- **169M tokens** — 0.89M output, 13.7M cache writes, 154.4M cache reads.
+- **~$211 at API list prices**, and **£0.00 actually spent**: Claude Code ran on a
+  Max subscription, which is not metered per token. Quote both or neither.
+- **Half a weekly Max allowance** consumed by one feature slice (49% of the
+  all-models weekly limit, read off the dashboard after the run).
 - **62 decisions surfaced. 40 disposed. 22 carried knowingly.**
 - **~45 minutes of human engaged time**, against ~19 hours of elapsed wall clock.
 - **20 commits, 96 tests, 40 translations across 10 bundles.**
@@ -70,6 +74,11 @@ Nothing is merged. PR #1 belongs to Level 3 and must stay open and red.
 The honest framing is the middle number: *this loop produced sixty-two decisions and
 about forty-five minutes of real attention was spent on them.* Do not quote the
 elapsed wall clock as if it were work.
+
+**And if anyone asks where the money goes:** output tokens are **11%** of that $211.
+Cache writes and reads are **89%**. The bill is not the work the pipeline produced,
+it is the context it re-read, twenty dispatches deep. Evidence:
+`observability/costs/2026-09-20-costs.md` on level-4-orchestrating.
 
 **Then say where the attention went.** At the first gate, eleven decisions got
 "works for me" in a single line. At the second, eleven objections got one shared
