@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS visits (
   id INT(4) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   pet_id INT(4) UNSIGNED,
   vet_id INT(4) UNSIGNED NOT NULL,
-  visit_date DATE,
+  visit_date DATE NOT NULL,
   start_time TIME NOT NULL,
   description VARCHAR(255),
   FOREIGN KEY (pet_id) REFERENCES pets(id),

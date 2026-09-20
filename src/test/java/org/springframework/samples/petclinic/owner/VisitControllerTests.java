@@ -248,6 +248,39 @@ class VisitControllerTests {
 		verify(this.owners, never()).save(any());
 	}
 
+	// FR-7 — a cleared date box. Reachable from an ordinary browser: the date
+	// input has no `required` attribute, so clearing it posts `date=`, which binds
+	// to null with no binder error. The date rule cannot fire on a null, and the
+	// Visit constructor's tomorrow default does not survive the bind, so without
+	// the controller's "required" rejection this request would persist a visit
+	// with a vet and a start time and no date — the mirror of the hole
+	// `start_time NOT NULL` closed. The two size assertions pin that the empty
+	// date costs exactly one error and nothing else on the form. They do not
+	// exercise the rejection's `!result.hasFieldErrors("date")` guard — only an
+	// unparseable date reaches that, and no test posts one, which is the same
+	// asymmetry T-7 and the unparseable-start-time test close for the other two
+	// fields.
+	@Test
+	void processNewVisitFormReportsOneErrorForAnEmptyDate() throws Exception {
+		BindingResult result = (BindingResult) mockMvc
+			.perform(post("/owners/{ownerId}/pets/{petId}/visits/new", TEST_OWNER_ID, TEST_PET_ID).param("date", "")
+				.param("startTime", "14:30")
+				.param("vet", String.valueOf(TEST_VET_ID))
+				.param("description", "Visit Description"))
+			.andExpect(status().isOk())
+			.andExpect(view().name("pets/createOrUpdateVisitForm"))
+			.andExpect(model().attributeHasFieldErrorCode("visit", "date", "required"))
+			.andReturn()
+			.getModelAndView()
+			.getModel()
+			.get(BindingResult.MODEL_KEY_PREFIX + "visit");
+
+		assertThat(result.getFieldErrors("date")).as("errors on the date field").hasSize(1);
+		assertThat(result.getErrorCount()).as("errors on the whole form").isEqualTo(1);
+
+		verify(this.owners, never()).save(any());
+	}
+
 	// T-8 — AS-7, FR-7
 	@Test
 	void processNewVisitFormHasErrorsWhenVisitDateIsNotInFuture() throws Exception {

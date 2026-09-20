@@ -88,6 +88,66 @@ the change landed.
   produce the inflection. That is precisely why the heading is one key. D8 is unchanged
   and gains no clause; this is where FR-19 no longer meets it.
 
+## D1 was half a claim: the mirror hole, and the fix that closed it
+
+D1 above says the cost of two columns is "that two columns can in principle hold a date
+with no time, **which is why the start time is `NOT NULL` in the schema and required on
+the form**". That sentence closed one direction and stopped. Two columns can equally
+hold a **time with no date**, and that direction was left open by the change this record
+describes:
+
+- `visit_date` was nullable in all three dialects while `vet_id` and `start_time` were
+  `NOT NULL`;
+- `VisitController.processNewVisitForm` guarded its date rule with
+  `visit.getDate() != null && ...`, so a null date skipped the only date rule there was,
+  while the null-vet and null-startTime rejections fired unconditionally;
+- the date control carries no `required` attribute, so **clearing the date box in an
+  ordinary browser** posts `date=`, which binds to null with no field error. The `Visit`
+  constructor's tomorrow default does not survive that bind — it is overwritten, not
+  fallen back on;
+- nothing in the suite posted an empty `date`, so every gate stayed green.
+
+The result was a persisted visit with a vet, a start time and no date — the exact mirror
+of the hole D1 claimed FR-2 and FR-11 had closed. The claim was half a claim.
+
+**How it was found.** Not by the code review, which returned PASS on this change. It was
+found afterwards, by the code-mode `/diaboli` pass, as objection **O1** in
+[`docs/superpowers/objections/visit-carries-vet-and-time-code.md`](../docs/superpowers/objections/visit-carries-vet-and-time-code.md).
+The maintainer accepted O1 and asked for the fix. That ordering is worth recording on its
+own: a review that reads the change for quality passed a change with a reachable
+data-integrity hole in it, and the adversarial pass that reads it for what it *fails to
+do* caught it. O2–O7 in that file remain pending and are not acted on here.
+
+**The fix.**
+
+- `VisitController.processNewVisitForm` now rejects a null date with the existing,
+  already-translated `required` code, guarded the same way the vet and start-time
+  rejections are: `visit.getDate() == null && !result.hasFieldErrors("date")`, so an
+  unparseable date leaves one typeMismatch error rather than stacking a second
+  "is required" on a field the user did fill in.
+- `visit_date` is `DATE NOT NULL` in `db/h2/schema.sql`, `db/mysql/schema.sql` and
+  `db/postgres/schema.sql`. All twelve seeded rows already supply a date, so no
+  `data.sql` needed changing.
+- `VisitControllerTests.processNewVisitFormReportsOneErrorForAnEmptyDate` posts
+  `date=` and asserts the form redisplays with exactly one error, coded `required`, on
+  the date field, and that nothing is saved. No existing test needed adjusting.
+- The `Visit()` constructor's javadoc said the omitted-date case was "silently accepted
+  as tomorrow … which is pre-existing behaviour no requirement in this slice reaches".
+  That was wrong twice: an **empty** date binds to null rather than to tomorrow, and
+  this slice does reach it. The javadoc now says what is true.
+
+**What this changes in the sections below.** The stance section's list of what this
+change guarantees — "a vet and a start time on every visit" — now reads *a vet, a start
+time and a date* on every visit. D1's parenthetical about the cost of two columns should
+be read with this section attached: the cost is paid in both directions, and only after
+this fix.
+
+**What is still not asserted.** Nothing tests that the new `NOT NULL` on `visit_date`
+actually rejects an insert, and `SchemaParityTest` reads column name, type and declared
+length but never nullability — so a later change that drops `NOT NULL` from one dialect
+still passes every gate. That is pending objection **O3**, which covers `vet_id` and
+`start_time` and now covers `visit_date` too. It is not fixed here.
+
 ## The stance these decisions add up to: shape is guaranteed, meaning is not
 
 Every constraint this change buys is about a field being **present** — a vet and a start

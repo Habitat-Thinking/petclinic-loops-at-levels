@@ -132,10 +132,14 @@ class VisitController {
 		// project's existing, already-translated "required" rather than a NotNull code
 		// no message bundle carries.
 		//
-		// Both rejections are skipped when the binder has already recorded a field
-		// error: an unknown vet id or an unparseable time leaves a typeMismatch error
-		// and a null value, and rejecting again would stack a second, misleading
-		// "is required" on a field the user did fill in.
+		// All three rejections are skipped when the binder has already recorded a field
+		// error: an unknown vet id, an unparseable date or an unparseable time leaves a
+		// typeMismatch error and a null value, and rejecting again would stack a
+		// second, misleading "is required" on a field the user did fill in.
+		if (visit.getDate() == null && !result.hasFieldErrors("date")) {
+			result.rejectValue("date", "required");
+		}
+
 		if (visit.getVet() == null && !result.hasFieldErrors("vet")) {
 			result.rejectValue("vet", "required");
 		}

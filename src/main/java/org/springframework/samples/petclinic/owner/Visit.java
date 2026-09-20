@@ -61,8 +61,13 @@ public class Visit extends BaseEntity {
 	 * this constructor survives a submission that omits the field, and the start time is
 	 * required (FR-6), so the form's 09:00 default is applied by the controller when the
 	 * form is rendered instead. The date below has exactly that flaw and keeps it: a
-	 * submission that omits the date is silently accepted as tomorrow rather than
-	 * rejected, which is pre-existing behaviour no requirement in this slice reaches.
+	 * submission that omits the {@code date} parameter altogether is silently accepted as
+	 * tomorrow rather than rejected. What a browser actually sends when the date box is
+	 * cleared is {@code date=}, which binds to null and overwrites this default, so
+	 * {@code VisitController.processNewVisitForm} rejects a null date with "required" —
+	 * the date is required (FR-7), and {@code visit_date} is {@code NOT NULL} in all
+	 * three schemas. The default is a convenience for the rendered form, not the thing
+	 * that makes the date present.
 	 */
 	public Visit() {
 		this.date = LocalDate.now().plusDays(1);

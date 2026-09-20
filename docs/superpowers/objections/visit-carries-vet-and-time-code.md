@@ -10,8 +10,8 @@ objections:
     severity: high
     claim: "The change made start_time NOT NULL in all three dialects and left visit_date nullable, and the controller's date rule is skipped when the date is null, so an ordinary browser submission with the date field cleared creates a persisted visit with a vet and a start time and no date — the exact mirror of the hole D1 said FR-2 and FR-11 closed."
     evidence: "src/main/java/org/springframework/samples/petclinic/owner/VisitController.java:127 `if (visit.getDate() != null && !visit.getDate().isAfter(LocalDate.now()))`; lines 139 and 143 reject a null vet and a null startTime unconditionally. src/main/resources/db/h2/schema.sql:62-63 `visit_date  DATE,` / `start_time  TIME NOT NULL,` (mysql/schema.sql:54-55 and postgres/schema.sql:51-52 the same). src/main/resources/templates/fragments/inputField.html:14 emits the date control with no `required` attribute. No test in VisitControllerTests posts an empty `date` parameter."
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "Fix the bug."
   - id: O2
     category: implementation
     severity: high
