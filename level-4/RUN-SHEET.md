@@ -59,7 +59,7 @@ Nothing is merged. PR #1 belongs to Level 3 and must stay open and red.
 
 ## Beat 10 — the numbers, all real
 
-- **15 agent dispatches**, one of which stalled and had to be re-run.
+- **20 agent dispatches**, one of which stalled and had to be re-run.
 - **~5 h of agent time**, dominated by two things no pipeline diagram predicts:
   Testcontainers, and a 76-minute implementation run.
 - **~1.4M tokens.**
