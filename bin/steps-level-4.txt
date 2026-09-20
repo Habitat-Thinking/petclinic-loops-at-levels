@@ -29,7 +29,7 @@ TIME: 45s
 SAY: Five slices. Every disposition: pending. Every rationale: null.
 SAY: The agent produced the slices. It will not produce the dispositions, and the gate
 SAY: will not advance while one is pending. That word is the whole mechanism.
-CMD: git switch -q l4-1-sliced && grep -n 'disposition\|title:' docs/superpowers/slices/owner-books-visit-against-vet-availability.md | head -20
+CMD: git switch -q --discard-changes l4-1-sliced && grep -n 'disposition\|title:' docs/superpowers/slices/owner-books-visit-against-vet-availability.md | head -20
 MODE: run
 
 ### Disposition one slice, live
@@ -42,10 +42,14 @@ MODE: manual
 
 ### Jump to the spec checkpoint
 TIME: 30s
+SAY: The disposition you just typed is discarded by this switch, on purpose - the real
+SAY: one is already committed on the branch you are about to land on. Say that if
+SAY: anyone notices. Every switch from here uses --discard-changes, because without it
+SAY: the edit you just made blocks the switch and the segment stops dead.
 SAY: Do not watch a spec being written. This is the state after the dispositions:
 SAY: S2 progressed, spec and plan produced, seven decisions taken and written down
 SAY: where a human can overturn them.
-CMD: git switch -q l4-2-spec && sed -n '/## Decisions taken/,/^### D2/p' docs/superpowers/specs/visit-carries-vet-and-time.md | head -30
+CMD: git switch -q --discard-changes l4-2-spec && sed -n '/## Decisions taken/,/^### D2/p' docs/superpowers/specs/visit-carries-vet-and-time.md | head -30
 MODE: run
 
 ### The objections, grounded in the spec's own words
@@ -54,7 +58,7 @@ SAY: Eleven objections, all pending, each quoting the spec text it objects to.
 SAY: Read O1 out: the user story promises the owner knows who they are seeing, and
 SAY: FR-17 declines to support it. That is not generic advice. It read the document.
 SAY: CUT THIS BEAT FIRST if you are over time.
-CMD: git switch -q l4-3-objections && sed -n '/## O1 —/,/## O2 —/p' docs/superpowers/objections/visit-carries-vet-and-time.md
+CMD: git switch -q --discard-changes l4-3-objections && sed -n '/## O1 —/,/## O2 —/p' docs/superpowers/objections/visit-carries-vet-and-time.md
 MODE: run
 
 ### Adjudicate one objection live
@@ -71,7 +75,7 @@ SAY: Ten choice stories. Read #10 aloud - every constraint this change buys is a
 SAY: field being present, and none is about the value being true.
 SAY: Nobody wrote that decision down. Nobody would have. It is the shape of eight
 SAY: decisions taken one at a time, and it only exists when something reads them together.
-CMD: git switch -q l4-4-choices && sed -n '/## Story #10/,/^## /p' docs/superpowers/stories/visit-carries-vet-and-time.md | head -34
+CMD: git switch -q --discard-changes l4-4-choices && sed -n '/## Story #10/,/^## /p' docs/superpowers/stories/visit-carries-vet-and-time.md | head -34
 MODE: run
 
 ### The code review, briefly
@@ -80,13 +84,19 @@ SAY: Thirty seconds. The implementation is not the point and has never been the 
 SAY: Ninety-four tests green, review returned PASS, two claimed deviations verified
 SAY: rather than trusted.
 SAY: CUT THIS BEAT SECOND if you are over time.
-CMD: git switch -q l4-5-reviewed && git log --oneline -3
+CMD: git switch -q --discard-changes l4-5-reviewed && git log --oneline -3
 MODE: run
 
 ### The reckoning — UNCUTTABLE
 TIME: 2 min
 SAY: Numbers first, all from this one run. Twenty agent dispatches, one stalled.
-SAY: Five hours of agent time. 1.4 million tokens. Ninety-six tests. Twenty commits.
+SAY: Five hours of agent time. Ninety-six tests. Twenty commits.
+SAY: A hundred and sixty-nine million tokens - and two hundred and eleven dollars at
+SAY: list prices, of which nothing was actually billed, because this ran on a Max
+SAY: subscription. Say both or neither.
+SAY: Of that two hundred and eleven, the output tokens - the work - are eleven percent.
+SAY: The other eighty-nine is context written to cache and read back, twenty dispatches
+SAY: deep. You are not paying for what it produced. You are paying for what it re-read.
 SAY: Sixty-two decisions surfaced. Forty disposed. Twenty-two carried knowingly.
 SAY: And forty-five minutes of my attention, against nineteen hours on the clock.
 SAY: Do not quote the nineteen hours as work. The forty-five minutes is the finding.
@@ -102,5 +112,5 @@ SAY: The only thing that can notice what this is costing is me, and I am the one
 SAY: resource in the system that nothing measures.
 SAY: Last line, then stop: we have built something that decides well. We have not built
 SAY: anything that notices what deciding costs.
-CMD: git switch -q level-4-orchestrating && sed -n '/## Beat 10/,/^## If the live/p' $NOTES/level-4/RUN-SHEET.md
+CMD: git switch -q --discard-changes level-4-orchestrating && sed -n '/## Beat 10/,/^## If the live/p' $NOTES/level-4/RUN-SHEET.md
 MODE: run
