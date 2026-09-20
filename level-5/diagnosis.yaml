@@ -1,0 +1,692 @@
+```yaml
+scope: >-
+  The visit-booking feature in petclinic-loops-at-levels on branch
+  level-5-supervising — the change that gave a Visit a vet and a time of day.
+  Files: owner/Visit.java, owner/VisitController.java, owner/Pet.java,
+  vet/VetFormatter.java, templates/pets/createOrUpdateVisitForm.html,
+  templates/fragments/selectVetField.html, templates/fragments/inputField.html,
+  templates/owners/ownerDetails.html, db/{h2,mysql,postgres}/{schema,data}.sql
+  (the visits table), test/.../owner/VisitControllerTests.java and
+  test/.../vet/VetFormatterTests.java. Adjacent files read as corroborating
+  evidence: owner/Owner.java, vet/VetRepository.java, system/WebConfiguration.java,
+  messages/messages*.properties, harness/SchemaParityTest.java,
+  owner/OwnerControllerTests.java, service/ClinicServiceTests.java,
+  decisions/2026-09-20-visit-carries-vet-and-time.md.
+generated_at: "2026-09-20T17:21:00+01:00"
+generated_by: "diagnostic-legibility 0.11.0 / claude-opus-5"
+cross_check_status: completed
+
+architectural:
+
+  - name: VisitController
+    description: |
+      The whole visit-booking feature as one class. It loads the owner and pet
+      named in the URL, publishes the vet list and a minimum date to the model,
+      renders the form with a 09:00 start time, and on POST applies four
+      rejections, saves, and sets a flash message. Under AGENTS.md directive 1
+      (controller -> repository -> entity, one package per feature, no service
+      layer) this is where the feature is supposed to live, and it does: there
+      is no hidden collaborator and no indirection to chase.
+
+      Two things a reader of this class cannot see from it.
+
+      First, what it saves is not a Visit. processNewVisitForm ends with
+      owner.addVisit(petId, visit) and owners.save(owner). The Owner is the unit
+      of persistence; a Visit reaches the database by cascade from Pet.visits.
+      There is no VisitRepository. A reader looking for where a visit is written
+      will not find it in this package under that name.
+
+      Second, the handler's first parameter is @ModelAttribute Owner owner. That
+      resolves the Owner which loadPetWithVisit already put in the model, and
+      Spring then data-binds the request's parameters onto it before the save.
+      The @InitBinder disallows only "id" and "*.id". So on a reading of
+      Spring's binding contract, a POST to the visit endpoint carrying
+      firstName= would rewrite the owner's name as a side effect of booking a
+      visit. This shape is inherited from upstream PetClinic rather than
+      introduced by this change, and no test in the suite posts an owner field
+      to this endpoint, so this is a reading of the binding contract and not an
+      observed failure — a test posting firstName to this URL would settle it
+      either way. What is certain is that nothing in the file tells the reader
+      that the visit form is also an owner-editing endpoint.
+
+      The class is otherwise unusually legible for generated code: every
+      non-obvious line carries a comment that says why, and the comments are
+      about the decision, not the mechanics (why 09:00 is set here and not in
+      the constructor; why "required" and not @NotNull; why three rejections
+      stand aside when the binder has already flagged the field).
+    evidence:
+      - path: src/main/java/org/springframework/samples/petclinic/owner/VisitController.java
+        excerpt: |
+          public String processNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,
+                  BindingResult result, RedirectAttributes redirectAttributes) {
+      - path: src/main/java/org/springframework/samples/petclinic/owner/VisitController.java
+        excerpt: |
+          owner.addVisit(petId, visit);
+          this.owners.save(owner);
+      - path: src/main/java/org/springframework/samples/petclinic/owner/VisitController.java
+        excerpt: 'dataBinder.setDisallowedFields("id", "*.id");'
+      - path: src/main/java/org/springframework/samples/petclinic/owner/Owner.java
+        excerpt: |
+          public void addVisit(Integer petId, Visit visit) {
+      - path: AGENTS.md
+        excerpt: "Layering stays as it is. Controller -> repository -> entity, one package per feature ... No service layer"
+    confidence: high
+    challenge_notes:
+      - "Q1 (boundary): the draft made this element own the booking rules as well as the request handling. Three of the five places that decide whether a visit is valid are outside this class (the entity's @NotBlank, the three schemas' NOT NULL, the form fragment's th:min), so the rule set was split out as its own element and this element's boundary was narrowed to request handling, model preparation and the save."
+      - "Q3 (confounders): the near-miss is the Owner. The class is named for the Visit, is annotated @ModelAttribute(\"visit\"), and validates a Visit — but the object it mutates and persists is the Owner aggregate. The description was rewritten to name that, because a reader searching for the visit write path will not find it."
+      - "Q4 (confidence): the mass-assignment sentence was drafted as flat fact. No test exercises it, and I cannot execute the code, so it is now marked in the description as a reading of Spring's binding contract with the test that would settle it named. The element's confidence stays high because the element is the class, and the class itself is fully evidenced."
+      - "CC1 (boundary contradiction): the draft's boundary sentence said this controller is how a visit comes into existence. The domain element Visit shows that every database ships with four visits this controller never created and could not create — their dates are in the past, which this controller rejects. The boundary was narrowed to: this is the only path in the running application that creates a visit; it is not the only path by which visits exist."
+
+  - name: VetFormatter
+    description: |
+      The conversion seam between the vet chooser's posted value and a Vet
+      instance. print returns the vet's id (empty string for an unsaved vet);
+      parse scans VetRepository.findAll() for a matching id and throws
+      ParseException when there is none. Both directions work in ids, not names,
+      and the class says why in its own javadoc: pet type names are unique by
+      construction so PetTypeFormatter can parse one by name, but two vets can
+      share a name, so a name-based parse would silently pick one of them.
+
+      Three couplings hold this together that are stated in no single place.
+
+      The registration is implicit: the class is a @Component implementing
+      Formatter<Vet>, and Spring Boot's web auto-configuration adds every
+      Formatter bean to the conversion service. WebConfiguration overrides only
+      addInterceptors; nothing anywhere names this formatter as the thing that
+      turns "2" into a Vet. The most explicit statement of the dependency in the
+      repository is a line of test configuration:
+      includeFilters = @ComponentScan.Filter(value = VetFormatter.class, ...).
+
+      The chooser's option values must equal what print emits, or the selected
+      vet will not be preselected on redisplay. selectVetField.html hardcodes
+      th:value="${item.id}" and nothing ties the two ends together.
+
+      Working in ids is also what makes the field bindable at all:
+      @InitBinder disallows "id" and "*.id", so a form posting vet.id=2 would be
+      ignored. The form posts vet=2 and the formatter converts it. That
+      interaction is not mentioned in the javadoc, which explains the id choice
+      on the different ground of name ambiguity.
+
+      Behaviourally the class is small, well-named, and directly tested
+      (VetFormatterTests covers both the hit and the miss). The linear scan over
+      findAll() per parse is cheap because VetRepository.findAll() is
+      @Cacheable("vets"), which the controller's javadoc states and the formatter
+      relies on without saying so.
+    evidence:
+      - path: src/main/java/org/springframework/samples/petclinic/vet/VetFormatter.java
+        excerpt: |
+          public String print(Vet vet, Locale locale) {
+              Integer id = vet.getId();
+              return id != null ? id.toString() : "";
+          }
+      - path: src/main/java/org/springframework/samples/petclinic/vet/VetFormatter.java
+        excerpt: "two vets can share a name, so parsing by name would silently pick one of them. The id is the only stable handle a form control can carry."
+      - path: src/main/java/org/springframework/samples/petclinic/vet/VetRepository.java
+        excerpt: |
+          @Cacheable("vets")
+          Collection<Vet> findAll() throws DataAccessException;
+      - path: src/test/java/org/springframework/samples/petclinic/owner/VisitControllerTests.java
+        excerpt: "includeFilters = @ComponentScan.Filter(value = VetFormatter.class, type = FilterType.ASSIGNABLE_TYPE))"
+      - path: src/main/java/org/springframework/samples/petclinic/system/WebConfiguration.java
+        excerpt: "public void addInterceptors(InterceptorRegistry registry) {"
+    confidence: high
+    challenge_notes:
+      - "Q2 (evidence): the draft asserted the id choice was made to dodge the disallowed-fields rule. Reading VisitController's @InitBinder and the formatter's javadoc together shows the javadoc gives a different reason (name ambiguity) and never mentions binding. Both are true; the description now separates the stated reason from the observed coupling rather than attributing the second to the author."
+      - "Q3 (confounders): PetTypeFormatter is the near-miss, and the class names it first — it is the thing this mirrors and the thing it deliberately differs from. Kept, and the difference stated in the description rather than left as 'mirrors PetTypeFormatter'."
+      - "CC3 (cross-confounders): the domain element 'The visit's vet' treats the vet as the clinician accountable for a visit. What this formatter resolves is narrower — a row in vets whose id was posted. It guarantees the id exists and nothing else: no availability, no specialty, no active flag. The description was revised to say what the seam does and does not establish, so the two collections do not read as though the conversion carried any meaning."
+
+  - name: Visit entity to visits table mapping
+    description: |
+      The object-relational shape of a booking: Visit extends BaseEntity and maps
+      date -> visit_date, startTime -> start_time (a new @Column plus a
+      @DateTimeFormat("HH:mm")), vet -> a @ManyToOne on vet_id, and description
+      to an unnamed column. The constructor defaults date to tomorrow and
+      deliberately leaves startTime unset, and it carries a nine-line javadoc
+      explaining why the asymmetry exists and what it costs. That javadoc is the
+      clearest piece of writing in the change: it states the flaw the date
+      default has, states that the flaw is kept, and states exactly what closes
+      the hole instead (the controller's null rejection, and NOT NULL in all
+      three schemas).
+
+      What the mapping does not guarantee is agreement with the schema. The
+      entity declares @NotBlank on description while all three schemas leave that
+      column nullable; nothing checks that an entity constraint and a column
+      constraint say the same thing. The same is true in the other direction: the
+      three NOT NULLs on vet_id, start_time and visit_date are enforced by the
+      controller in Java and by the database in SQL, and no test or gate compares
+      those two statements of the same rule.
+
+      The mapping is also where this feature's vocabulary is translated without
+      comment: the Java field is startTime, the column is start_time, and the
+      user-visible label comes from the message key visitTime. The @Column
+      annotation is the joint between the first two; nothing is the joint between
+      those and the third.
+    evidence:
+      - path: src/main/java/org/springframework/samples/petclinic/owner/Visit.java
+        excerpt: |
+          @Column(name = "start_time")
+          @DateTimeFormat(pattern = "HH:mm")
+          private LocalTime startTime;
+
+          @ManyToOne
+          @JoinColumn(name = "vet_id")
+          private Vet vet;
+      - path: src/main/java/org/springframework/samples/petclinic/owner/Visit.java
+        excerpt: "The start time is deliberately left unset here, unlike the date. A value set in this constructor survives a submission that omits the field"
+      - path: src/main/java/org/springframework/samples/petclinic/owner/Visit.java
+        excerpt: |
+          @NotBlank
+          private String description;
+      - path: src/main/resources/db/h2/schema.sql
+        excerpt: "  description VARCHAR(255)"
+    confidence: high
+    challenge_notes:
+      - "Q1 (boundary): the draft covered the entity and the three schema files as one element. They are separately changed, separately reviewed and separately gated (SchemaParityTest reads the SQL and knows nothing about the entity), so the schema was split into its own element and this one narrowed to the mapping."
+      - "Q2 (evidence): the draft said the mapping and the schema agree. Reading them side by side, description is @NotBlank in Java and nullable in SQL. The claim was replaced with the accurate one: nothing checks that the two statements of a constraint agree, in either direction."
+      - "CC5 (mutual description integrity): the domain element 'Start time' shows this feature carries three names for one value. This element had silently assumed the @Column annotation made the naming a settled detail. It settles two of the three names and is silent on the third, so the description now names the mapping as the place the vocabulary is stitched and the point past which the stitching stops."
+
+  - name: The three-dialect visits schema and its parity gate
+    description: |
+      The visits table in db/h2, db/mysql and db/postgres, each gaining vet_id
+      NOT NULL with a foreign key to vets and start_time TIME NOT NULL, with
+      visit_date DATE NOT NULL, plus four backfilled seed rows per dialect
+      rewritten from positional inserts to explicit column lists. AGENTS.md
+      directive 2 requires all three to move together and SchemaParityTest is the
+      enforcing gate.
+
+      The gate is real and was extended by this work: it records each column as
+      (length, notNull) rather than a bare length, and a third check,
+      nullabilityAgreesAcrossDialects, compares nullability across all three
+      pairs of dialects. It counts PRIMARY KEY as NOT NULL, with the reason
+      written beside the pattern, so it does not fail on day one over implicit
+      identity columns. Without that check a later change could drop NOT NULL
+      from exactly one dialect and pass every gate in the project.
+
+      What the gate cannot see is stated in the decision record and is worth
+      repeating in a legibility model, because it is the difference between a
+      constraint and the appearance of one: the test compares the three files to
+      each other. It starts no database and attempts no insert. If all three
+      files lose NOT NULL together the check is silent by design. And the
+      nullability of a column is the only semantic the parity check understands —
+      the fact that visit_date has no CHECK constraint, that no unique constraint
+      prevents two visits naming the same vet at the same minute, and that the
+      four seeded rows all sit in the past, are invisible to it.
+    evidence:
+      - path: src/main/resources/db/h2/schema.sql
+        excerpt: |
+          CREATE TABLE visits (
+            id          INTEGER GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+            pet_id      INTEGER,
+            vet_id      INTEGER NOT NULL,
+            visit_date  DATE NOT NULL,
+            start_time  TIME NOT NULL,
+            description VARCHAR(255)
+          );
+      - path: src/main/resources/db/postgres/schema.sql
+        excerpt: "  vet_id      INT NOT NULL REFERENCES vets (id),"
+      - path: src/main/resources/db/mysql/schema.sql
+        excerpt: "  start_time TIME NOT NULL,"
+      - path: src/test/java/org/springframework/samples/petclinic/harness/SchemaParityTest.java
+        excerpt: |
+          private record Column(Integer length, boolean notNull) {
+          ...
+          void nullabilityAgreesAcrossDialects() throws IOException {
+      - path: src/main/resources/db/h2/data.sql
+        excerpt: "INSERT INTO visits (pet_id, vet_id, visit_date, start_time, description) VALUES (7, 1, '2013-01-01', '09:00:00', 'rabies shot');"
+    confidence: high
+    challenge_notes:
+      - "Q2 (evidence): the draft took the decision record's account of the nullability check on trust. SchemaParityTest was read directly; the record's Column(length, notNull) and nullabilityAgreesAcrossDialects both exist as described, and the PRIMARY-KEY-counts-as-NOT-NULL reasoning is in the test's own comment. The claim is now grounded in the test rather than in the prose about it."
+      - "Q4 (confidence): raised from medium to high on that reading. The remaining uncertainty is not about the files — it is about what the files govern, which is stated in the description rather than hedged in the confidence field."
+      - "CC1 (boundary contradiction): the draft described this as the layer that guarantees the shape of a booking. The domain element Visit shows the schema is the one place where both readings of a visit live at once — the seeded rows are historical records and the only rows the application can create are future appointments, and the table constrains neither direction. The description was revised to say the schema constrains presence and says nothing about time, which is the boundary it actually draws."
+
+  - name: Pet.visits, the eager ordered association
+    description: |
+      The read path for a pet's visits: a @OneToMany with CascadeType.ALL and
+      FetchType.EAGER over a join column, held in a LinkedHashSet, and ordered by
+      @OrderBy("date ASC, startTime ASC"). The cascade is how a Visit is
+      persisted at all (see VisitController), and the @OrderBy is the sole
+      implementation of the requirement that two visits on one day read in the
+      order they happen.
+
+      The annotation is correct as written — date and startTime are entity
+      attribute names, and JPA applies the ordering when Hibernate loads the
+      collection — but nothing in the test suite can fail if it is deleted. The
+      only test of the ordering, OwnerControllerTests.ownerDetailsOrdersSameDayVisitsByTime,
+      runs under @WebMvcTest with a mocked OwnerRepository and builds its fixture
+      in memory, adding the 09:00 visit before the 15:00 one. Iteration order
+      there comes from LinkedHashSet insertion order; no persistence provider is
+      involved and @OrderBy never executes. The test asserts the order of its own
+      fixture. The persistence-level tests that do load visits from a database
+      (ClinicServiceTests.shouldFindVisitsByPetId) assert size and non-nullness
+      and never assert order — and the seeded rows are inserted in ascending
+      order anyway, so an assertion there would be weak.
+
+      This is recorded honestly in the decision record, which says the annotation
+      was added because the requirement says so and that nothing checks it. It is
+      recorded nowhere in the code. Pet.java line 58 carries the annotation and
+      no comment, so a reader of the file cannot tell that the one line
+      implementing the ordering requirement is unverified, and a reader of the
+      test cannot tell that it is measuring the fixture.
+    evidence:
+      - path: src/main/java/org/springframework/samples/petclinic/owner/Pet.java
+        excerpt: |
+          @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+          @JoinColumn(name = "pet_id")
+          @OrderBy("date ASC, startTime ASC")
+          private final Set<Visit> visits = new LinkedHashSet<>();
+      - path: src/test/java/org/springframework/samples/petclinic/owner/OwnerControllerTests.java
+        excerpt: |
+          owner.getPet("Max").getVisits().add(visit(sameDay, LocalTime.of(9, 0), helenLeary()));
+          owner.getPet("Max").getVisits().add(visit(sameDay, LocalTime.of(15, 0), helenLeary()));
+          ...
+          assertThat(body.indexOf("09:00")).as("the 09:00 visit is listed first").isLessThan(body.indexOf("15:00"));
+      - path: src/test/java/org/springframework/samples/petclinic/service/ClinicServiceTests.java
+        excerpt: |
+          assertThat(visits)
+              .hasSize(2)
+              .allMatch(visit -> visit.getDate() != null)
+      - path: decisions/2026-09-20-visit-carries-vet-and-time.md
+        excerpt: "The only test of the ordering (T-12) runs under @WebMvcTest with a mocked repository, where @OrderBy never executes and the assertion is really about the fixture's insertion order"
+    confidence: high
+    challenge_notes:
+      - "Q2 (evidence): the draft credited T-12 with pinning the ordering. Re-reading the test against the annotation, T-12 runs with a mocked repository over a LinkedHashSet whose insertion order already matches the assertion, so it passes with @OrderBy deleted and fails if the fixture is reordered. The description was rewritten to say what the test actually measures, and the persistence-level tests were checked to confirm none of them asserts order either."
+      - "Q4 (confidence): the element is high-confidence about the code and its verification status, which is a single well-evidenced claim. What I cannot establish without running the application is the runtime behaviour itself; the claim made is about what is and is not asserted, which the sources settle."
+      - "CC1 (boundary contradiction): ordering one list by date then start time assumes a pet's visits are one homogeneous timeline. The domain element Visit shows the list holds two different kinds of thing — appointments that have not happened and records of ones that did — with no field distinguishing them. The description now states that the ordering imposes a single sequence on a collection whose members the model does not distinguish, which is the boundary the annotation quietly assumes."
+
+  - name: fragments/selectVetField.html, the vet chooser
+    description: |
+      A new Thymeleaf fragment for a select whose option label differs from the
+      value it posts: each option shows a vet's first and last name and posts the
+      vet's id. It is otherwise a copy of the existing selectField fragment's
+      error-handling shape (the has-error class, the feedback icons, the
+      th:errors span).
+
+      Its header comment is the most useful sentence of documentation in the
+      change, because it records a failure rather than a decision: this fragment
+      cannot live inside fragments/selectField.html, because a Thymeleaf fragment
+      expression like ~{fragments/selectField :: select (...)} is a markup
+      selector that matches every select element in the file as well as the
+      fragment of that name — so a second select in that file renders into the
+      pet form's type chooser and breaks it. AGENTS.md prefers extending an
+      existing fragment file; this is an exception, and the reason is written
+      where the next person to add a second select will hit it rather than only
+      in a decision record they may never open.
+
+      The chooser has no blank or placeholder option, so a browser preselects the
+      first vet. That is a known, adjudicated deferral rather than an oversight,
+      but the consequence is in the fragment and stated nowhere in it.
+    evidence:
+      - path: src/main/resources/templates/fragments/selectVetField.html
+        excerpt: "`~{fragments/selectField :: select (...)}` is a markup selector that matches every <select> element in the file as well as the fragment of that name, so a second <select> there renders into the pet form's type chooser."
+      - path: src/main/resources/templates/fragments/selectVetField.html
+        excerpt: |
+          <select th:field="*{__${name}__}">
+            <option th:each="item : ${items}" th:value="${item.id}"
+              th:text="${item.firstName + ' ' + item.lastName}">James Carter</option>
+          </select>
+      - path: src/main/resources/templates/pets/createOrUpdateVisitForm.html
+        excerpt: "<input th:replace=\"~{fragments/selectVetField :: selectVet (#{vet}, 'vet', ${vets})}\" />"
+    confidence: high
+    challenge_notes:
+      - "Q1 (boundary): considered folding this into a single 'form fragments' element with inputField.html. Kept separate: they have different owners (this one is used by exactly one form, inputField by three), and the interesting facts about them are different — this one is about a Thymeleaf trap, the other about a cross-feature coupling. Folding them would have hidden both."
+      - "Cross-check applied; no questions surfaced changes"
+
+  - name: The visit-validity rule set, which has no home
+    description: |
+      What makes a visit acceptable is decided in five places, in four languages,
+      and there is no file a reader can open to see the rule set whole.
+
+      1. VisitController rejects a date that is not after today, with
+         result.rejectValue("date", "typeMismatch.visitDate").
+      2. The same method rejects a null date, a null vet and a null start time
+         with the code "required", each guarded by !result.hasFieldErrors(...) so
+         that a binder error is not compounded by a second, misleading message.
+      3. Visit carries @NotBlank on description.
+      4. All three schemas declare vet_id, visit_date and start_time NOT NULL.
+      5. fragments/inputField.html sets th:min="${minVisitDate}" on the date
+         input — a client-side hint only, with no required attribute anywhere on
+         the form.
+
+      Each individual rule is well argued. The choice of the "required" code over
+      @NotNull is explained in the controller and in the decision record (every
+      bundle already translates "required"; no bundle carries NotNull.visit.vet).
+      The binder-error guards are explained in a comment that says what a user
+      would otherwise see. The distribution is nevertheless the least legible
+      thing in this change: a reader asking "what must be true of a visit?" has
+      to hold a Java method, an entity annotation, three SQL files and a template
+      attribute in mind at once, and nothing lists them.
+
+      One specific naming defect makes it worse. The future-date rule ships under
+      the error code typeMismatch.visitDate, whose message is "Visit date must be
+      in the future". The code says the user typed the wrong kind of value; the
+      message says they picked the wrong day. A reader grepping for the business
+      rule will grep for the wrong word, and a reader meeting the code in a log
+      or a binding result will read a parse failure.
+    evidence:
+      - path: src/main/java/org/springframework/samples/petclinic/owner/VisitController.java
+        excerpt: |
+          if (visit.getDate() != null && !visit.getDate().isAfter(LocalDate.now())) {
+              result.rejectValue("date", "typeMismatch.visitDate");
+          }
+      - path: src/main/java/org/springframework/samples/petclinic/owner/VisitController.java
+        excerpt: |
+          if (visit.getVet() == null && !result.hasFieldErrors("vet")) {
+              result.rejectValue("vet", "required");
+          }
+      - path: src/main/resources/messages/messages.properties
+        excerpt: "typeMismatch.visitDate=Visit date must be in the future"
+      - path: src/main/java/org/springframework/samples/petclinic/owner/Visit.java
+        excerpt: |
+          @NotBlank
+          private String description;
+      - path: src/main/resources/templates/fragments/inputField.html
+        excerpt: "<input th:case=\"'date'\" class=\"form-control\" type=\"date\" th:field=\"*{__${name}__}\" th:min=\"${minVisitDate}\" />"
+    confidence: high
+    challenge_notes:
+      - "Q1 (boundary): this element has no boundary in the code, which is the reason it nearly was not drafted. It was kept, reframed from 'a validation component' to 'a policy with no home', because the absence of the boundary is the finding a maintainer needs and no element scoped to a single file can carry it."
+      - "Q2 (evidence): the draft said the rules are spread across the controller and the schema. All five sites were enumerated and cited individually, including the client-side th:min, so the claim is checkable rather than an impression."
+      - "Q4 (confidence): high, because the claim is an enumeration and every item in it is cited. It is not a claim that the distribution causes defects — one such defect was already found and fixed here by an adversarial pass rather than by review, but that is history, not evidence for this element."
+      - "CC4 (cross-confidence calibration): read against the domain element 'The visit's vet', this rule set enforces presence and nothing else — that a vet id exists, that a date is after today, that a time was posted. The domain constraints a clinic would recognise (this vet is free at this hour, this visit does not collide with another) are absent, and the rule set has no place to express them. The description was calibrated to say what the rules decide rather than implying they decide whether a booking is sound."
+
+  - name: The previous-visits table, rendered twice
+    description: |
+      The same four-column table — visit date, visit time, veterinarian,
+      description — is written out twice, in pets/createOrUpdateVisitForm.html
+      and in owners/ownerDetails.html, with the same formatting expressions and
+      no shared fragment. The duplication has already drifted in two ways:
+
+      - The owner page writes ${visit?.description} and the visit form writes
+        ${visit.description} (with a stray leading space inside the attribute).
+        The safe-navigation operator is on the one expression that cannot be null
+        — visit is the loop variable — while ${visit.vet.firstName + ' ' +
+        visit.vet.lastName}, the expression with a reference that could in
+        principle be absent, is unguarded in both files. Defensive syntax is
+        present where it cannot help and absent where a reader would look for it.
+        This is a known, unresolved objection against this change.
+      - The visit form filters the row list with th:if="${!visit['new']}", which
+        keeps the blank in-flight Visit out of the list; the owner page has no
+        such filter and needs none.
+
+      The sharper problem is the heading. The visit form lists the rows under
+      #{previousVisits} — "Previous Visits" — and the only filter applied is
+      "not new". A visit booked for next Tuesday is saved, is therefore not new,
+      and renders under a heading that says it already happened. Every test of
+      that table uses a past date (T-10 sets now().minusDays(7)), so nothing in
+      the suite shows it. The owner page does not have this problem: its table
+      sits under "Pets and Visits" and claims nothing about time.
+    evidence:
+      - path: src/main/resources/templates/pets/createOrUpdateVisitForm.html
+        excerpt: |
+          <b th:text="#{previousVisits}">Previous Visits</b>
+          ...
+          <tr th:if="${!visit['new']}" th:each="visit : ${pet.visits}">
+      - path: src/main/resources/templates/pets/createOrUpdateVisitForm.html
+        excerpt: "<td th:text=\" ${visit.description}\"></td>"
+      - path: src/main/resources/templates/owners/ownerDetails.html
+        excerpt: |
+          <td th:text="${visit.vet.firstName + ' ' + visit.vet.lastName}"></td>
+          <td th:text="${visit?.description}"></td>
+      - path: src/test/java/org/springframework/samples/petclinic/owner/VisitControllerTests.java
+        excerpt: "previous.setDate(LocalDate.now().minusDays(7));"
+      - path: docs/superpowers/objections/visit-carries-vet-and-time-code.md
+        excerpt: "the same expression, with line 56 `<td th:text=\" ${visit.description}\"></td>` having lost the `?` the owner page kept."
+    confidence: high
+    challenge_notes:
+      - "Q1 (boundary): drafted as two elements, one per template. Merged into one: they are two copies of a single construct, and split apart neither copy carries the fact that matters, which is that they are copies and have begun to differ."
+      - "Q2 (evidence): the draft claimed only cosmetic drift. Reading the visit form's filter against its heading shows a future booking renders under 'Previous Visits', and reading T-10 shows its fixture is a genuinely past visit so the suite cannot surface it. That claim was added and cited rather than left as a styling note."
+      - "CC1 (boundary contradiction): 'Previous Visits' asserts a temporal boundary. The domain element Visit shows the code has no such boundary — no status, no completed flag, nothing but a date the creation path happens to constrain. The heading is the only place in the system that claims visits are partitioned into past and future, and it is a heading rather than a rule. The description was revised to state that plainly."
+
+  - name: fragments/inputField.html, a shared fragment with one feature's variable in it
+    description: |
+      The field fragment used by the owner form, the pet form and the visit form.
+      This change extended its th:switch with a 'time' case so the visit form can
+      render type="time" through the same construct as everything else — a small,
+      plain extension exactly as AGENTS.md prefers.
+
+      The 'date' case carries th:min="${minVisitDate}". minVisitDate is supplied
+      by exactly one class, VisitController, as a @ModelAttribute. The pet form
+      renders its birth-date field through the same 'date' case, where
+      minVisitDate is not in the model; Thymeleaf omits an attribute whose value
+      is null, so today the birth-date input simply has no min and nothing breaks.
+
+      The coupling is nonetheless real and invisible from both ends. A shared,
+      feature-neutral fragment reads a variable named after one feature, and
+      neither the fragment nor the controller says the other exists. It is also
+      pointed the wrong way for its other caller: if a PetController ever
+      published an attribute of that name, or if someone generalised the name, the
+      pet form's birth-date field would start refusing dates before tomorrow —
+      the exact inverse of what a birth date means. I could not establish from the
+      working tree whether this slice introduced the attribute or inherited it
+      from an earlier one; either way it is named in no decision record, and
+      directive 10 asks for exactly this kind of choice to be written down.
+    evidence:
+      - path: src/main/resources/templates/fragments/inputField.html
+        excerpt: |
+          <input th:case="'date'" class="form-control" type="date" th:field="*{__${name}__}" th:min="${minVisitDate}" />
+          <input th:case="'time'" class="form-control" type="time" th:field="*{__${name}__}" />
+      - path: src/main/java/org/springframework/samples/petclinic/owner/VisitController.java
+        excerpt: |
+          @ModelAttribute("minVisitDate")
+          public LocalDate minVisitDate() {
+              return LocalDate.now().plusDays(1);
+          }
+      - path: src/main/resources/templates/pets/createOrUpdatePetForm.html
+        excerpt: "<input th:replace=\"~{fragments/inputField :: input ('Birth Date', 'birthDate', 'date')}\" />"
+    confidence: medium
+    challenge_notes:
+      - "Q2 (evidence): the draft asserted the pet form is affected. Confirmed by reading createOrUpdatePetForm.html, which passes 'date' as the type and therefore renders through the same branch; the claim is now grounded rather than inferred from the fragment alone."
+      - "Q4 (confidence): medium, not high. Two things are unresolved: I cannot run git, so I cannot say whether this slice added the th:min line or inherited it, and I have not observed the rendered pet form to confirm Thymeleaf omits the attribute for a null value. Both limits are stated in the description instead of being smoothed over."
+      - "CC1 (boundary contradiction): the domain element Visit establishes 'must be in the future' as a rule about visits specifically. This fragment carries that rule, in attribute form, into a file shared with a form whose date field is a birth date — where the same rule would be nonsense. The boundary the fragment appears to draw (a neutral field renderer) is contradicted by the domain-specific constraint embedded in it, and the description was revised to say so."
+
+domain:
+
+  - name: Visit
+    description: |
+      In this codebase "Visit" names two different things and nothing in the code
+      distinguishes them.
+
+      A visit the application creates is an appointment that has not happened.
+      The constructor defaults its date to tomorrow, the controller rejects any
+      date not after today, the form offers 09:00, and the flash message says the
+      visit "has been booked". A visit the application reads may be the opposite:
+      every database ships with four seeded rows dated in the past (2013 in h2,
+      2008-2011 in mysql and postgres), and their descriptions are records of
+      procedures performed — "rabies shot", "neutered", "spayed". The visit form
+      lists saved visits under the heading "Previous Visits".
+
+      There is no field, flag, status or type that separates the two. A visit's
+      kind is decided entirely by reading its date against today, and only the
+      creation path does that. The required description compounds it: a user must
+      write a description before the visit happens, into a field whose seeded
+      values describe what was done afterwards, so the same column means "why I
+      am coming" on one row and "what was done" on another.
+
+      A third state exists only in memory. VisitController's @ModelAttribute
+      method constructs a blank Visit and attaches it to the pet
+      (pet.addVisit(visit)) before the user has entered anything, so a Pet's
+      visits collection routinely contains a visit that does not exist. The
+      template filters it out with th:if="${!visit['new']}". So "a pet's visits"
+      means, precisely: past records, future appointments, and one blank that is
+      neither — and the distinction between the three is carried by a date
+      comparison, a template conditional and a heading, not by the model.
+    evidence:
+      - path: src/main/java/org/springframework/samples/petclinic/owner/Visit.java
+        excerpt: |
+          public Visit() {
+              this.date = LocalDate.now().plusDays(1);
+          }
+      - path: src/main/java/org/springframework/samples/petclinic/owner/VisitController.java
+        excerpt: |
+          if (visit.getDate() != null && !visit.getDate().isAfter(LocalDate.now())) {
+              result.rejectValue("date", "typeMismatch.visitDate");
+          }
+      - path: src/main/resources/db/mysql/data.sql
+        excerpt: "INSERT IGNORE INTO visits (id, pet_id, vet_id, visit_date, start_time, description) VALUES (3, 8, 3, '2009-06-04', '14:00:00', 'neutered');"
+      - path: src/main/resources/templates/pets/createOrUpdateVisitForm.html
+        excerpt: |
+          <b th:text="#{previousVisits}">Previous Visits</b>
+          ...
+          <tr th:if="${!visit['new']}" th:each="visit : ${pet.visits}">
+      - path: src/main/java/org/springframework/samples/petclinic/owner/VisitController.java
+        excerpt: |
+          Visit visit = new Visit();
+          pet.addVisit(visit);
+          return visit;
+    confidence: high
+    challenge_notes:
+      - "Q5 (description integrity): the draft opened with 'a Visit is a scheduled appointment between a pet and a vet at a date and time' — a definition that would fit any clinic system and says nothing about this one. Replaced entirely with the codebase-specific finding: the term covers two lifecycle states that no field distinguishes, evidenced from the constructor, the future-date rejection and the historical seed rows."
+      - "Q1 (boundary): 'Description' and 'Previous visits' were drafted as separate domain elements. Both were folded in here. Neither is a concept in its own right in this codebase — each is a piece of evidence for the same ambiguity, and separating them would have spread one finding across three elements and made it look like three."
+      - "CC5 (mutual description integrity): the architectural collection surfaced a state this element had assumed away. VisitController attaches a blank Visit to the pet before anything is entered, so 'a visit' also denotes an object in a collection that has no database row and is filtered out of display by a template conditional. The third state was added; the architectural VisitController element already carried the loadPetWithVisit evidence and was not altered."
+
+  - name: Start time
+    description: |
+      The time of day a visit is due to begin. It has three names in this
+      feature: the Java field is startTime, the column is start_time, and the
+      user sees a label from the message key visitTime, which reads "Visit Time"
+      in English and "Besuchszeit", "Hora de visita", "診察時間" and so on in the
+      other bundles. Nothing states that these are one thing; the @Column
+      annotation joins the first two and the third is joined by nothing.
+
+      The word "start" is the only thing in the whole feature that implies an
+      interval, and there is no other end. No duration, no end time, no slot
+      length, no appointment type carrying an implied length, and no requirement
+      that mentions one. The decision record is explicit that this is deliberate
+      — availability and contention are later slices — but the field name
+      promises a second value the model does not have, and the user-facing name
+      (visitTime) does not make that promise, so the codebase and the product
+      disagree about what the value is.
+
+      Nor does it carry any notion of when a clinic is open. The column is TIME,
+      the format is a fixed 24-hour HH:mm identical in every locale, and the
+      input is type="time" with no step, min or max, so 03:17 is as bookable as
+      09:00 — two visits may hold the same vet at the same minute, which the
+      decision record states plainly as D4. There is no time zone anywhere: a
+      LocalTime against a LocalDate, with the future-date rule evaluated against
+      the server's LocalDate.now().
+    evidence:
+      - path: src/main/java/org/springframework/samples/petclinic/owner/Visit.java
+        excerpt: |
+          @Column(name = "start_time")
+          @DateTimeFormat(pattern = "HH:mm")
+          private LocalTime startTime;
+      - path: src/main/resources/messages/messages.properties
+        excerpt: "visitTime=Visit Time"
+      - path: src/main/resources/templates/pets/createOrUpdateVisitForm.html
+        excerpt: "<input th:replace=\"~{fragments/inputField :: input (#{visitTime}, 'startTime', 'time')}\" />"
+      - path: src/main/resources/db/postgres/schema.sql
+        excerpt: "  start_time  TIME NOT NULL,"
+      - path: decisions/2026-09-20-visit-carries-vet-and-time.md
+        excerpt: "D4 - any vet, any time; no availability is consulted. Nothing checks whether the vet is free, and two visits may name the same vet at the same time."
+    confidence: high
+    challenge_notes:
+      - "Q5 (description integrity): the first draft read 'the time at which a visit starts', which restates the identifier and would be true of any system. Replaced with the two findings specific to this code: one value under three names, and a name that implies an interval the model does not have."
+      - "Q3 (confounders): visitDate, visitTime and minVisitDate are easy to mistake for one another — one is a persisted field's label, one is the label for a different persisted field, and one is a transient model attribute that never reaches the database and exists only to populate an HTML min. The description and the inputField element were written to keep the three apart."
+      - "CC5 (mutual description integrity): the architectural elements confirm rather than soften the claim. The mapping shows a bare TIME column and no second column, and the shared input fragment shows type=\"time\" with no step, min or max. The 'no working hours, no duration' reading was stated more firmly on that evidence, and the absence of a time zone was added."
+
+  - name: The visit's vet
+    description: |
+      The vet named on a visit. Required — vet_id is NOT NULL with a foreign key
+      to vets in all three dialects, the controller rejects a missing one, and
+      the decision record is explicit that a clinic visit without a vet is not a
+      thing this product means to represent.
+
+      What the word does not mean here is a commitment by that vet. The chooser
+      is populated from VetRepository.findAll() with no filter of any kind: no
+      availability, no specialty match against the reason for the visit, no
+      active or employed flag. Nothing prevents two visits naming the same vet at
+      the same minute. And the chooser has no blank or placeholder option, so a
+      browser preselects the first vet in the list and a user who never touches
+      the control still books one — "the chosen vet" can mean "the vet nobody
+      chose". That hole is known and adjudicated as deferred, which makes it a
+      decision rather than an accident, but it is a decision about what the word
+      means and the code does not carry it.
+
+      So Visit.vet is a recorded intention that a particular clinician will see
+      this pet, with the same standing as the free-text description beside it: the
+      system guarantees a vet id is present and that it resolves to a row in
+      vets, and guarantees nothing else about it. The clinic-facing meaning a
+      reader would naturally attach to the word — this vet is booked, at this
+      time, and knows it — is nowhere implemented and nowhere denied in the code.
+    evidence:
+      - path: src/main/java/org/springframework/samples/petclinic/owner/VisitController.java
+        excerpt: |
+          @ModelAttribute("vets")
+          public Collection<Vet> populateVets() {
+              return this.vets.findAll();
+          }
+      - path: src/main/java/org/springframework/samples/petclinic/owner/VisitController.java
+        excerpt: |
+          if (visit.getVet() == null && !result.hasFieldErrors("vet")) {
+              result.rejectValue("vet", "required");
+          }
+      - path: src/main/resources/db/h2/schema.sql
+        excerpt: "ALTER TABLE visits ADD CONSTRAINT fk_visits_vets FOREIGN KEY (vet_id) REFERENCES vets (id);"
+      - path: decisions/2026-09-20-visit-carries-vet-and-time.md
+        excerpt: "the vet chooser has no blank or placeholder option ... a browser will preselect the first vet and make AS-5's precondition unreachable through the UI."
+      - path: src/main/resources/templates/fragments/selectVetField.html
+        excerpt: "<option th:each=\"item : ${items}\" th:value=\"${item.id}\" th:text=\"${item.firstName + ' ' + item.lastName}\">James Carter</option>"
+    confidence: high
+    challenge_notes:
+      - "Q5 (description integrity): the draft said 'the veterinarian who will perform the visit', which is a textbook gloss and also an overclaim — nothing in this code establishes that the named vet will do anything. Rewritten around what the codebase actually guarantees (presence, and referential integrity) and what it does not."
+      - "Q2 (evidence): the 'no availability' claim was initially carried by the decision record alone. It is now also grounded in the code: an unfiltered findAll() into the chooser, a presence-only rejection in the controller, and no unique constraint in any of the three schemas."
+      - "CC5 (mutual description integrity): read against VetFormatter and the chooser fragment, the architectural collection commits to less than this element originally assumed — the seam establishes that a posted id resolves to a vets row, and that is the whole of it. The description was revised to state the guarantee at exactly that strength and to name the gap between it and what the word 'vet' invites a reader to assume."
+
+  - name: Booking
+    description: |
+      The product's word for what this feature does, which appears in the code
+      once and never as a noun. VisitController sets a flash message resolved
+      from the key visitBooked — "Your visit has been booked". There is no
+      Booking type, no bookings table, no booking column, no method with book in
+      its name. Every identifier in the feature says visit.
+
+      The split widens in translation. The nine non-English bundles render
+      visitBooked with reservation and appointment vocabulary — 診察のご予約が完了しました
+      in Japanese, 방문이 예약되었습니다 in Korean, ویزیت شما رزرو شد in Persian, Ваш
+      визит забронирован in Russian, Ziyaretiniz rezerve edildi in Turkish — and
+      the decision record itself notes that a Russian or Turkish clinic would
+      more naturally say "you have an appointment". So in nine languages the
+      product tells the user an appointment was reserved, in English it says a
+      visit was booked, and in the code it is a row in visits.
+
+      Whether "booking" is a domain concept here or just ordinary English is
+      genuinely arguable, and I have left it at medium confidence for that
+      reason. What is not arguable is that this feature has two vocabularies —
+      one the user hears and one the code speaks — and that no artefact in the
+      repository states that they refer to the same thing.
+    evidence:
+      - path: src/main/java/org/springframework/samples/petclinic/owner/VisitController.java
+        excerpt: |
+          redirectAttributes.addFlashAttribute("message",
+                  this.messages.getMessage("visitBooked", null, LocaleContextHolder.getLocale()));
+      - path: src/main/resources/messages/messages.properties
+        excerpt: "visitBooked=Your visit has been booked"
+      - path: src/main/resources/messages/messages_ja.properties
+        excerpt: "visitBooked=診察のご予約が完了しました"
+      - path: decisions/2026-09-20-visit-carries-vet-and-time.md
+        excerpt: "This change guarantees the shape of a booking and guarantees nothing about its meaning."
+    confidence: medium
+    challenge_notes:
+      - "Q4 (confidence): drafted at high and lowered. The entire case for a distinct concept rests on one message key and prose in a decision record; a reasonable reader can say 'booked' is just the English verb for creating a visit. The reason it survived at medium rather than being dropped is the translation evidence, which shows nine bundles choosing reservation vocabulary the code never uses. The doubt is stated in the description rather than hidden behind the confidence value."
+      - "Q5 (description integrity): the draft described a 'ubiquitous language mismatch between booking and visit', which is the textbook phrase and not an observation. Replaced with the specific inventory: one key, one flash message, zero types, zero tables, and what nine bundles actually say."
+      - "CC3 (cross-confounders): the architectural collection contains no Booking-shaped artefact at all, and the two things that look like one are a message key and the visits table. That absence is the claim rather than a gap in the modelling, so the description was revised to say the concept exists only in the product's voice — and the near-misses named explicitly so a reader does not go looking for a class that was never there."
+```
+
+---
+
+**What the two models say, stated plainly.**
+
+The architecture of this change is legible. Every moving part sits where this project's directives say it should, the class-level and fragment-level comments explain decisions rather than mechanics, and in two places (`Visit`'s constructor javadoc, `selectVetField.html`'s header) the code records a failure or a cost instead of a rationalisation. That is better than most hand-written code, and it should be said without hedging.
+
+Three architectural findings do not clear that bar:
+
+1. **The validity rule set has no home** (`architectural[7]`). Five sites, four languages, no list. Each rule is defended; the set is not readable.
+2. **The one line implementing the ordering requirement is unverified, and only a document says so** (`architectural[5]`). `OwnerControllerTests.ownerDetailsOrdersSameDayVisitsByTime` runs with a mocked repository over a `LinkedHashSet` whose insertion order already matches its assertion — it passes with `@OrderBy` deleted. The decision record admits this; `Pet.java:58` does not.
+3. **"Previous Visits" is a heading, not a rule** (`architectural[8]`). A visit booked for next week is saved, is therefore not `new`, and renders under a heading saying it already happened. No test can see it because every fixture for that table uses a past date.
+
+Two further facts are inherited rather than introduced, and a maintainer answering for this file should know them anyway: `processNewVisitForm`'s `@ModelAttribute Owner owner` parameter data-binds request parameters onto the owner before `save` (`architectural[1]`), and the shared `inputField.html` fragment reads `minVisitDate`, a model attribute only `VisitController` supplies, on the branch the pet form's birth-date field also uses (`architectural[9]`).
+
+The domain model is where legibility is weakest, and the weakness is not in the code's execution but in its vocabulary. `Visit` covers an appointment that has not happened, a record of one that did, and a blank object attached to a pet before the user types anything — with no field separating the three. One value carries three names (`startTime` / `start_time` / `visitTime`), and the code-side name promises an interval that has no other end. `vet` names an intention the system never checks. And the product tells nine locales that an appointment was reserved while the code says a row was inserted into `visits`.
+
+**On the process that produced it.** The decision record independently found the `@OrderBy` problem and states it accurately, which is a real result — but it is also the finding's only home, and it lives in `decisions/`, not beside the annotation. That pattern repeats: the change's sharpest self-knowledge is in documents, and the code is silent about it. Someone reading `Pet.java`, `VisitController.java` or the visit form on its own would not learn any of it. For a maintainer who specified this code but did not write it, that is the thing to fix: the honesty is real, and it is in the wrong file.
+
+**Files read (absolute paths).** `/Users/russellmiles/code/Habitat-Thinking/petclinic-loops-at-levels/src/main/java/org/springframework/samples/petclinic/owner/{Visit,VisitController,Pet,Owner}.java`, `.../vet/{VetFormatter,VetRepository,Vet}.java`, `.../system/WebConfiguration.java`, `.../src/main/resources/templates/pets/createOrUpdateVisitForm.html`, `.../templates/fragments/{selectVetField,inputField}.html`, `.../templates/owners/ownerDetails.html`, `.../src/main/resources/db/{h2,mysql,postgres}/{schema,data}.sql`, `.../src/main/resources/messages/messages*.properties`, `.../src/test/java/org/springframework/samples/petclinic/owner/{VisitControllerTests,OwnerControllerTests}.java`, `.../vet/VetFormatterTests.java`, `.../service/ClinicServiceTests.java`, `.../harness/SchemaParityTest.java`, `/Users/russellmiles/code/Habitat-Thinking/petclinic-loops-at-levels/decisions/2026-09-20-visit-carries-vet-and-time.md`, `/Users/russellmiles/code/Habitat-Thinking/petclinic-loops-at-levels/docs/superpowers/objections/visit-carries-vet-and-time-code.md`, `/Users/russellmiles/code/Habitat-Thinking/petclinic-loops-at-levels/AGENTS.md`. Schema template read from `/Users/russellmiles/.claude/plugins/cache/ai-literacy-superpowers/diagnostic-legibility/0.11.0/templates/legibility-element.md`. No files were written.
