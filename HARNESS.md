@@ -154,6 +154,48 @@ The script exits non-zero when files under `src/` changed and no record under
 
 ---
 
+## Cognitive reservoir
+
+Advisory watch on the human verifier the harness cannot verify. Every constraint
+above this line bounds what may happen to the code. This block watches whether the
+person who has to answer for the code is still in a state to do so.
+
+**NOT a Constraint.** It never gates CI, never blocks a commit, a merge or a session,
+and never writes a claim about anyone's cognitive state to disk — the values below are
+edited by hand, by the person they describe. Promoting it into a gate would defeat its
+purpose and would claim a precision the proxies cannot support.
+
+The proxies, the observed/inferred/asked confidence discipline and the scientific
+grounding — including what it deliberately does *not* assert — live in the plugin's
+`skills/cognitive-reservoir/SKILL.md`.
+
+Thresholds are disjunctive: any one crossing fires a single session-end advisory. A
+cluster of advisories that get routinely ignored is a signal to raise a threshold, not
+to distrust the reading.
+
+- window_hours: 8       # how far back the proxies look
+- span_minutes: 180     # continuous session span (min) before the span proxy fires
+- decision_volume: 8    # approval-like events (commits/merges) in the window
+- context_switches: 4   # distinct work streams touched in the window
+- chronotype:           # optional: early | late | intermediate. Only when
+                        #   declared is the late-hour circadian band labelled
+                        #   (optimal / dip / suboptimal); otherwise the hour is
+                        #   reported as asked/unverified.
+
+These are the shipped defaults, unmodified. They have not been tuned to this
+project or to its maintainer, and that is worth saying out loud: a threshold
+someone else chose is a starting point, not a considered limit. Run `/reservoir` for
+an on-demand read, or `/reservoir tune` to change them.
+
+Note on what is *not* here. The Mast's pact — the stop hour and the concurrency
+limit a person sets for themselves in clear weather — deliberately does not live in
+this file. A pact is a property of a person, not of a repository, so it lives in
+`pacts.md` in the operator's own config directory, is never committed, and is
+authored only by the person it binds. `HARNESS.md` declares what the project
+expects; it does not get to declare when someone should stop for the night.
+
+---
+
 ## Status
 
 <!-- Auto-updated by /harness-audit — do not edit manually -->
