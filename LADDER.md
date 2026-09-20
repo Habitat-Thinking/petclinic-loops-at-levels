@@ -15,7 +15,7 @@
 | `level-1-dictating`     | `level-0-baseline`      | created, 0 commits (content-identical to baseline) |
 | `level-2-commanding`    | `level-1-dictating`     | created: AGENTS.md, CLAUDE.md, HARNESS.md (no constraints), copilot pointer, REFLECTION_LOG.md |
 | `level-3-regulating`    | `level-2-commanding`    | created: HARNESS.md, 5 deterministic + 1 advisory constraint, 3 loops, decisions/ |
-| `level-4-orchestrating` | `level-3-regulating`    | not yet created |
+| `level-4-orchestrating` | `level-3-regulating`    | created: pipeline config, one real run's gate artefacts, S2 implemented |
 | `level-5-supervising`   | `level-4-orchestrating` | not yet created |
 
 Each level branch is created from its predecessor when that level is built. It's the
@@ -36,6 +36,23 @@ confirmed with Russ first.
 Linters, formatters, CI changes, pre-commit hooks, dependency scanning, application-code
 changes and talk READMEs each belong to a specific level. Introducing one earlier
 destroys the evidence that its level introduced it.
+
+## Level 4 checkpoint branches
+
+The Level 4 pipeline cannot run in stage time, so the segment enters and leaves it at
+gates rather than waiting for stages. Each branch is a commit on
+`level-4-orchestrating`, not a sibling of it, and nothing is merged.
+
+| Branch | State it holds |
+|--------|----------------|
+| `l4-1-sliced` | Five slices, every disposition `pending` |
+| `l4-2-spec` | Dispositions written, S2 progressed, spec and plan produced |
+| `l4-3-objections` | Eleven objections, all `pending` |
+| `l4-4-choices` | Objections adjudicated; choice stories and consultation voices produced |
+| `l4-5-reviewed` | Implemented, 94 tests green, code review PASS |
+
+`level-4-orchestrating` itself is the finished state: 96 tests, seven code-mode
+objections disposed.
 
 ## Demo-safety siblings
 
