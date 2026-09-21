@@ -330,17 +330,22 @@ run_segment(){
     read -r a; [[ $a == [yY] ]] || return 1
   }
 
-  local -a titles times says cmds modes
-  local title="" time="" say="" cmd="" mode=""
+  # CMDTIME: is optional and splits TIME: into the part spent on the slide before the
+  # command runs and the part spent on the terminal after it. Absent, the whole beat
+  # budget belongs to the slide and the command side reports as unallocated.
+  local -a titles times ctimes says cmds modes
+  local title="" time="" ctime="" say="" cmd="" mode=""
   flush(){
     [[ -z $title ]] && return
-    titles+=("$title"); times+=("$time"); says+=("$say"); cmds+=("$cmd"); modes+=("${mode:-manual}")
-    title=""; time=""; say=""; cmd=""; mode=""
+    titles+=("$title"); times+=("$time"); ctimes+=("$ctime")
+    says+=("$say"); cmds+=("$cmd"); modes+=("${mode:-manual}")
+    title=""; time=""; ctime=""; say=""; cmd=""; mode=""
   }
   while IFS= read -r line; do
     case $line in
       "### "*) flush; title=${line#\#\#\# } ;;
       "TIME: "*) time=${line#TIME: } ;;
+      "CMDTIME: "*) ctime=${line#CMDTIME: } ;;
       "SAY: "*)  say+="${line#SAY: }"$'\n' ;;
       "CMD: "*)  cmd=${line#CMD: } ;;
       "MODE: "*) mode=${line#MODE: } ;;
@@ -353,10 +358,12 @@ run_segment(){
   print -r -- ""; print -r -- "${B}$label — $total beats${R}  ${DIM}[Enter] next · [r] repeat · [s] skip · [f] fallback · [q] quit${R}"
   print -r -- "${DIM}Working directory: $REPO${R}"
 
-  # -1 not reached, -2 skipped. Anything else is measured seconds.
-  local -a actual; local n=1
-  for (( n = 1; n <= total; n++ )) actual[$n]=-1
-  local beat_start=0
+  # -1 not reached, -2 skipped. Anything else is measured seconds. Each beat has two
+  # clocks: slide time runs from the beat appearing to the keypress that advances it,
+  # command time from there until you say you are done with the terminal.
+  local -a actual cactual; local n=1
+  for (( n = 1; n <= total; n++ )) { actual[$n]=-1; cactual[$n]=-1 }
+  local beat_start=0 cmd_start=0
   if (( timing )); then
     print -r -- "${DIM}Timing on. A beat's clock runs from when it appears to when you advance;${R}"
     print -r -- "${DIM}a command beat takes one extra Enter so the talk over its output counts.${R}"
@@ -382,23 +389,25 @@ run_segment(){
     read -r key
     case $key in
       q) print -r -- "Stopped."; (( timing )) && timing_report; return 0 ;;
-      s) actual[$i]=-2; i=$((i+1)); continue ;;
+      s) actual[$i]=-2; cactual[$i]=-2; i=$((i+1)); continue ;;
       r) continue ;;
       f) fallback $level; continue ;;
       *)
+        actual[$i]=$(( EPOCHSECONDS - beat_start ))
+        cmd_start=$EPOCHSECONDS
         case ${modes[$i]} in
           run)  [[ -n ${cmds[$i]} ]] && { print -r -- ""; NOTES=$NOTES eval "cd $REPO && ${cmds[$i]}" } ;;
           copy) [[ -n ${cmds[$i]} ]] && { print -rn -- "${cmds[$i]}" | pbcopy; print -r -- "  ${GRN}copied${R}" } ;;
         esac
-        # The output lands after the keypress, so without this the time spent
-        # talking over it would be charged to the next beat — and every beat
-        # with a command would record only the seconds spent reading its prompt.
+        # The output lands after the keypress, so without a second one the time spent
+        # talking over it would be charged to the next beat — and every beat with a
+        # command would record only the seconds spent reading its prompt.
         if (( timing )) && [[ -n ${cmds[$i]} && ${modes[$i]} != manual ]]; then
           print -r -- ""
-          print -rn -- "${DIM}beat $i> [Enter] when you are done talking over this${R} "
+          print -rn -- "${DIM}beat $i> [Enter] when you are done with the terminal${R} "
           read -r _
+          cactual[$i]=$(( EPOCHSECONDS - cmd_start ))
         fi
-        actual[$i]=$(( EPOCHSECONDS - beat_start ))
         i=$((i+1))
         ;;
     esac
@@ -407,43 +416,52 @@ run_segment(){
   (( timing )) && timing_report
 }
 
-# Variance table. Budgets are what we wrote; actuals are what happened. Where they
-# disagree the actual is the evidence — the budgets in the steps files were never
-# measured, which is the whole reason this flag exists.
+# Variance table, split two ways. Slide time is the beat before its command runs;
+# command time is the terminal. A beat with no command is all slide.
+#
+# Budgets are what we wrote. Actuals are what happened. Where they disagree the actual
+# is the evidence: nothing in any steps file was ever measured until this flag existed.
 timing_report(){
-  local n=1 b=0 a=0 sb=0 sa=0 reached=0
+  local n=1 sb=0 cb=0 b=0 c=0 ssa=0 sca=0 ssb=0 scb=0 reached=0 t="" col=""
   print -r -- ""
   print -r -- "${B}Timing — $label${R}"
   print -r -- ""
-  printf '  %-3s %-42s %7s %7s %8s\n' "#" "Beat" "Budget" "Actual" "Delta"
+  printf '  %-3s %-30s %13s %13s %18s\n' "" "" "── slide ──" "── command ──" "──── beat ────"
+  printf '  %-3s %-30s %6s %6s %6s %6s %6s %6s %7s\n' \
+         "#" "Beat" "bdgt" "actl" "bdgt" "actl" "bdgt" "actl" "delta"
   for (( n = 1; n <= total; n++ )); do
-    b=$(budget_secs ${times[$n]}); a=${actual[$n]}
-    if (( a == -1 )); then
-      printf '  %-3d %-42s %7s %7s %8s\n' $n "${titles[$n]:0:42}" "$( (( b )) && mmss $b || print -n -- '—')" "—" "not run"
+    b=$(budget_secs ${times[$n]}); c=$(budget_secs ${ctimes[$n]})
+    # CMDTIME is carved out of TIME, never added to it.
+    (( c > b )) && c=$b
+    local sbud=$(( b - c ))
+    if (( actual[$n] < 0 )); then
+      [[ ${actual[$n]} == -2 ]] && t="skipped" || t="not run"
+      printf '  %-3d %-30s %6s %6s %6s %6s %6s %6s %7s\n' $n "${titles[$n]:0:30}" \
+        "$(mmss $sbud)" "—" "$( (( c )) && mmss $c || print -n -- '—')" "—" "$(mmss $b)" "—" "$t"
       continue
     fi
-    if (( a == -2 )); then
-      printf '  %-3d %-42s %7s %7s %8s\n' $n "${titles[$n]:0:42}" "$( (( b )) && mmss $b || print -n -- '—')" "—" "skipped"
-      continue
-    fi
-    reached=$((reached+1)); sa=$((sa+a))
-    if (( b == 0 )); then
-      printf '  %-3d %-42s %7s %7s %8s\n' $n "${titles[$n]:0:42}" "—" "$(mmss $a)" "—"
-    else
-      sb=$((sb+b))
-      local d=$(( a - b )) col=""
-      (( d > 15 )) && col=$RED; (( d < -15 )) && col=$YEL
-      printf '  %-3d %-42s %7s %7s %s%8s%s\n' $n "${titles[$n]:0:42}" "$(mmss $b)" "$(mmss $a)" "$col" "$(mmss_signed $d)" "$R"
-    fi
+    reached=$((reached+1))
+    local sact=${actual[$n]} cact=${cactual[$n]}
+    local tact=$sact; (( cact >= 0 )) && tact=$(( sact + cact ))
+    ssa=$(( ssa + sact )); ssb=$(( ssb + sbud ))
+    (( cact >= 0 )) && { sca=$(( sca + cact )); scb=$(( scb + c )) }
+    local d=$(( tact - b )); col=""
+    (( d > 15 )) && col=$RED; (( d < -15 )) && col=$YEL
+    printf '  %-3d %-30s %6s %6s %6s %6s %6s %6s %s%7s%s\n' $n "${titles[$n]:0:30}" \
+      "$(mmss $sbud)" "$(mmss $sact)" \
+      "$( (( c )) && mmss $c || print -n -- '—')" "$( (( cact >= 0 )) && mmss $cact || print -n -- '—')" \
+      "$(mmss $b)" "$(mmss $tact)" "$col" "$(mmss_signed $d)" "$R"
   done
   print -r -- ""
-  printf '  %-46s %7s %7s %8s\n' "$reached of $total beats reached" "$(mmss $sb)" "$(mmss $sa)" "$(mmss_signed $(( sa - sb )))"
+  printf '  %-34s %6s %6s %6s %6s %6s %6s %7s\n' "$reached of $total beats reached" \
+    "$(mmss $ssb)" "$(mmss $ssa)" "$(mmss $scb)" "$(mmss $sca)" \
+    "$(mmss $(( ssb + scb )))" "$(mmss $(( ssa + sca )))" \
+    "$(mmss_signed $(( (ssa + sca) - (ssb + scb) )))"
   print -r -- ""
-  if (( reached < total )); then
-    print -r -- "${YEL}Partial run.${R} The total covers the beats you reached, not the segment."
-  fi
-  print -r -- "${DIM}Red is over budget by more than 15s, yellow under by more than 15s.${R}"
-  print -r -- "${DIM}Budgets are what we wrote. Actuals are what happened. Trust the actuals.${R}"
+  (( reached < total )) && print -r -- "${YEL}Partial run.${R} Totals cover the beats you reached, not the segment."
+  print -r -- "${DIM}Slide = the beat before its command ran. Command = the terminal, until you${R}"
+  print -r -- "${DIM}said you were done with it. Red is over beat budget by >15s, yellow under.${R}"
+  print -r -- "${DIM}Budgets are written, not measured. After this run, the actuals are.${R}"
 }
 
 fallback(){

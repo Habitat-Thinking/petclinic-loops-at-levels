@@ -9,6 +9,16 @@ Pairs with [slides/UPPER-LEVELS.md](slides/UPPER-LEVELS.md), 18 slides, and with
 ./bin/demo run upper --time       # the same, timed, variance table at the end
 ```
 
+**The split.** Each beat's `TIME:` is the whole beat; the optional `CMDTIME:` is the
+share of it spent at the terminal, carved out of `TIME:` rather than added to it. The
+report shows both against what you actually took:
+
+| | budget | |
+|---|---|---|
+| slide — talking before the command runs | 11:00 | 7 beats have no command, so this is all of theirs |
+| command — the terminal, until you say you are done | 5:30 | across the 7 beats that have one |
+| **total** | **16:30** | against a 20-minute slot |
+
 **The beat budgets below are written, not measured.** They total **16 min 30 s**
 against a 20-minute slot — not the 19 minutes the section table implies, because the
 sections were rounded independently. Rehearse with `--time` and replace them; the

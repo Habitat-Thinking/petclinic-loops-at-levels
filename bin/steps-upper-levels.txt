@@ -15,6 +15,7 @@
 
 ### What is already in the room
 TIME: 60s
+CMDTIME: 35s
 SAY: One minute, no history lesson. This repository already has a harness: six
 SAY: constraints, five of them deterministic, three loops - edit time, merge time,
 SAY: and a weekly sweep - and a rule that any change under src slash carries a
@@ -26,6 +27,7 @@ MODE: run
 
 ### Watch it catch something — the only live thing today
 TIME: 90s
+CMDTIME: 40s
 SAY: This is a shell script and git. It takes seconds and it cannot wander.
 SAY: Say the one sentence and leave it: both of those outputs came from a change
 SAY: made by the pipeline I am about to show you.
@@ -49,6 +51,7 @@ MODE: manual
 
 ### A pipeline in front of the work, and a person inside it
 TIME: 90s
+CMDTIME: 60s
 SAY: Four hard gates, two soft ones. Every gate is a point where an agent has
 SAY: produced something it is forbidden to finish, because finishing it is a
 SAY: person's job.
@@ -60,6 +63,7 @@ MODE: run
 
 ### pending is the whole gate
 TIME: 45s
+CMDTIME: 30s
 SAY: Five slices. Every disposition reads pending. The agent produced all of them
 SAY: and will not fill any of them in.
 SAY: Hard gates block on pending. Soft gates report a count. That is the entire
@@ -71,6 +75,7 @@ MODE: run
 
 ### What four gates produced on one real feature
 TIME: 90s
+CMDTIME: 50s
 SAY: One feature: an owner books a visit against a vet's published availability.
 SAY: Sixty-two decisions surfaced. Forty disposed. Twenty-two carried knowingly.
 SAY: Forty-five minutes of my attention against nineteen hours on the clock - do
@@ -118,6 +123,7 @@ MODE: manual
 
 ### What a sentinel is
 TIME: 30s
+CMDTIME: 20s
 SAY: Same plugin. Same file format. One line each.
 SAY: No Write. No Edit. No Agent. It cannot change the thing it watches and it
 SAY: cannot delegate to something that can.
@@ -126,6 +132,7 @@ MODE: run
 
 ### An instrument found where I would get lost
 TIME: 2 min
+CMDTIME: 95s
 SAY: Read the uncomfortable part aloud, and do not editorialise it away.
 SAY: Then: I specified that code. I adjudicated its gates. I approved its plan.
 SAY: I did not write a line of it.
