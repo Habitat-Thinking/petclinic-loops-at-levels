@@ -1,0 +1,141 @@
+# Level 5 — Supervising, and the close. Beats for ./bin/demo run 5
+# MODE: run = the script runs it | copy = copied to clipboard to paste into the agent
+#       manual = you type it, or there is nothing to type
+#
+# Beats 8-11 are THE CLOSE and are UNCUTTABLE. They have no commands on purpose:
+# the terminal is off for the last four minutes. If you are over time, cut beats
+# 4, 5 and 7 — in that order — and never the close.
+#
+# Unlike Level 4, this segment switches no branches. Everything it reads is either
+# on level-5-supervising already or in the demo notes.
+
+### Pick up the Level 4 number
+TIME: 30s
+SAY: No transition. The previous segment already made the argument.
+SAY: Sixty-two decisions. Forty-five minutes of my attention. And by the second
+SAY: gate I was writing the same eleven-word rationale against eleven different
+SAY: objections.
+SAY: Say it flatly. It is evidence, not a confession.
+
+### Name the shift
+TIME: 45s
+SAY: Everything up to here supervised the code. Constraints, gates, tests, review -
+SAY: all of it pointed at the artefact.
+SAY: What needs supervising now is whether I can still answer for it.
+SAY: That is the whole level in one sentence. Do not elaborate it; the instruments do.
+
+### Show the sentinel definition
+TIME: 15s
+SAY: Same plugin. Same file format. One line each.
+SAY: No Write. No Edit. No Agent. It cannot change the thing it watches, and it
+SAY: cannot delegate to something that can.
+SAY: Fifteen seconds. Then move.
+CMD: cat $NOTES/level-5/trust-boundary.txt
+MODE: run
+
+### The cognitive-resource reading
+TIME: 90s
+SAY: This is the real one, from the end of the Level 4 run - not a staged session.
+SAY: It fired on two proxies, then argued against its own finding three times: a
+SAY: five-minute margin, a 116-minute gap any idle cut would have split, and the
+SAY: possibility it was measuring elapsed time rather than time on task.
+SAY: It gave me every reason to wave it through.
+SAY: Then say what you did: agreed with it entirely, and stopped for the night.
+SAY: CUT THIS BEAT FIRST if you are over time.
+CMD: sed -n '/^## Reservoir read/,/^### Three things/p' $NOTES/level-5/reservoir-reading.md
+MODE: run
+
+### The override
+TIME: 60s
+SAY: This is the beat that separates a sentinel from a gate.
+SAY: The reservoir was taken, so the override comes from Level 4: code-mode
+SAY: objection O4. The reviewer said a vet-less visit taking down the whole owner
+SAY: page was too wide a blast radius. I rejected it, in writing.
+SAY: Two agents disagreed with each other and a human settled it against one of them.
+SAY: The line: they advise, they do not decide. If every piece of advice in this
+SAY: talk had been taken, you should not believe any of it.
+SAY: CUT THIS BEAT SECOND if you are over time.
+CMD: sed -n '/  - id: O4/,/    disposition_rationale:/p' docs/superpowers/objections/visit-carries-vet-and-time-code.md
+MODE: run
+
+### The diagnosis, on screen and not from notes
+TIME: 2 min
+SAY: Read the uncomfortable part aloud. Do not editorialise it away.
+SAY: Then: I specified that code. I adjudicated its gates. I approved its plan.
+SAY: I did not write a line of it, and an instrument just told me where I would
+SAY: get lost in it.
+SAY: Its rawness is the argument. Leave it on screen while you say that.
+CMD: sed -n '28,45p' $NOTES/level-5/diagnosis.yaml
+MODE: run
+
+### The two assessments
+TIME: 45s
+SAY: Generated from the repository. Anyone can clone it and re-run them.
+SAY: Level 1 assesses as Level 1. The branch called level-5-supervising assesses
+SAY: as LEVEL 4. Gap plus one point zero - ambition outpaces enablement.
+SAY: The repository disagrees with the branch name. Every pipeline gate is prose;
+SAY: a grep for disposition across every script and workflow returns nothing.
+SAY: It found that, not me. And I am showing you anyway.
+SAY: CUT THIS BEAT THIRD if you are over time.
+CMD: printf 'level-1-dictating      %s\nlevel-5-supervising    %s\n\n' "$(grep -m1 'Assessed level' $NOTES/level-5/assessment-level-1.md | sed 's/.*: //;s/\*\*//g')" "$(grep -m1 'Assessed level' $NOTES/level-5/assessment-level-5.md | sed 's/.*: //;s/\*\*//g')"; grep -m2 'Habitat Build Gap:\|Interpretation:' $NOTES/level-5/assessment-level-5.md
+MODE: run
+
+### THE CLOSE — the descent. Terminal off from here.
+TIME: 90s
+SAY: TERMINAL OFF. One prepared slide. Do not run the typo live.
+SAY: Twelve characters of prototype text in a Thymeleaf template. Replaced at
+SAY: runtime - the rendered page is byte-identical before and after. Nobody has
+SAY: ever seen it and nobody ever will.
+SAY: Just make the change: under a minute, nothing, no gates.
+SAY: Through the habitat: forty-five minutes. Four human gates. Nine agents.
+SAY: Fourteen hundred and fifty-seven lines of artefact.
+SAY: Fifty-two dollars and sixteen cents at API list price - and nothing actually
+SAY: billed, because this ran on a subscription. Say both figures or neither.
+SAY: Let it land. Let the room laugh.
+MODE: manual
+
+### Take the laugh away
+TIME: 45s
+SAY: This is the move the whole close depends on. Say it before the laugh settles.
+SAY: Every one of those agents was told, explicitly, that finding nothing was a
+SAY: perfectly good answer and that padding would corrupt the measurement.
+SAY: Not one of them padded. And every single one found something true:
+SAY: a coverage gap. A false claim in a record the harness requires. A scope claim
+SAY: that was wrong under the spec's own standard. A standard that collides with a
+SAY: directive. A standard with no defined answer at all. And a question nobody
+SAY: had asked - it is an upstream file.
+SAY: A reviewer would want all six.
+SAY: The ceremony was proportionate. The findings were real. And it still cost
+SAY: fifty-two dollars to fix a string nobody can see.
+SAY: If the room leaves thinking the pipeline is stupid, this close has failed.
+MODE: manual
+
+### The turn
+TIME: 45s
+SAY: So the answer is not to build the habitat higher.
+SAY: Level 5 is not where anyone should be trying to live. A habitat that can only
+SAY: work at its highest setting is a badly tuned habitat.
+SAY: What we have been building is not a ladder to the top. It is a repertoire.
+SAY: And the skill is choosing the mode the work deserves.
+SAY: Deliver it as a conclusion, not an apology. Four levels of evidence earned it.
+MODE: manual
+
+### The question, then the repository. Then stop.
+TIME: 60s
+SAY: One question picks the mode: if this turns out to be wrong, what does it take
+SAY: to put right?
+SAY: Undo. Repair. Migrate. Answer.
+SAY: The typo is Undo - revert it and it never happened. It got four gates and
+SAY: fifty-two dollars.
+SAY: The booking feature is Migrate: NOT NULL in three dialects, rows rewritten,
+SAY: packages coupled. Reversal is a planned migration.
+SAY: And it is also Answer. The owner's page shows a named clinician and a time
+SAY: beside "your visit has been booked", and nothing in the clinic agreed to
+SAY: either. No migration fixes that. Someone has to be told.
+SAY: Ask only "can I revert it" and you get Migrate. True, and not the whole answer.
+SAY: The class that picks the mode is the most expensive one the work touches.
+SAY: Last slide: the repository. Every level is a branch, including the parts that
+SAY: do not flatter me. Go and look at the one below where you are, then the one
+SAY: above, then ask the question.
+SAY: Then stop talking. Do not end on the plugin.
+MODE: manual

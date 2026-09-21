@@ -5,7 +5,7 @@ Deterministic. No model in the loop, so it cannot improvise on stage.
 ```sh
 ./bin/demo profiles           # which profile is which, and are they logged in
 ./bin/demo preflight 3        # is this machine ready? --fix repairs what is safe
-./bin/demo run 4              # teleprompt the segment, beat by beat (levels 1-4)
+./bin/demo run 5              # teleprompt the segment, beat by beat (levels 1-5)
 ./bin/demo fallback 3         # abandon a wandering live run
 ```
 
@@ -52,6 +52,15 @@ switches fail mid-beat, and you will finish the segment on `level-4-orchestratin
 rather than where you began. `./bin/demo fallback 4` prints the checkpoint-to-beat map
 rather than switching for you, because at Level 4 a fallback is a navigation choice
 rather than an escape.
+
+Level 5 is the only segment that **switches no branches at all** — everything it
+reads is already on `level-5-supervising` or in these notes. Its last four beats
+carry no commands on purpose: the close is spoken with the terminal off, and the
+teleprompter is there to keep the words in order, not to run anything.
+
+Preflight 5 additionally checks the second `--plugin-dir`. Level 5 is the first
+level since 3 to change the launcher, because it adds an instrument rather than
+a rule.
 
 ## The agent-driven variant
 
