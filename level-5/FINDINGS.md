@@ -185,7 +185,82 @@ That last one lands directly on Level 4's finding, where an agent wrote a
 disposition and only its own flag caught it. **The instrument built to watch the
 human cannot tell whether the human did the deciding.**
 
-## 8. Which is the close
+## 8. The instrument's own write surface failed in the register it warns about
+
+Found while authoring the pact the level argues for — not in the repository, in the
+plugin.
+
+`/mast tune` is the only sanctioned path that creates `~/.claude/pacts.md`. Its
+command file tells the caller to **source** `hooks/scripts/lib/pact-write.sh`. That
+library resolves its own directory through `BASH_SOURCE`, which **zsh does not set**,
+and the caller here is a Claude session's Bash tool running the user's login shell —
+zsh, on every macOS since Catalina.
+
+Same inputs, two shells:
+
+| | exit code | `block_state` | file |
+|---|---|---|---|
+| bash | 0 | `declared` | 45 lines |
+| **zsh** | **0** | **`malformed`** | **10 lines** |
+
+The zsh file is missing the template preamble, the field notes, and the mandatory
+governing clause. **It returns success.**
+
+The writer's own header comment names this exact outcome:
+
+> THE READER AND THE WRITER ARE ONE CONTRACT. Whatever this emits, `block_state` must
+> call `declared`. Getting that wrong fails in the quietest possible way: the block
+> reads `malformed`, every consumer drops to observe-only per S1's Null Object
+> contract, and nothing tells the human which sentence is missing.
+
+### Two correct behaviours composing into a silent wrong one
+
+`_pw_template_prose` starts `[ -f "$_PW_TEMPLATE" ] || return 0` — empty prose, exit 0.
+`_pw_seed_file` falls through to a hardcoded two-line preamble. Each is defensible
+alone; the clause is *derived* from the template rather than restated, which is the
+right call. Together, on a template that cannot be found, they emit a plausible file
+with no governing sentence and no error.
+
+### The test suite structurally cannot catch it
+
+`tdad_tests/layer0_deterministic/test-pact-write.sh` is `#!/usr/bin/env bash`, and T1
+**is** the reader/writer round-trip guard. It passes — because it runs the writer in
+the one shell where the path resolves. The suite exercises the library. The bug is in
+the path the command tells a model to take to reach it.
+
+### The blast radius is one line, and it is the worst one
+
+Four commands instruct sourcing a library:
+
+| Command | Library | Affected |
+|---|---|---|
+| `mast.md:22` | `pact-blocks.sh` | no |
+| `wip.md:33` | `pact-blocks.sh` | no |
+| `coda.md:88` | `mast-notes-read.sh` | no |
+| **`mast.md:100`** | **`pact-write.sh`** | **yes** |
+
+Every read surface is clean. The single write surface a command sources is the broken
+one, and it breaks at **first authorship** — the one moment the Mast's whole argument
+rests on. The other ~22 files using `BASH_SOURCE` run with a `bash` shebang and are
+correct.
+
+Filed as [ai-literacy-superpowers#617](https://github.com/Habitat-Thinking/ai-literacy-superpowers/issues/617).
+The pact written for this talk is sound: it was written under `bash -c` and validated
+— `declared`, clause present, `21:30` intact, one heading.
+
+### Why this is a Level 5 finding and not a bug report
+
+Levels 1–4 supervise the code. Level 5 supervises whether the person can still answer
+for it, and it does that through instruments. This is an instrument's own write path
+failing silently, at the moment of authorship, in a plugin whose tests are unusually
+good — and **nothing in the harness, the pipeline or the sentinels could have found
+it.** It was found by running the command instead of reading it.
+
+That is the same shape as the `/assess` finding that produced the enforcement column,
+and the same shape as beat 4's 133-column table. Three times in this build, the defect
+was invisible to reading and obvious to execution.
+
+## 9. Which is the close
 
 Nothing in five levels of habitat answers *"was this the mode the work
 deserved?"*. The harness checks the code. The pipeline sequences the work. The

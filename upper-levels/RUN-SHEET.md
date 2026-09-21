@@ -9,7 +9,7 @@ Pairs with [slides/UPPER-LEVELS.md](slides/UPPER-LEVELS.md), 18 slides, and with
 ./bin/demo run upper --time       # the same, timed, variance table at the end
 ```
 
-**The beat budgets below are written, not measured.** They total **16 min 32 s**
+**The beat budgets below are written, not measured.** They total **16 min 30 s**
 against a 20-minute slot — not the 19 minutes the section table implies, because the
 sections were rounded independently. Rehearse with `--time` and replace them; the
 report prints to stdout, so `| tee rehearsal-1.txt` keeps it. In timing mode a beat
@@ -83,7 +83,10 @@ between them, because the close is spoken rather than driven.
 11. **What a sentinel is** (30 s) — the tool list. No Write, no Edit, no Agent.
 12. **An instrument found where I would get lost** (2 min) — the diagnosis, on
     screen, read aloud, not editorialised. Ends on the sentinel admitting it
-    cannot tell ceremony from consequence.
+    cannot tell ceremony from consequence. **Optional 20-second aside, default
+    to cutting it:** the instruments can also be quietly wrong — `/mast tune`'s
+    writer reads `declared` under bash and `malformed` under zsh, both exit 0.
+    Only if you are ahead, and land the category, never the plugin.
 13. **The descent** (90 s) — **terminal off from here.** $52.16, 45 minutes, four
     gates, nine agents, 1,457 lines, for twelve characters. Let the room laugh.
 14. **Take the laugh away** (45 s) — every agent was told finding nothing was

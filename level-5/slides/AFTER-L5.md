@@ -3,22 +3,22 @@
 **Purpose:** land what the instruments found, including what they found against the
 project, and then deliver the close — the descent, the twist, the turn, the question, the
 repository. This is the deck the session resolves into.
-**Length:** 10 slides. Slides 1–5 back the level's remaining ~6 minutes; slides 6–10 are
+**Length:** 11 slides. Slides 1–6 back the level's remaining ~6 minutes; slides 7–11 are
 the close's 4 minutes.
 **Source evidence:** [../FINDINGS.md](../FINDINGS.md), [../RUN-SHEET.md](../RUN-SHEET.md),
 [../descent.md](../descent.md), [../repertoire.md](../repertoire.md),
 [../diagnosis.yaml](../diagnosis.yaml), [../assessment-level-5.md](../assessment-level-5.md).
 
-**Design direction:** ladder motif, rung 5 lit, through slide 5 only. **From slide 6 the
+**Design direction:** ladder motif, rung 5 lit, through slide 6 only. **From slide 7 the
 ladder leaves the screen and does not come back** — that is the visual argument for the
-turn, and it should happen without comment. Slides 6 and 9 are the ones to photograph.
-Slide 10 is the URL and nothing else.
+turn, and it should happen without comment. Slides 7 and 10 are the ones to photograph.
+Slide 11 is the URL and nothing else.
 
-**Cutting:** slides 1, 2 and 3 are cuttable for time, in that order, matching the run
-sheet's *cut beats 4, 5 and 7 before you touch the close.* **Slides 6–10 are UNCUTTABLE.**
-If the clock is gone, go from slide 4 straight to slide 6.
+**Cutting:** slide 4 goes first, then slides 1, 2 and 3 in that order, matching the run
+sheet's *cut beats 4, 5 and 7 before you touch the close.* **Slides 7–11 are UNCUTTABLE.**
+If the clock is gone, go from slide 5 straight to slide 7.
 
-**The money rule:** the cost figure appears once, on slide 6, with **both** numbers — list
+**The money rule:** the cost figure appears once, on slide 7, with **both** numbers — list
 price and actually billed. Nowhere else on any slide, and nowhere else spoken. Quote both
 or neither.
 
@@ -97,11 +97,46 @@ winner.
 
 **Speaker note:** *"If every piece of advice in this talk had been taken, you should not
 believe any of it."* If this slide is cut, that line still has to be said somewhere —
-carry it into slide 5.
+carry it into slide 6.
 
 ---
 
-## Slide 4 — An instrument read the code and found where I would get lost
+## Slide 4 — The instrument's own write surface failed silently
+
+**Status:** cuttable, and **first to go** — it is the newest evidence and the least
+load-bearing. The argument survives without it.
+
+**Takeaway:** Found by running the command, not by reading it.
+
+`/mast tune` is the only path that creates a pact. Its command file says to *source*
+`pact-write.sh`. That library finds itself through `BASH_SOURCE`, which **zsh does not
+set** — and the caller is a Claude session's shell.
+
+| | exit code | `block_state` |
+|---|---|---|
+| bash | 0 | `declared` |
+| **zsh** | **0** | **`malformed`** |
+
+- The writer's own header names this outcome: *"fails in the quietest possible way…
+  and nothing tells the human which sentence is missing."*
+- **Its tests cannot catch it.** The round-trip guard is the suite's whole point, and
+  it runs under a `bash` shebang — it exercises the library, not the path the command
+  tells a model to take.
+- Every **read** surface is clean. The one **write** surface a command sources is the
+  broken one, and it breaks at first authorship.
+
+**Visual:** the two-row table, and one line of the writer's own header comment beneath
+it. No alarm styling — this is not a scandal, it is a category.
+
+**Speaker note:** Keep it to forty seconds and do not turn it into a story about a
+plugin. The point is the category: *the harness could not find this, the pipeline could
+not find this, and the sentinels could not find this. Running it found it.* Filed as
+issue 617 the same afternoon. If you are anywhere near time, cut this slide — slide 6
+makes the limits argument better, in the instrument's own words.
+
+---
+
+## Slide 5 — An instrument read the code and found where I would get lost
 
 **Status:** keep — run-sheet beat 6, read on screen rather than from notes.
 
@@ -129,7 +164,7 @@ instrument just told me where I would get lost in it."*
 
 ---
 
-## Slide 5 — It cannot tell ceremony from consequence, and says so
+## Slide 6 — It cannot tell ceremony from consequence, and says so
 
 **Status:** keep. This is the bridge into the close.
 
@@ -158,7 +193,7 @@ from here.
 
 ---
 
-## Slide 6 — The descent
+## Slide 7 — The descent
 
 **Status:** **UNCUTTABLE.** Terminal off. One prepared view — do not run it live.
 
@@ -188,7 +223,7 @@ resource. Let it land, and let the room laugh. Then take the laugh away on the n
 
 ---
 
-## Slide 7 — Every one of them found something true
+## Slide 8 — Every one of them found something true
 
 **Status:** **UNCUTTABLE.** This is the move the close depends on.
 
@@ -222,7 +257,7 @@ pipeline is stupid, the close has failed.
 
 ---
 
-## Slide 8 — The turn
+## Slide 9 — The turn
 
 **Status:** **UNCUTTABLE.**
 
@@ -242,7 +277,7 @@ to the top. It is a repertoire — and the skill is choosing the mode the work d
 
 ---
 
-## Slide 9 — The question
+## Slide 10 — The question
 
 **Status:** **UNCUTTABLE.** The last idea in the room.
 
@@ -276,7 +311,7 @@ the work.
 
 ---
 
-## Slide 10 — The repository
+## Slide 11 — The repository
 
 **Status:** **UNCUTTABLE.** The last thing on screen.
 

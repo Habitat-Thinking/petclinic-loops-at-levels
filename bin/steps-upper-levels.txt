@@ -132,6 +132,12 @@ SAY: I did not write a line of it.
 SAY: Then the bridge: the sentinel that watches me was asked whether it can tell
 SAY: a gate on a typo from a gate on consequential work. It said it cannot, and
 SAY: that it would not pretend otherwise.
+SAY: OPTIONAL, 20s, only if you are ahead - default is to cut it: they can also
+SAY: be quietly wrong. The one command that authors a pact sources a library that
+SAY: finds itself through BASH_SOURCE, which zsh does not set. Under bash the
+SAY: pact reads declared; under zsh, malformed. Both return success. Its own
+SAY: header predicts that failure and its tests run under bash. Issue 617.
+SAY: Land the category, not the plugin. Never a story about someone's bug.
 CMD: sed -n '28,45p' $NOTES/level-5/diagnosis.yaml
 MODE: run
 

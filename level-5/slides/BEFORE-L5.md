@@ -77,11 +77,14 @@ name. Do not define the word; let the file do it.
 
 1. What happens when an instrument **contradicts the person who ran it**?
 2. Does advice that cannot block **change what anyone does**?
-3. Is there anything left that **no instrument can answer**?
+3. What happens when an instrument is **quietly wrong**?
+4. Is there anything left that **no instrument can answer**?
 
-**Visual:** three questions, the third emphasised.
+**Visual:** four questions, the last emphasised.
 
-**Speaker note:** Question 3 is what the segment is for, and it pays off in the close. Do
-not answer it now, and do not hint that it has an answer. Everything after this point is a
+**Speaker note:** Question 4 is what the segment is for, and it pays off in the close. Do
+not answer it now, and do not hint that it has an answer. Question 3 is new and is set up
+by slide 4 of the after-deck; drop it from this list if that slide gets cut, so you are
+not promising the room something you then do not show. Everything after this point is a
 committed artefact read on screen — say that once, so the room knows nothing is being
 staged.

@@ -394,13 +394,28 @@ instrument just told me where I would get lost in it."*
 - **It cannot see who decided.** *"Git records who committed, not who decided; an
   agent-produced disposition committed by a human and a human-reasoned disposition are
   byte-identical in the log."*
+- **Optional, 20 seconds, only with time in hand.** The instruments are not only
+  limited, they can break quietly. The one command that authors a pact tells its caller
+  to source a shell library that finds itself through `BASH_SOURCE` — which zsh does
+  not set. Under bash the pact reads `declared`; under zsh it reads `malformed`, **and
+  both return success.** The writer's own header predicts exactly that failure. Its
+  tests run under bash and cannot see it. Filed as issue 617.
 
-**Visual:** the two admissions as the sentinel volunteered them. No alarm styling.
+**Visual:** the two admissions as the sentinel volunteered them. No alarm styling. If
+the optional bullet is used, one added row — `bash: declared / zsh: malformed`, both
+exit 0 — and nothing else.
 
 **Speaker note:** The instrument built to watch the human cannot tell whether the human
 did the deciding. That is the handover: nothing shown in the last twenty minutes answers
 *was this the mode the work deserved?*, and the one thing that comes closest says so in
 its own output.
+
+On the optional bullet: **default to cutting it.** It earns a full slide in the
+long-form Level 5 deck and a line here, because this deck has 16 beats in 20 minutes
+and the two admissions above are the bridge. Use it only if you are ahead, and if you
+do, land the category rather than the plugin — *the harness could not find that, the
+pipeline could not find that, the sentinels could not find that; running it found it.*
+Never let it become a story about someone's bug.
 
 ---
 
