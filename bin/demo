@@ -4,6 +4,7 @@
 #   ./bin/demo preflight <level>   check the machine is ready; --fix repairs what is safe
 #                                  levels 1-5; 2-5 share one profile, 5 adds a second plugin
 #   ./bin/demo run <level>         teleprompt the segment, one beat at a time
+#   ./bin/demo run <level> --time  the same, timed, with a variance table at the end
 #   ./bin/demo fallback <level>    abandon a wandering live run
 #   ./bin/demo profiles            show the profile table and auth state
 #
@@ -33,6 +34,30 @@ ok(){ print -r -- "${GRN}  ok  ${R} $1" }
 bad(){ print -r -- "${RED} FAIL ${R} $1"; FAILED=$((FAILED+1)) }
 warn(){ print -r -- "${YEL} warn ${R} $1"; WARNED=$((WARNED+1)) }
 hdr(){ print -r -- ""; print -r -- "${B}$1${R}" }
+
+zmodload -F zsh/datetime b:strftime p:EPOCHSECONDS 2>/dev/null
+
+# Parse a TIME: budget to whole seconds. "90s" -> 90, "2 min" -> 120.
+# Anything else returns 0, which the report prints as "—" rather than guessing a
+# number: a budget nobody wrote is not a budget of zero.
+budget_secs(){
+  local t=$1
+  # <-> matches a run of digits. A looser `*s` would parse "bogus" as "bogu",
+  # and a looser `*min*` would leave the multiplicand empty on a bare "min".
+  case $t in
+    <->*min*) print -r -- $(( ${t%%[^0-9]*} * 60 )) ;;
+    <->s)     print -r -- ${t%s} ;;
+    <->)      print -r -- $t ;;
+    *)        print -r -- 0 ;;
+  esac
+}
+mmss(){ printf '%d:%02d' $(( $1 / 60 )) $(( $1 % 60 )) }
+# Signed, for the delta column. A plain mmss would render -12 as 0:-12.
+mmss_signed(){
+  local v=$1 sign=+
+  (( v < 0 )) && { sign=-; v=$(( -v )) }
+  printf '%s%d:%02d' $sign $(( v / 60 )) $(( v % 60 ))
+}
 
 # Levels 2 and 3 deliberately share a profile: from Level 3 on, what changes is in the
 # repository, not the launcher.
@@ -290,7 +315,8 @@ preflight(){
 # Teleprompter. Each beat: what to say, then the command — run for you, or copied to
 # the clipboard when it must be typed into an agent session.
 run_segment(){
-  local level=$1
+  local level=$1 timing=0
+  [[ ${2:-} == --time ]] && timing=1
   local steps=$HERE/steps-level-$level.txt
   [[ $level == upper ]] && steps=$HERE/steps-upper-levels.txt
   [[ -f $steps ]] || { print -r -- "No steps file: $steps"; return 1 }
@@ -327,7 +353,17 @@ run_segment(){
   print -r -- ""; print -r -- "${B}$label — $total beats${R}  ${DIM}[Enter] next · [r] repeat · [s] skip · [f] fallback · [q] quit${R}"
   print -r -- "${DIM}Working directory: $REPO${R}"
 
+  # -1 not reached, -2 skipped. Anything else is measured seconds.
+  local -a actual; local n=1
+  for (( n = 1; n <= total; n++ )) actual[$n]=-1
+  local beat_start=0
+  if (( timing )); then
+    print -r -- "${DIM}Timing on. A beat's clock runs from when it appears to when you advance;${R}"
+    print -r -- "${DIM}a command beat takes one extra Enter so the talk over its output counts.${R}"
+  fi
+
   while (( i <= total )); do
+    beat_start=$EPOCHSECONDS
     print -r -- ""; print -r -- "${CYN}────────────────────────────────────────────────────────${R}"
     print -r -- "${B}Beat $i/$total — ${titles[$i]}${R}  ${DIM}${times[$i]}${R}"
     print -r -- ""
@@ -345,8 +381,8 @@ run_segment(){
     print -rn -- "${DIM}beat $i>${R} "
     read -r key
     case $key in
-      q) print -r -- "Stopped."; return 0 ;;
-      s) i=$((i+1)); continue ;;
+      q) print -r -- "Stopped."; (( timing )) && timing_report; return 0 ;;
+      s) actual[$i]=-2; i=$((i+1)); continue ;;
       r) continue ;;
       f) fallback $level; continue ;;
       *)
@@ -354,11 +390,60 @@ run_segment(){
           run)  [[ -n ${cmds[$i]} ]] && { print -r -- ""; NOTES=$NOTES eval "cd $REPO && ${cmds[$i]}" } ;;
           copy) [[ -n ${cmds[$i]} ]] && { print -rn -- "${cmds[$i]}" | pbcopy; print -r -- "  ${GRN}copied${R}" } ;;
         esac
+        # The output lands after the keypress, so without this the time spent
+        # talking over it would be charged to the next beat — and every beat
+        # with a command would record only the seconds spent reading its prompt.
+        if (( timing )) && [[ -n ${cmds[$i]} && ${modes[$i]} != manual ]]; then
+          print -r -- ""
+          print -rn -- "${DIM}beat $i> [Enter] when you are done talking over this${R} "
+          read -r _
+        fi
+        actual[$i]=$(( EPOCHSECONDS - beat_start ))
         i=$((i+1))
         ;;
     esac
   done
   print -r -- ""; print -r -- "${GRN}Segment complete.${R}"
+  (( timing )) && timing_report
+}
+
+# Variance table. Budgets are what we wrote; actuals are what happened. Where they
+# disagree the actual is the evidence — the budgets in the steps files were never
+# measured, which is the whole reason this flag exists.
+timing_report(){
+  local n=1 b=0 a=0 sb=0 sa=0 reached=0
+  print -r -- ""
+  print -r -- "${B}Timing — $label${R}"
+  print -r -- ""
+  printf '  %-3s %-42s %7s %7s %8s\n' "#" "Beat" "Budget" "Actual" "Delta"
+  for (( n = 1; n <= total; n++ )); do
+    b=$(budget_secs ${times[$n]}); a=${actual[$n]}
+    if (( a == -1 )); then
+      printf '  %-3d %-42s %7s %7s %8s\n' $n "${titles[$n]:0:42}" "$( (( b )) && mmss $b || print -n -- '—')" "—" "not run"
+      continue
+    fi
+    if (( a == -2 )); then
+      printf '  %-3d %-42s %7s %7s %8s\n' $n "${titles[$n]:0:42}" "$( (( b )) && mmss $b || print -n -- '—')" "—" "skipped"
+      continue
+    fi
+    reached=$((reached+1)); sa=$((sa+a))
+    if (( b == 0 )); then
+      printf '  %-3d %-42s %7s %7s %8s\n' $n "${titles[$n]:0:42}" "—" "$(mmss $a)" "—"
+    else
+      sb=$((sb+b))
+      local d=$(( a - b )) col=""
+      (( d > 15 )) && col=$RED; (( d < -15 )) && col=$YEL
+      printf '  %-3d %-42s %7s %7s %s%8s%s\n' $n "${titles[$n]:0:42}" "$(mmss $b)" "$(mmss $a)" "$col" "$(mmss_signed $d)" "$R"
+    fi
+  done
+  print -r -- ""
+  printf '  %-46s %7s %7s %8s\n' "$reached of $total beats reached" "$(mmss $sb)" "$(mmss $sa)" "$(mmss_signed $(( sa - sb )))"
+  print -r -- ""
+  if (( reached < total )); then
+    print -r -- "${YEL}Partial run.${R} The total covers the beats you reached, not the segment."
+  fi
+  print -r -- "${DIM}Red is over budget by more than 15s, yellow under by more than 15s.${R}"
+  print -r -- "${DIM}Budgets are what we wrote. Actuals are what happened. Trust the actuals.${R}"
 }
 
 fallback(){
@@ -404,8 +489,8 @@ case ${1:-} in
   preflight)
     if [[ ${2:?level} == upper ]]; then preflight_upper ${3:-}
     else preflight $2 ${3:-}; fi ;;
-  run)       run_segment ${2:?level} ;;
+  run)       run_segment ${2:?level} ${3:-} ;;
   fallback)  fallback ${2:?level} ;;
   profiles)  profiles ;;
-  *) print -r -- "usage: demo {preflight|run|fallback} <level 1-5 | upper> | demo profiles" ; exit 2 ;;
+  *) print -r -- "usage: demo {preflight|run|fallback} <level 1-5 | upper> [--time] | demo profiles" ; exit 2 ;;
 esac

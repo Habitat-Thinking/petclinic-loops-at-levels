@@ -6,7 +6,15 @@ Pairs with [slides/UPPER-LEVELS.md](slides/UPPER-LEVELS.md), 18 slides, and with
 ```sh
 ./bin/demo preflight upper        # --fix switches the branch and enables hooks
 ./bin/demo run upper              # teleprompts the 16 beats
+./bin/demo run upper --time       # the same, timed, variance table at the end
 ```
+
+**The beat budgets below are written, not measured.** They total **16 min 32 s**
+against a 20-minute slot — not the 19 minutes the section table implies, because the
+sections were rounded independently. Rehearse with `--time` and replace them; the
+report prints to stdout, so `| tee rehearsal-1.txt` keeps it. In timing mode a beat
+with a command takes one extra Enter, so the time spent talking over its output is
+charged to that beat rather than the next one.
 
 **This is not the full talk with levels 1–3 removed.** It has a narrower job:
 show a room what a governed pipeline and its sentinels actually do, and then
