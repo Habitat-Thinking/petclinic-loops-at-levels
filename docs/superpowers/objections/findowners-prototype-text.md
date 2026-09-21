@@ -9,29 +9,29 @@ objections:
     severity: medium
     claim: "FR-1 adopts byte-for-byte equality with the bundle as the standard, but the user story and AS-1 justify and can verify only 'reads the same' — and the trailing space, which is half of this change, is not observable on the only surface the spec names as observable."
     evidence: "FR-1: 'is the string `Last Name`, byte-for-byte the value of the `lastName` key in `messages.properties`.' AS-1: 'Given ... opened directly, without the application running / When the last-name label is read / Then it reads `Last Name` ... and not `Last name ` .'"
-    disposition: pending
-    disposition_rationale: null
+    disposition: deferred
+    disposition_rationale: "Defer — disproportionate to a twelve-character edit."
   - id: O2
     category: risk
     severity: medium
     claim: "The spec names AS-2 as 'the whole risk of this change' but neither the spec nor the repository verifies the most likely realisation of that risk: a `th:text` attribute silently removed or misnamed renders without error, and no existing test asserts the label's content."
     evidence: "Spec: 'AS-2 asserts that nothing changed. It is here because it is the whole risk of this change: an edit that disturbed `th:text` would be invisible in AS-1 and would break the page.' Plan T-2: 'a mistyped edit that broke the `th:text` attribute fails them.' The cited tests assert only `view().name(\"owners/findOwners\")` (OwnerControllerTests lines 153 and 206)."
-    disposition: pending
-    disposition_rationale: null
+    disposition: deferred
+    disposition_rationale: "Defer — disproportionate to a twelve-character edit."
   - id: O3
     category: scope
     severity: medium
     claim: "The exclusion of `fragments/layout.html:48` is presented as resolved by existing directives when AGENTS.md itself records that exact boundary as not yet encodable, which means 'Decisions: None' will propagate into a decision record that claims no judgement calls were made."
     evidence: "Spec Out of scope: '`fragments/layout.html:48` ... Named in the slicing record, left alone under directive 9 and \"smallest diff that works\".' Spec Decisions: 'None. ... resolved by existing directives rather than by judgement.' AGENTS.md, Not encodable yet: '\"Needed by the change's purpose\" (the no-unrelated-reformatting rule) needs worked examples to settle where cleanup ends and noise begins.'"
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "Accept O3. The decision record should say what the slicing record already said, rather than assert there were no judgement calls."
   - id: O4
     category: premise
     severity: low
     claim: "The user story's 'so that' clause claims a benefit this change does not deliver: after the edit, the static preview of findOwners.html still differs from the rendered page in larger and more visible ways than the capitalisation of one word."
     evidence: "Spec user story: '... so that the static preview shows the page as the application renders it.' `findOwners.html` lines 3 and 16–17: the file's layout is supplied by `th:replace=\"~{fragments/layout :: layout ...}\"`, which does not apply statically, and `<div th:if=\"${#fields.hasAnyErrors()}\"><p th:each=... >Error</p></div>` renders a literal 'Error' paragraph in the static preview that never appears in the rendered page."
-    disposition: pending
-    disposition_rationale: null
+    disposition: deferred
+    disposition_rationale: "Defer — disproportionate to a twelve-character edit."
 ---
 
 # Objections — find-owners prototype text
