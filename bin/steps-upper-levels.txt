@@ -55,7 +55,7 @@ SAY: person's job.
 SAY: Point at the enforcement column while you say it: six read human, one reads
 SAY: deterministic. That column exists because an instrument caught this file
 SAY: claiming enforcement it did not have.
-CMD: sed -n '/^| # | Stage/,/^| 5 |/p' PIPELINE.md
+CMD: sed -n '/^| # | Stage/,/^| 5 |/p' PIPELINE.md | $NOTES/bin/fmt-stage-table.py
 MODE: run
 
 ### pending is the whole gate
