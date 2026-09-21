@@ -2,7 +2,7 @@
 # Demo assistant for "(Agentic) Loops At Levels, Live".
 #
 #   ./bin/demo preflight <level>   check the machine is ready; --fix repairs what is safe
-#                                  levels 1-4; 2, 3 and 4 share the same launch profile
+#                                  levels 1-5; 2-5 share one profile, 5 adds a second plugin
 #   ./bin/demo run <level>         teleprompt the segment, one beat at a time
 #   ./bin/demo fallback <level>    abandon a wandering live run
 #   ./bin/demo profiles            show the profile table and auth state
@@ -19,6 +19,7 @@ HERE=${0:A:h}
 NOTES=${HERE:h}
 REPO=${REPO:-$HOME/code/Habitat-Thinking/petclinic-loops-at-levels}
 PIN_CC_VERSION="2.1.275"   # clean room re-verified on this build, 2026-09-19
+PIN_LEGIBILITY_VERSION="0.11.0"   # Level 5 only: the legibility instrument
 PIN_PLUGIN_VERSION="0.92.0"   # #616: edit hook is a script; no false "no HARNESS.md", no turn cut-off
 
 # Colours, dropped when not a terminal.
@@ -42,13 +43,14 @@ branch_for(){
     2) print -r -- "level-2-commanding" ;;
     3) print -r -- "level-3-regulating" ;;
     4) print -r -- "level-4-orchestrating" ;;
+    5) print -r -- "level-5-supervising" ;;
     *) print -r -- "level-$1" ;;
   esac
 }
 # Levels 1-3 fall back to an `-after` sibling holding that level's agent output.
 # Level 4 has none: its pipeline is entered at a checkpoint instead, because the
 # full loop does not fit in stage time and the checkpoints are the fallback.
-after_for(){ [[ $1 == 4 ]] && print -r -- "" || print -r -- "$(branch_for $1)-after" }
+after_for(){ [[ $1 == 4 || $1 == 5 ]] && print -r -- "" || print -r -- "$(branch_for $1)-after" }
 
 # Level 4 checkpoints, in the order the segment visits them.
 L4_CHECKPOINTS=(l4-1-sliced l4-2-spec l4-3-objections l4-4-choices l4-5-reviewed)
@@ -102,12 +104,21 @@ preflight(){
   fi
 
   # Level 2 only: the plugin, pinned.
-  if [[ $level == 2 || $level == 3 || $level == 4 ]]; then
+  if [[ $level == 2 || $level == 3 || $level == 4 || $level == 5 ]]; then
     local pdir=$profile/plugins/cache/ai-literacy-superpowers/ai-literacy-superpowers/$PIN_PLUGIN_VERSION
     [[ -d $pdir ]] && ok "plugin ai-literacy-superpowers $PIN_PLUGIN_VERSION" \
       || bad "plugin $PIN_PLUGIN_VERSION missing at $pdir"
     grep -q -- "--plugin-dir" $profile/launch 2>/dev/null && ok "launcher loads the plugin" \
       || bad "launcher is missing --plugin-dir"
+    # Level 5 adds the legibility instrument — the first launcher change since Level 3.
+    if [[ $level == 5 ]]; then
+      local ldir=$profile/plugins/cache/ai-literacy-superpowers/diagnostic-legibility/$PIN_LEGIBILITY_VERSION
+      [[ -d $ldir ]] && ok "plugin diagnostic-legibility $PIN_LEGIBILITY_VERSION" \
+        || bad "plugin diagnostic-legibility $PIN_LEGIBILITY_VERSION missing at $ldir"
+      (( $(grep -c -- "--plugin-dir" $profile/launch 2>/dev/null) == 2 )) \
+        && ok "launcher loads both plugins" \
+        || bad "launcher does not carry both --plugin-dir flags (Level 5 needs the legibility instrument)"
+    fi
   else
     grep -q -- "--plugin-dir" $profile/launch 2>/dev/null \
       && bad "Level 1 launcher has --plugin-dir — that is the Level 2 profile" \
@@ -325,5 +336,5 @@ case ${1:-} in
   run)       run_segment ${2:?level} ;;
   fallback)  fallback ${2:?level} ;;
   profiles)  profiles ;;
-  *) print -r -- "usage: demo {preflight|run|fallback} <level 1-4> | demo profiles" ; exit 2 ;;
+  *) print -r -- "usage: demo {preflight|run|fallback} <level 1-5> | demo profiles" ; exit 2 ;;
 esac
