@@ -65,6 +65,27 @@ scope, along with the `pages=pages` case, where the bundle value rather than the
 prototype is the more likely defect. No issue and no TODO tracks it; this record
 is where it is written down.
 
+## The enumeration above is of one population only
+
+From accepted code-mode objection O1. Every sweep in this pipeline — the choice
+cartographer's, the code reviewer's and the list above — searched for
+`th:text="#{...}"`. There is a second population it cannot see: prototype text
+standing in for a message supplied as a fragment argument or a `th:with`
+variable. `fragments/inputField.html:10`, `fragments/selectField.html:10`,
+`fragments/selectVetField.html:16` and `owners/createOrUpdateOwnerForm.html:18-19`
+all carry it, and the first of those is where `lastName` — the key this change
+exists for — is rendered from `createOrUpdateOwnerForm.html:11`.
+
+That population is also where FR-1's standard stops having an answer. The
+prototype in `inputField.html:10` is the single string `Label`, and it stands in
+for eight different messages depending on which call site invokes the fragment,
+so no string placed there can be byte-for-byte equal to the value it represents.
+The wrapped `ownerDetails.html` pair named above is a collision between two rules
+and is resolvable in principle; this is not a collision at all — it is the
+standard having no defined value for a third of the message-backed prototypes in
+the template set. Whoever picks up the deferred audit should know that before
+choosing byte-equality as its criterion.
+
 ## i18n is not engaged
 
 No message key is added, renamed or removed, and no bundle file changes, so

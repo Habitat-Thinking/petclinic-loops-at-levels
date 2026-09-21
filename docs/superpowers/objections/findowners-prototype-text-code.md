@@ -11,8 +11,8 @@ objections:
     severity: medium
     claim: "The decision record declares itself the durable written-down account of the prototype-text defect class, but its enumeration is drawn from a population of `th:text=\"#{...}\"` sites only. Four further sites carry prototype text that stands in for a message through a fragment parameter or a th:with, and are invisible to that sweep — including three where FR-1's byte-for-byte standard has no definable answer, because the fragment is parameterised and the prototype stands in for eight different messages depending on the call site."
     evidence: "Record: 'Under FR-1's own standard there are at least five mismatches in the template set, not two' and 'Recorded here as fact, verified in this working copy, because no other artefact that ships with the code carries it ... No issue and no TODO tracks it; this record is where it is written down.' Omitted sites: `src/main/resources/templates/fragments/inputField.html:10` `<label th:for=\"${name}\" class=\"col-sm-2 control-label\" th:text=\"${label}\">Label</label>`; `fragments/selectField.html:10` and `fragments/selectVetField.html:16`, identically; `owners/createOrUpdateOwnerForm.html:18-19` `<button th:with=\"text=${owner['new']} ? #{addOwner} : #{updateOwner}\" class=\"btn btn-primary\" type=\"submit\" th:text=\"${text}\">Add Owner</button>`. The `label` argument is a message at every call site that supplies one, e.g. `createOrUpdateOwnerForm.html:11` `<input th:replace=\"~{fragments/inputField :: input (#{lastName}, 'lastName', 'text')}\" />` — the same `lastName` key this change exists for."
-    disposition: pending
-    disposition_rationale: null
+    disposition: accepted
+    disposition_rationale: "Accept — two sentences in the record."
 ---
 
 # Objections — find-owners prototype text (code)
