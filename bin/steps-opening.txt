@@ -1,0 +1,81 @@
+# The opening, before Level 1 — 3 minutes. Beats for ./bin/demo run opening
+# Pairs with opening/slides/OPENING.md (5 slides, one beat each).
+#
+# No commands anywhere in this segment. Nothing is run, nothing is switched, and
+# no profile is needed - it is five slides and a person talking. That is why the
+# dispatcher skips preflight for it.
+#
+# Only beat 4 cuts. Beats 1, 2, 3 and 5 are the frame for the eighty minutes that
+# follow, and cutting the frame to save ninety seconds is a bad trade.
+#
+# Hands straight over to BEFORE-L1 slide 1. No transition beat.
+
+### Tonight
+TIME: 30s
+SAY: SLIDE 1. Never cuts. Dark slide, keynote styling.
+SAY: The keynote's last slide named this session and signed off with: carpaccio,
+SAY: cutting - bring the question. This is that slide, arrived.
+SAY: Introduce yourself ONCE. The room met you this morning; a second biography
+SAY: spends the frame on the wrong person.
+SAY: One line: this morning I made an argument. For the next hour and a half it
+SAY: has to survive a repository.
+SAY: Then move. If you are still on yourself at forty-five seconds, stop.
+MODE: manual
+
+### You already have the question
+TIME: 30s
+SAY: SLIDE 2. Never cuts. This is the hinge, and it is the most important thirty
+SAY: seconds in the opener.
+SAY: The keynote's question slide, unchanged, chips and all. Do not restyle it.
+SAY: Say it plainly: you already have the question. If this turns out to be
+SAY: wrong, what does it take to put right. Undo, Repair, Migrate, Answer.
+SAY: I am not going to teach it again. I am going to show you what happened when
+SAY: I actually ran it.
+SAY: This morning it was an argument. For the next eighty minutes it is a
+SAY: measurement.
+SAY: Tell them the last slide of this talk is this slide. Do NOT summarise the
+SAY: keynote. One sentence, then go.
+MODE: manual
+
+### Five levels, and none of them lit yet
+TIME: 45s
+SAY: SLIDE 3. Never cuts. The talk's own visual language starts here.
+SAY: The ladder, cold - the only time in the talk nothing is lit.
+SAY: Name the five: Dictating, Commanding, Regulating, Orchestrating,
+SAY: Supervising. Do not explain them; each has its own deck.
+SAY: Say the branch fact once: every level is a git branch, and the diff between
+SAY: two of them is a slide.
+SAY: Then plant the caveat, and it is the ONLY forward reference the opener gets:
+SAY: I am calling it a ladder because that is the order the evidence arrives in.
+SAY: By the end I will be arguing it is not one.
+SAY: That sentence stops the room assuming you are selling the top rung.
+MODE: manual
+
+### What ships, and what you are about to watch
+TIME: 45s
+SAY: SLIDE 4. The ONLY cuttable slide in the opener. If it goes, say the last two
+SAY: lines over slide 3.
+SAY: Three sentinels run tonight: carpaccio before the spec, cartographer and
+SAY: diaboli on the spec, and the reservoir warden - which stopped me.
+SAY: The Brief Sentinel and the Rehearsal Sentinel are still in build. Say so.
+SAY: You said so this morning; saying it again is what keeps this a demo rather
+SAY: than a pitch.
+SAY: Then the line that matters - dimmed everywhere is not twilight, it is
+SAY: theatre. You are going to watch an instrument tell me this repository is
+SAY: dimmer than its branch name claims. And I left that in.
+MODE: manual
+
+### One repository, eighty minutes, nothing staged
+TIME: 30s
+SAY: SLIDE 5. Never cuts. This is a contract with the room.
+SAY: Read the table flat, no promises about how well it will go.
+SAY: Level 1 is live end to end. Level 2 is extract-conventions live. Level 3 is
+SAY: harness-constrain live, then a rule broken and a merge refused. Level 4 is
+SAY: carpaccio live and my dispositions typed in front of you. Level 5 runs
+SAY: nothing live at all - every beat reads a committed artefact.
+SAY: Everything else is a checkpoint or a capture, AND I WILL SAY SO EACH TIME.
+SAY: That last clause is the whole contract. It only pays off if you keep it.
+SAY: Do NOT explain the clean room here. That is BEFORE-L1 slides 3 and 4, and
+SAY: doing it twice costs ninety seconds you want back at Level 4.
+SAY: Then straight into BEFORE-L1 slide 1. No transition.
+MODE: manual

@@ -4,6 +4,7 @@
 #   ./bin/demo preflight <level>   check the machine is ready; --fix repairs what is safe
 #                                  levels 1-5; 2-5 share one profile, 5 adds a second plugin
 #   ./bin/demo run <level>         teleprompt the segment, one beat at a time
+#                                  <level> is opening, 1-5, or upper
 #   ./bin/demo run <level> --time  the same, timed, with a variance table at the end
 #   ./bin/demo fallback <level>    abandon a wandering live run
 #   ./bin/demo profiles            show the profile table and auth state
@@ -319,10 +320,15 @@ run_segment(){
   [[ ${2:-} == --time ]] && timing=1
   local steps=$HERE/steps-level-$level.txt
   [[ $level == upper ]] && steps=$HERE/steps-upper-levels.txt
+  [[ $level == opening ]] && steps=$HERE/steps-opening.txt
   [[ -f $steps ]] || { print -r -- "No steps file: $steps"; return 1 }
 
+  # The opening runs nothing, switches nothing and needs no profile: five slides and a
+  # person talking. There is no machine state for a preflight to check.
   local pf_ok=0
-  if [[ $level == upper ]]; then preflight_upper || pf_ok=1
+  if [[ $level == opening ]]; then
+    print -r -- "${DIM}No preflight for the opening: it runs no command and needs no profile.${R}"
+  elif [[ $level == upper ]]; then preflight_upper || pf_ok=1
   else preflight $level || pf_ok=1; fi
   (( pf_ok == 0 )) || {
     print -r -- ""
@@ -354,7 +360,9 @@ run_segment(){
   flush
 
   local total=${#titles[@]} i=1
-  local label="Level $level"; [[ $level == upper ]] && label="Upper levels"
+  local label="Level $level"
+  [[ $level == upper ]] && label="Upper levels"
+  [[ $level == opening ]] && label="The opening"
   print -r -- ""; print -r -- "${B}$label — $total beats${R}  ${DIM}[Enter] next · [r] repeat · [s] skip · [f] fallback · [q] quit${R}"
   print -r -- "${DIM}Working directory: $REPO${R}"
 
@@ -505,10 +513,11 @@ profiles(){
 
 case ${1:-} in
   preflight)
-    if [[ ${2:?level} == upper ]]; then preflight_upper ${3:-}
+    if [[ ${2:?level} == opening ]]; then print -r -- "The opening needs no preflight: no command, no profile, no branch."
+    elif [[ ${2:?level} == upper ]]; then preflight_upper ${3:-}
     else preflight $2 ${3:-}; fi ;;
   run)       run_segment ${2:?level} ${3:-} ;;
   fallback)  fallback ${2:?level} ;;
   profiles)  profiles ;;
-  *) print -r -- "usage: demo {preflight|run|fallback} <level 1-5 | upper> [--time] | demo profiles" ; exit 2 ;;
+  *) print -r -- "usage: demo {preflight|run|fallback} <opening | 1-5 | upper> [--time] | demo profiles" ; exit 2 ;;
 esac

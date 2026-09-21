@@ -2,6 +2,13 @@
 
 **Purpose:** set up the cold open. Explain what Dictating is, prove the demo is honest
 before it runs, and tell the audience what to watch for.
+
+**Handed the room by** [../../opening/slides/OPENING.md](../../opening/slides/OPENING.md)
+— 5 slides, 3 minutes, the hinge from the keynote. That deck has already put the ladder on
+screen, named all five levels and made the live-versus-recorded contract, so **slide 1
+below does not re-introduce the ladder and slides 3–4 are the first and only time the
+clean room is explained.** If the opener is not being used, slide 1 needs one extra line
+naming the five levels.
 **Length:** 6 slides, ~4 minutes, immediately before the live run.
 **Source evidence:** [../CLEAN-ROOM.md](../CLEAN-ROOM.md), [../VARIANCE.md](../VARIANCE.md).
 

@@ -303,8 +303,17 @@ to the top. It is a repertoire — and the skill is choosing the mode the work d
 **Visual:** the question at the top, at title size; the four classes beneath it; the two
 tasks placed against them. This is the second photographed slide.
 
-**Speaker note:** *"Ask only 'can I revert it?' and you get Migrate — true, and not the
-whole answer."* Then the line that closes the argument: *"The question I should have asked
+**This is the keynote's own question slide, and the opener's slide 2, returning a third
+time.** Keep the question and the four class chips rendered exactly as they were in both —
+the recognition *is* the argument. What is new is only the table and the two tasks beneath
+it. If the room has seen this question twice with nothing under it, and now sees it with
+evidence under it, the loop closes without you having to say that it has.
+
+**Speaker note:** If the keynote ran this morning, one clause earns the whole day: *"That
+is the question I gave you this morning. That is what it looks like with a repository
+behind it."* Say it once, do not labour it, and do not re-explain the classes — the room
+has had them since the keynote. Then: *"Ask only 'can I revert it?' and you get Migrate —
+true, and not the whole answer."* Then the line that closes the argument: *"The question I should have asked
 about the typo took ten seconds. I asked it after the fact, from the transcript, for
 forty-five minutes."* Not a rubric, not a scoring model — ten seconds, out loud, before
 the work.
