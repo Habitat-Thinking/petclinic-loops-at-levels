@@ -38,10 +38,10 @@ dispatches an agent, so the full talk's profile (`~/.claude-loops-at-levels-l2`)
 
 | Needs | Where | For |
 |---|---|---|
-| Worktree on `level-4-orchestrating`, clean tree | ladder | slides 1, 2, 4, 6, 7 |
+| Worktree on `level-5-supervising`, clean tree | ladder | slides 1, 2, 4, 6, 7 |
 | `git config core.hooksPath .githooks` set in that clone | ladder | slide 2 |
 | `scripts/check-decision-record.sh` runnable | ladder | slide 2, run live |
-| Worktree or second window on `l4-1-sliced` | ladder | slide 5 — records arriving `pending` |
+| Tag `l4-1-sliced` present (not checked out — `git show` reads it) | ladder | slide 5 — records arriving `pending` |
 | `docs/superpowers/` and `decisions/` present | ladder | slides 5, 6, 8 |
 | Worktree on `demo-notes` | notes | slides 11, 12, 13, 14, 15 |
 | `level-5/trust-boundary.txt` | demo-notes | slide 11 |
@@ -51,6 +51,10 @@ dispatches an agent, so the full talk's profile (`~/.claude-loops-at-levels-l2`)
 
 If asked where the descent history is: `level-5-supervising-descent` at `ab236db`, with
 `level-5/measure-descent.py` beside the figures. Not opened on stage.
+
+**Driving it:** [../RUN-SHEET.md](../RUN-SHEET.md) pairs these 18 slides to the 16 beats in
+`bin/steps-upper-levels.txt`. `./bin/demo preflight upper --fix` sets up everything in the
+table above; `./bin/demo run upper` teleprompts the beats.
 
 ## Cutting
 

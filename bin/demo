@@ -63,6 +63,70 @@ auth_ok(){
     | grep -q '"loggedIn": true'
 }
 
+# The upper-levels demo is a named segment rather than a rung. It runs from
+# level-4-orchestrating, dispatches no agent, and therefore needs no Claude Code
+# profile, no login and no --plugin-dir — which is most of what preflight checks
+# for a level. It gets its own, shorter list.
+preflight_upper(){
+  local fix=${1:-}
+  FAILED=0; WARNED=0
+  hdr "Preflight — upper levels (standalone, 20 min)"
+
+  print -r -- "${DIM}  no Claude Code profile needed: nothing here dispatches an agent${R}"
+
+  if [[ ! -d $REPO/.git ]]; then bad "no repository at $REPO"; hdr "Result"; return 1; fi
+
+  local cur=$(git -C $REPO rev-parse --abbrev-ref HEAD)
+  if [[ $cur == level-5-supervising ]]; then ok "on level-5-supervising"
+  elif [[ $fix == --fix ]]; then
+    if [[ -n $(git -C $REPO status --porcelain) ]]; then bad "cannot switch: working tree dirty"
+    else git -C $REPO switch -q level-5-supervising && ok "switched to level-5-supervising"; fi
+  else
+    bad "on $cur, expected level-5-supervising (--fix switches)"
+  fi
+  [[ -z $(git -C $REPO status --porcelain) ]] && ok "working tree clean" \
+    || bad "working tree dirty — beat 2 commits nothing, but a dirty tree makes the catch ambiguous"
+
+  # Beat 2 is the only live thing in the demo, and it is the beat the payoff rests on.
+  if [[ -x $REPO/scripts/check-decision-record.sh ]]; then ok "check-decision-record.sh runnable"
+  else bad "scripts/check-decision-record.sh missing or not executable — beat 2 has no live catch"; fi
+  local hp=$(git -C $REPO config --get core.hooksPath 2>/dev/null)
+  if [[ $hp == .githooks ]]; then
+    ok "git hooks enabled (core.hooksPath=.githooks)"
+  elif [[ $fix == --fix ]]; then
+    git -C $REPO config core.hooksPath .githooks && ok "enabled git hooks in this clone"
+  else
+    warn "git hooks not enabled — beat 2 still runs the script directly, but the commit-time
+       framing is weaker. git -C $REPO config core.hooksPath .githooks   (--fix does it)"
+  fi
+
+  # Beat 5 reads one file out of the checkpoint without checking it out.
+  git -C $REPO show-ref -q --verify refs/heads/l4-1-sliced && ok "checkpoint l4-1-sliced present" \
+    || bad "l4-1-sliced missing — beat 5 has nothing to show"
+
+  # The artefacts the later beats read.
+  local missing=0 f=""
+  for f in docs/superpowers decisions PIPELINE.md HARNESS.md; do
+    [[ -e $REPO/$f ]] || { bad "$f missing from the ladder checkout"; missing=1 }
+  done
+  (( missing == 0 )) && ok "pipeline artefacts present (docs/superpowers, decisions, PIPELINE.md, HARNESS.md)"
+  missing=0
+  for f in level-5/trust-boundary.txt level-5/diagnosis.yaml level-5/descent.md upper-levels/slides/UPPER-LEVELS.md; do
+    [[ -e $NOTES/$f ]] || { bad "$f missing from the demo notes"; missing=1 }
+  done
+  (( missing == 0 )) && ok "demo-notes artefacts present (trust boundary, diagnosis, descent, deck)"
+
+  hdr "Result"
+  if (( FAILED > 0 )); then
+    print -r -- "${RED}$FAILED blocking problem(s)${R}, $WARNED warning(s). Fix before going on."
+    return 1
+  fi
+  print -r -- "${GRN}Ready.${R} $WARNED warning(s)."
+  print -r -- "${DIM}Not checkable from here: terminal font size, scrollback cleared, notifications off.${R}"
+  print -r -- "${DIM}The close is the last four beats and needs no terminal at all.${R}"
+  return 0
+}
+
 preflight(){
   local level=$1 fix=${2:-}
   local profile=$(profile_dir $level) branch=$(branch_for $level) after=$(after_for $level)
@@ -228,9 +292,13 @@ preflight(){
 run_segment(){
   local level=$1
   local steps=$HERE/steps-level-$level.txt
+  [[ $level == upper ]] && steps=$HERE/steps-upper-levels.txt
   [[ -f $steps ]] || { print -r -- "No steps file: $steps"; return 1 }
 
-  preflight $level || {
+  local pf_ok=0
+  if [[ $level == upper ]]; then preflight_upper || pf_ok=1
+  else preflight $level || pf_ok=1; fi
+  (( pf_ok == 0 )) || {
     print -r -- ""
     print -rn -- "${YEL}Preflight failed.${R} Continue anyway? [y/N] "
     read -r a; [[ $a == [yY] ]] || return 1
@@ -255,7 +323,8 @@ run_segment(){
   flush
 
   local total=${#titles[@]} i=1
-  print -r -- ""; print -r -- "${B}Level $level — $total beats${R}  ${DIM}[Enter] next · [r] repeat · [s] skip · [f] fallback · [q] quit${R}"
+  local label="Level $level"; [[ $level == upper ]] && label="Upper levels"
+  print -r -- ""; print -r -- "${B}$label — $total beats${R}  ${DIM}[Enter] next · [r] repeat · [s] skip · [f] fallback · [q] quit${R}"
   print -r -- "${DIM}Working directory: $REPO${R}"
 
   while (( i <= total )); do
@@ -332,9 +401,11 @@ profiles(){
 }
 
 case ${1:-} in
-  preflight) preflight ${2:?level} ${3:-} ;;
+  preflight)
+    if [[ ${2:?level} == upper ]]; then preflight_upper ${3:-}
+    else preflight $2 ${3:-}; fi ;;
   run)       run_segment ${2:?level} ;;
   fallback)  fallback ${2:?level} ;;
   profiles)  profiles ;;
-  *) print -r -- "usage: demo {preflight|run|fallback} <level 1-5> | demo profiles" ; exit 2 ;;
+  *) print -r -- "usage: demo {preflight|run|fallback} <level 1-5 | upper> | demo profiles" ; exit 2 ;;
 esac
