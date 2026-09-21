@@ -5,8 +5,20 @@ governed pipeline and its sentinels actually do — and then argue that this is 
 anyone should be trying to live. This is not a condensed version of the full talk. It has
 a narrower job and it ends on the same question.
 
-**Length:** 18 slides, 20 minutes. Where we are 3 min (slides 1–3) · Level 4 7 min
-(slides 4–9) · Level 5 5 min (slides 10–13) · the close 4 min (slides 14–18).
+**It assumes the keynote.** *Does AI deliver waterfall?* has already given this room the
+question — *if this turns out to be wrong, what does it take to put right?* — the four
+classes, the definition of a sentinel, and the promise that this session exists. So this
+deck **never re-teaches any of it.** It opens by naming what the room already holds and
+then spends eighteen minutes turning that argument into a measurement. Slides 1–3 are the
+hinge; slide 20 closes the loop by returning the keynote's question slide unchanged.
+
+If the keynote did not happen, or the room is different, slides 1–3 still work — the
+question is on the screen and the demo re-earns it — but drop the phrase "this morning"
+and say "the argument I want to test" instead.
+
+**Length:** 21 slides, 20 minutes. The opener 1.5 min (slides 1–3) · where we are 3 min
+(slides 4–6) · Level 4 7 min (slides 7–12) · Level 5 5 min (slides 13–16) · the close
+4 min (slides 17–21).
 
 **Source evidence:** [../../level-3/FINDINGS.md](../../level-3/FINDINGS.md) (recap only),
 [../../level-4/FINDINGS.md](../../level-4/FINDINGS.md),
@@ -14,20 +26,21 @@ a narrower job and it ends on the same question.
 [../../level-5/FINDINGS.md](../../level-5/FINDINGS.md),
 [../../level-5/RUN-SHEET.md](../../level-5/RUN-SHEET.md),
 [../../level-5/descent.md](../../level-5/descent.md),
-[../../level-5/repertoire.md](../../level-5/repertoire.md).
+[../../level-5/repertoire.md](../../level-5/repertoire.md), and the keynote deck
+*Does AI Deliver Waterfall?* (54 slides) for slides 1–3.
 
 **Design direction:** no ladder motif. This deck has no rungs to light, and a ladder drawn
 for a room that never saw the bottom of it is a diagram of something they were not shown.
 The visual thread is instead the record — files, counts and captured output, in the same
 weight throughout, so that the close's numbers do not arrive looking like a different kind
-of claim. Slides 6, 14 and 17 are the ones to photograph. Slide 18 is the URL and nothing
+of claim. Slides 9, 17 and 20 are the ones to photograph. Slide 21 is the URL and nothing
 else. No alarm styling anywhere, and no red.
 
 **Everything on screen is a checkpoint or a capture.** No agent is run live. At twenty
 minutes there is no room for a stage that might take four. The single exception is slide
-2, which is a deterministic shell script and takes seconds.
+5, which is a deterministic shell script and takes seconds.
 
-**The money rule:** $52.16 appears once, on slide 14, always paired with £0.00 actually
+**The money rule:** $52.16 appears once, on slide 17, always paired with £0.00 actually
 billed on a Max subscription. Quote both or neither, on screen and out loud.
 
 ## What to have checked out and open
@@ -38,21 +51,21 @@ dispatches an agent, so the full talk's profile (`~/.claude-loops-at-levels-l2`)
 
 | Needs | Where | For |
 |---|---|---|
-| Worktree on `level-5-supervising`, clean tree | ladder | slides 1, 2, 4, 6, 7 |
-| `git config core.hooksPath .githooks` set in that clone | ladder | slide 2 |
-| `scripts/check-decision-record.sh` runnable | ladder | slide 2, run live |
-| Tag `l4-1-sliced` present (not checked out — `git show` reads it) | ladder | slide 5 — records arriving `pending` |
-| `docs/superpowers/` and `decisions/` present | ladder | slides 5, 6, 8 |
-| Worktree on `demo-notes` | notes | slides 11, 12, 13, 14, 15 |
-| `level-5/trust-boundary.txt` | demo-notes | slide 11 |
-| `level-5/diagnosis.yaml`, open in a second window at reading size | demo-notes | slide 12 — read on screen, not from notes |
-| `level-5/descent.md` figures on one prepared view | demo-notes | slide 14 — **do not run the typo live** |
-| `level-5/repertoire.md` read beforehand, not on stage | demo-notes | slides 16, 17 — delivered with the terminal off |
+| Worktree on `level-5-supervising`, clean tree | ladder | slides 4, 5, 7, 9, 10 |
+| `git config core.hooksPath .githooks` set in that clone | ladder | slide 5 |
+| `scripts/check-decision-record.sh` runnable | ladder | slide 5, run live |
+| Tag `l4-1-sliced` present (not checked out — `git show` reads it) | ladder | slide 8 — records arriving `pending` |
+| `docs/superpowers/` and `decisions/` present | ladder | slides 8, 9, 11 |
+| Worktree on `demo-notes` | notes | slides 14, 15, 16, 17, 18 |
+| `level-5/trust-boundary.txt` | demo-notes | slide 14 |
+| `level-5/diagnosis.yaml`, open in a second window at reading size | demo-notes | slide 15 — read on screen, not from notes |
+| `level-5/descent.md` figures on one prepared view | demo-notes | slide 17 — **do not run the typo live** |
+| `level-5/repertoire.md` read beforehand, not on stage | demo-notes | slides 19, 20 — delivered with the terminal off |
 
 If asked where the descent history is: `level-5-supervising-descent` at `ab236db`, with
 `level-5/measure-descent.py` beside the figures. Not opened on stage.
 
-**Driving it:** [../RUN-SHEET.md](../RUN-SHEET.md) pairs these 18 slides to the 16 beats in
+**Driving it:** [../RUN-SHEET.md](../RUN-SHEET.md) pairs these 21 slides to the 16 beats in
 `bin/steps-upper-levels.txt`. `./bin/demo preflight upper --fix` sets up everything in the
 table above; `./bin/demo run upper` teleprompts the beats.
 
@@ -60,19 +73,132 @@ table above; `./bin/demo run upper` teleprompts the beats.
 
 Every slide carries a **Status:** line. Shed in this order and no other:
 
-1. Slide 3 — Level 3's ceiling
-2. Slide 5 — `pending` on a screen of its own
-3. Slide 1 — the constraints table
-4. Slide 11 — the sentinel's tool list
+1. Slide 6 — Level 3's ceiling
+2. Slide 8 — `pending` on a screen of its own
+3. Slide 4 — the constraints table
+4. Slide 14 — the sentinel's tool list
+5. Slide 3 — what ships and what is in build
 
-That is about two and a half minutes. **Slides 14–18 never cut.** If the clock is gone
-after slide 13, go straight to slide 14 and say nothing about having skipped anything.
+Slides 1 and 2 do not cut. They are 50 seconds together and they are the hinge from the
+keynote; without them the room is watching a tool demo.
+
+That is about three minutes. **Slides 17–21 never cut.** If the clock is gone after
+slide 16, go straight to slide 17 and say nothing about having skipped anything.
 
 ---
 
-## Slide 1 — What is already in the room
+## Slide 1 — Tonight
 
-**Status:** cuttable — **cut 4**. If it goes, open cold on slide 2 and let the capture
+**Status:** **never cuts.** 25 seconds. Dark slide, keynote title styling.
+
+**Takeaway:** The slide the keynote ended on, arrived.
+
+> **(Agentic) Loops At Levels, Live**
+> *The upper levels.*
+>
+> Russ Miles · Habitat Thinking · TechTalk
+
+The keynote's last slide named this session and listed what would be in it — *the
+application: Spring PetClinic, forked · the artefacts: HARNESS.md, the specs, the
+sentinels in the loop · every level: what it can carry, and what it can't*. It signed
+off with **"Carpaccio, cutting. Bring the question."**
+
+**Visual:** the keynote's own closing slide, re-rendered as this deck's title. Same
+typeface, same ochre kicker rule, `✤ TONIGHT` replaced by `✤ AND HERE WE ARE`. Continuity
+is the entire job of this slide — it should look like the keynote resumed, not a new deck
+opening.
+
+**Speaker note:** Twenty-five seconds, and do not re-introduce yourself at length. The
+room met you this morning. One line: *"This morning I made an argument. Tonight it has to
+survive a repository."* Then move — if you are still talking about yourself at forty
+seconds, the close loses a beat.
+
+**Figure prompt** *(optional — the title slide works without art; use it only if the
+room's screen is large)*:
+
+> Sepia and sanguine pencil-and-ink illustration in the manner of a 19th-century etching,
+> heavy cross-hatching, warm umber and ochre on a near-black ground. A single terminal
+> screen glowing faintly on a wooden desk in a dark workshop, seen from behind and to one
+> side; the chair is empty but recently used, a cup still beside the keyboard. Deep
+> shadow in the upper two-thirds. Cinematic, 16:9, no text, no lettering, no UI detail —
+> the screen is light, not content. Muted, grainy, film-like.
+
+---
+
+## Slide 2 — You already have the question
+
+**Status:** **never cuts.** 25 seconds. This is the hinge. Light slide.
+
+**Takeaway:** Nothing here teaches the question again. Tonight it gets tested.
+
+> **If this turns out to be wrong, what does it take to put right?**
+
+`Undo` · `Repair` · `Migrate` · `Answer`
+
+- This morning that was **an argument**. It had Royce, Naur, Popper and a taxonomy behind
+  it, and not one line of running code.
+- For the next twenty minutes it is **a measurement**. One real feature through a
+  governed pipeline, one absurd typo through the same pipeline, and the figures for both.
+- **The last slide of this demo is this slide.** Same question, same four words — with
+  evidence behind them.
+
+**Visual:** the keynote's own question slide, unchanged, including the four class chips
+bottom-right. Do not restyle it. The room should recognise it instantly and feel the loop
+close when it returns as slide 20.
+
+**Speaker note:** The single most important twenty-five seconds in the deck. Say plainly:
+*"You already have the question. I am not going to teach it again. I am going to show you
+what happened when I actually ran it."* If someone missed the keynote they lose nothing —
+the question is on the screen and the demo re-earns it. Do not summarise the keynote. One
+sentence, then go.
+
+**Figure prompt** *(not recommended — this slide should be type and chips only, exactly as
+the keynote had it. Art here breaks the recognition.)*
+
+---
+
+## Slide 3 — What ships, and what you are about to watch
+
+**Status:** cuttable — **cut 5**, and only after the other four. If it goes, fold its one
+honest line into slide 2.
+
+**Takeaway:** Two of the sentinels ship today. You are about to watch them work.
+
+| The keynote's map | Tonight |
+|---|---|
+| `carpaccio` — before the spec | **running**, on a real feature |
+| `choice-cartographer` · `advocatus-diaboli` — on the spec | **running**, inside four human gates |
+| `reservoir-warden` — not tied to a moment | **running**, and it stopped me |
+| the Brief Sentinel — at the pull request | still in build. Not here. |
+| the Rehearsal Sentinel — between decisions | still in build. Not here. |
+
+- And the promise that matters: **you will also see where this repository is closest to
+  theatre** — named by an instrument, against the project, and left in.
+
+**Visual:** the keynote's "Lights on where the decisions are" timeline, re-used, with the
+two in-build markers greyed and the three shipping ones lit. Same lamp glyphs, same
+stretches-stay-dark caption.
+
+**Speaker note:** Forty seconds. This is the slide that stops the demo being read as a
+product pitch — two of five are not built, you said so this morning, and you say so again
+now. Then the honest line, which is the one to land: *"Dimmed everywhere is not twilight,
+it's theatre. You are about to watch an instrument tell me this repository is dimmer than
+its branch name claims — and I left that in."*
+
+**Figure prompt** *(optional, for the in-build markers if you want them illustrated rather
+than greyed)*:
+
+> Sepia and sanguine pencil-and-ink illustration, 19th-century etching style, heavy
+> cross-hatching, warm ochre on near-black. Two unlit iron lamp-posts standing in mist at
+> the far end of a long factory floor, their glass empty and cold, while three nearer
+> lamps burn with a low warm light. Steep perspective down the floor. Cinematic, 16:9,
+> no text, no lettering. Grainy, film-like, deep shadow.
+
+---
+
+## Slide 4 — What is already in the room
+
+**Status:** cuttable — **cut 4**. If it goes, open cold on slide 5 and let the capture
 imply the harness.
 
 **Takeaway:** A harness that says no, and means it.
@@ -100,7 +226,7 @@ it needs to believe the thing exists before the next slide shows it working.
 
 ---
 
-## Slide 2 — Watch it catch something
+## Slide 5 — Watch it catch something
 
 **Status:** keep. **Run live** — it is a shell script and git, and it takes seconds. The
 captured pair below is the fallback and looks identical.
@@ -123,7 +249,7 @@ decision-record: OK — staged changes include decisions/2026-09-20-visit-carrie
 **Visual:** the two outputs verbatim, one above the other, terminal type.
 
 **Speaker note:** This is not scene-setting. Say the second sentence and leave it — the
-line it earns arrives on slide 7, about four minutes from now, and it lands harder if the
+line it earns arrives on slide 10, about four minutes from now, and it lands harder if the
 room has already watched the check run. The one real aside if asked: the commit-scope
 check is noisier than the merge gate because it evaluates a narrower window; a commit
 touching only a test fires the warning, and the merge gate diffs the whole branch, where
@@ -131,9 +257,9 @@ the record is present.
 
 ---
 
-## Slide 3 — The ceiling this hits
+## Slide 6 — The ceiling this hits
 
-**Status:** cuttable — **cut 1**. The line works spoken over slide 2's last breath.
+**Status:** cuttable — **cut 1**. The line works spoken over slide 5's last breath.
 
 **Takeaway:** It bounds what may happen. It has no opinion about what should.
 
@@ -148,7 +274,7 @@ constraints doing exactly what they claim is not a failure, it is a boundary.
 
 ---
 
-## Slide 4 — A pipeline in front of the work, and a person inside it
+## Slide 7 — A pipeline in front of the work, and a person inside it
 
 **Status:** keep.
 
@@ -180,9 +306,9 @@ pretending otherwise would be the one dishonest thing here.
 
 ---
 
-## Slide 5 — `pending` is the whole gate
+## Slide 8 — `pending` is the whole gate
 
-**Status:** cuttable — **cut 2**. Say it over slide 4's table instead, and show the
+**Status:** cuttable — **cut 2**. Say it over slide 7's table instead, and show the
 checkpoint only if the room looks sceptical.
 
 **Takeaway:** A word in a file, and nothing proceeds.
@@ -203,7 +329,7 @@ to change.
 
 ---
 
-## Slide 6 — What four gates produced on one real feature
+## Slide 9 — What four gates produced on one real feature
 
 **Status:** keep. This is a photographed slide.
 
@@ -239,9 +365,9 @@ each was surfaced, read and carried.
 
 ---
 
-## Slide 7 — The pipeline bought no exemption
+## Slide 10 — The pipeline bought no exemption
 
-**Status:** keep. Twenty seconds. This is the payoff of slide 2.
+**Status:** keep. Twenty seconds. This is the payoff of slide 5.
 
 **Takeaway:** A governed, spec-first, four-gate pipeline is still only a thing that
 changes files.
@@ -250,15 +376,15 @@ changes files.
 - **Same script, same hook, no special case.** Nothing about being a pipeline made the
   harness relax.
 
-**Visual:** the `VIOLATED` / `OK` pair from slide 2, reduced, with the gate diagram from
-slide 4 beside it at the same size.
+**Visual:** the `VIOLATED` / `OK` pair from slide 5, reduced, with the gate diagram from
+slide 7 beside it at the same size.
 
 **Speaker note:** Do not elaborate. The argument was made by the capture; this slide only
 names it.
 
 ---
 
-## Slide 8 — The gates recurse
+## Slide 11 — The gates recurse
 
 **Status:** keep.
 
@@ -281,7 +407,7 @@ objection raised by a gate working exactly as specified.
 
 ---
 
-## Slide 9 — Nothing was watching the trajectory
+## Slide 12 — Nothing was watching the trajectory
 
 **Status:** keep. This is the bridge into Level 5.
 
@@ -303,7 +429,7 @@ the system — the person in this story ran the pipeline properly.
 
 ---
 
-## Slide 10 — What is being supervised changes
+## Slide 13 — What is being supervised changes
 
 **Status:** keep. Forty-five seconds, and it is the framing for the whole section.
 
@@ -324,7 +450,7 @@ being staged.
 
 ---
 
-## Slide 11 — What a sentinel is
+## Slide 14 — What a sentinel is
 
 **Status:** cuttable — **cut 3**. If it goes, say the last bullet as one line and move.
 
@@ -351,7 +477,7 @@ not define the word; let the file do it.
 
 ---
 
-## Slide 12 — An instrument read the code and found where I would get lost
+## Slide 15 — An instrument read the code and found where I would get lost
 
 **Status:** keep. Run-sheet beat 6 — read on screen from the file, not from notes.
 
@@ -379,7 +505,7 @@ instrument just told me where I would get lost in it."*
 
 ---
 
-## Slide 13 — It cannot tell ceremony from consequence, and says so
+## Slide 16 — It cannot tell ceremony from consequence, and says so
 
 **Status:** keep. This is the bridge into the close. Terminal off from here.
 
@@ -419,7 +545,7 @@ Never let it become a story about someone's bug.
 
 ---
 
-## Slide 14 — The descent
+## Slide 17 — The descent
 
 **Status:** **UNCUTTABLE.** Terminal off. One prepared view — do not run it live.
 
@@ -449,7 +575,7 @@ resource. Let it land, and let the room laugh. Then take the laugh away on the n
 
 ---
 
-## Slide 15 — Every one of them found something true
+## Slide 18 — Every one of them found something true
 
 **Status:** **UNCUTTABLE.** This is the move the close depends on.
 
@@ -483,7 +609,7 @@ pipeline is stupid, the close has failed and so has the whole twenty minutes.
 
 ---
 
-## Slide 16 — The turn
+## Slide 19 — The turn
 
 **Status:** **UNCUTTABLE.**
 
@@ -504,7 +630,7 @@ deserves."*
 
 ---
 
-## Slide 17 — The question
+## Slide 20 — The question
 
 **Status:** **UNCUTTABLE.** The last idea in the room.
 
@@ -538,7 +664,7 @@ the work.
 
 ---
 
-## Slide 18 — The repository
+## Slide 21 — The repository
 
 **Status:** **UNCUTTABLE.** The last thing on screen.
 

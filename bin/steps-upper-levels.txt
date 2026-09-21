@@ -3,15 +3,48 @@
 #
 # MODE: run = the script runs it | copy = clipboard | manual = nothing to run
 #
-# One live thing in the whole demo: beat 2, a deterministic script that takes
+# One live thing in the whole demo: beat 4, a deterministic script that takes
 # seconds. Everything else is a checkpoint or a capture, because a twenty-minute
 # slot has no room for a stage that might take four.
 #
 # Beats 12-15 are THE CLOSE and are UNCUTTABLE. Cut order when the room runs
-# long: beat 3, then 5, then 9, then 1.
+# long: beat 5, then 7, then 11, then 3, then 2. Beat 1 never cuts - it is the
+# hinge from the keynote, and without it the room is watching a tool demo.
 #
 # The repo stays on level-5-supervising throughout. Nothing switches branches
-# except beat 5, which reads one file out of l4-1-sliced without checking it out.
+# except beat 7, which reads one file out of l4-1-sliced without checking it out.
+
+### Tonight, and the question you already have
+TIME: 50s
+SAY: SLIDES 1 AND 2. Neither of these ever cuts. Fifty seconds for both.
+SAY: The keynote's last slide named this session and signed off with: carpaccio,
+SAY: cutting - bring the question. This is that slide, arrived.
+SAY: Do NOT re-introduce yourself at length. The room met you this morning.
+SAY: One line: this morning I made an argument; tonight it has to survive a
+SAY: repository.
+SAY: Then slide 2, and say it plainly: you already have the question. If this
+SAY: turns out to be wrong, what does it take to put right. Undo, Repair,
+SAY: Migrate, Answer.
+SAY: I am not going to teach it again. I am going to show you what happened when
+SAY: I actually ran it.
+SAY: This morning it was an argument. For the next twenty minutes it is a
+SAY: measurement.
+SAY: Tell them the last slide of this demo is that same slide. Then move.
+MODE: manual
+
+### What ships, and what you are about to watch
+TIME: 40s
+SAY: SLIDE 3. Cut this FIFTH, and only after the other four.
+SAY: Two of the five sentinels from the keynote are running tonight: carpaccio
+SAY: before the spec, cartographer and diaboli on the spec. Plus the reservoir
+SAY: warden, which is not tied to a moment - and which stopped me.
+SAY: The Brief Sentinel and the Rehearsal Sentinel are still in build. Say so.
+SAY: You said so this morning; saying it again is what keeps this a demo rather
+SAY: than a pitch.
+SAY: Then the line that matters - dimmed everywhere is not twilight, it is
+SAY: theatre. You are about to watch an instrument tell me this repository is
+SAY: dimmer than its branch name claims. And I left that in.
+MODE: manual
 
 ### What is already in the room
 TIME: 60s
@@ -31,7 +64,7 @@ CMDTIME: 40s
 SAY: This is a shell script and git. It takes seconds and it cannot wander.
 SAY: Say the one sentence and leave it: both of those outputs came from a change
 SAY: made by the pipeline I am about to show you.
-SAY: Do NOT explain the payoff now. It arrives at beat 7, about four minutes from
+SAY: Do NOT explain the payoff now. It arrives at beat 9, about four minutes from
 SAY: here, and it lands harder because the room already watched the check run.
 SAY: It stages a one-line change under src, runs the check, and puts the tree
 SAY: back. Nothing is committed and nothing is left behind.
@@ -87,7 +120,7 @@ MODE: run
 
 ### The pipeline bought no exemption — the payoff
 TIME: 45s
-SAY: Here is the line beat 2 was for.
+SAY: Here is the line beat 4 was for.
 SAY: That governed, spec-first, four-gate pipeline made a change under src slash
 SAY: and the same script you watched at the start refused it. Advisory at commit,
 SAY: blocking on the pull request. No agent talked it round.
