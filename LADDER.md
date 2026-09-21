@@ -16,7 +16,7 @@
 | `level-2-commanding`    | `level-1-dictating`     | created: AGENTS.md, CLAUDE.md, HARNESS.md (no constraints), copilot pointer, REFLECTION_LOG.md |
 | `level-3-regulating`    | `level-2-commanding`    | created: HARNESS.md, 5 deterministic + 1 advisory constraint, 3 loops, decisions/ |
 | `level-4-orchestrating` | `level-3-regulating`    | created: pipeline config, one real run's gate artefacts, S2 implemented |
-| `level-5-supervising`   | `level-4-orchestrating` | not yet created |
+| `level-5-supervising`   | `level-4-orchestrating` | created: cognitive reservoir block, PIPELINE.md enforcement tagging |
 
 Each level branch is created from its predecessor when that level is built. It's the
 current tip of the predecessor at that moment, not `level-0-baseline`.
@@ -53,6 +53,26 @@ gates rather than waiting for stages. Each branch is a commit on
 
 `level-4-orchestrating` itself is the finished state: 96 tests, seven code-mode
 objections disposed.
+
+## The Level 5 descent sibling
+
+`level-5-supervising-descent` holds the descent measurement: a twelve-character
+typo fix put through the entire pipeline, with its nine artefacts and the
+decision record. It is a sibling, not a rung.
+
+The reason is the rule above. The descent is evidence *produced by* Level 5, not
+an artefact *of* it, and left on the ladder it made
+`git diff level-4-orchestrating..level-5-supervising` show a template typo and
+1,457 lines of pipeline records — during a segment about whether a human can
+still answer for the code. That diff is a slide.
+
+It was moved by reverting the descent commits on the ladder branch, never by
+force-pushing. The full history is on the sibling at `ab236db`, so the
+measurement in `level-5/descent.md` is reproducible from it.
+
+`level-5-supervising` therefore carries exactly two changed files, and the demo
+shows it: the cognitive reservoir block, and the `PIPELINE.md` enforcement
+tagging that the Level 5 `/assess` run asked for.
 
 ## Demo-safety siblings
 
