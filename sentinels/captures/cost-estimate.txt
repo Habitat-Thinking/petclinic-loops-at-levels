@@ -1,0 +1,154 @@
+Captured 2026-09-22. Fallback for the `/cost-estimate` beat.
+Target: the descent task — the ~12-character Thymeleaf typo — priced BEFORE
+it runs, through the eight pipeline stages.
+
+Agent duration 288.8s — FOUR MINUTES FORTY-NINE SECONDS — 80,072 tokens,
+15 tool uses. That is a quarter of a twenty-minute slot for one dispatch.
+THIS BEAT IS A CAPTURE. It is not runnable live and never will be at this
+slot length.
+
+Abridged from the full estimate record. The omissions are marked; nothing is
+reworded. The full record was emitted as a string — the agent holds no write
+tool and cannot persist its own output.
+
+────────────────────────────────────────────────────────────────────────
+
+GROUNDING READ: MODEL_ROUTING.md (both tables parse),
+observability/costs/2026-09-20-costs.md, PIPELINE.md, AGENTS.md, and the
+target file itself. observability/costs/per-pr/ does not exist, so no
+calibration entry.
+
+  tokens:              { low: 2,000,000, high: 120,000,000 }
+  agent_compute_time:  { low: 5m, high: 45m }
+  confidence:          tokens low · time low
+  failure_direction:   likely-underrun
+  cost_usd:            OMITTED
+
+## Why there is no dollar figure
+
+> Cost is omitted, and the omission is mechanical rather than cautious:
+> grounding state 3. The snapshot's Model Breakdown has exactly one row,
+> `claude-opus-5`, which fails the family-stem delimiter rule against both
+> canonical estimating-tier stems (`claude-opus-4`, `claude-sonnet-4`) — the
+> format reference names `claude-opus-5` explicitly as a non-match. The
+> cross-tier proxy is also unavailable, since it requires at least one
+> estimating-tier family to be present.
+
+> The snapshot's ~$211 is a list-price equivalent it states was not billed,
+> and the no-list-price-fallback rule forbids promoting it to a rate.
+
+## What it refused to do with the precise-looking number
+
+> At this grounding, consumption is knowable to roughly two orders of
+> magnitude, and the 2M–120M band says so rather than concealing it.
+> Reporting only the 11,500–40,000 generated figure would have been the more
+> precise-looking and less honest answer, and it is precisely the error this
+> repo already made once: the snapshot records a published figure that "was
+> wrong by two orders of magnitude" because it counted per-agent output and
+> not cache reads, which were 91% of the tokens.
+
+## THE PARAGRAPH THIS BEAT EXISTS FOR
+
+> The single most informative thing the derivation surfaces is the shape of
+> the estimate, not its magnitude. Between **65% and 78%** of the estimated
+> generated tokens are produced by the four Flagship judgment stages
+> **before the implementer stage begins**. The implementer's own share is
+> 4%–15%, and the change it makes is on the order of **three to five tokens**
+> of text — set against a consumed-token low bound of 2,000,000, that is five
+> to seven orders of magnitude between the artefact and the apparatus that
+> produces it. The figures here are driven almost entirely by the fixed shape
+> of the pipeline and by context being re-read across dispatches, and almost
+> not at all by the size of the change. A change ten times larger would move
+> these ranges very little; a pipeline with two fewer stages would move them
+> a great deal.
+
+## It priced the pipeline, and said the defect was not there
+
+> **The defect the target describes was not located.** All five `th:text`
+> prototype strings in the named file read as correctly spelled English at
+> estimate time ("Find Owners", "Last name", "Error", "Find Owner", "Add
+> Owner"). This record prices the pipeline the target names, not a verified
+> defect.
+
+## Other disclosures it volunteered, condensed
+
+- **The routing tiers are stated intent, not observed behaviour.** Every
+  dispatch in the one observed run used `claude-opus-5` regardless of
+  routing, because the driving session's model is fixed. The Balanced and
+  Efficient assignments "have never been exercised".
+- `MODEL_ROUTING.md` carries **no `cost-estimator` row**, so it had no tier
+  label for its own provenance and used the resolved model id instead.
+- The snapshot is **a single observation, two days old**, of a larger change.
+- The **integration-agent stage is excluded because it is ungrounded**, not
+  because it is unexercised — the token table has no row for it.
+- **Two pipeline stages the target's prose implied but its list omitted** —
+  the convener and the code-mode advocatus-diaboli — are excluded and named,
+  with the note that including either raises both figures and adds a human
+  disposition.
+- **Subscription allowance** is named as "the constraint that binds before
+  money does on this plan" — one run consumed roughly half a weekly Max
+  allowance — "and which this record has no axis for".
+
+## Failure direction, in its own words
+
+> `likely-underrun`, because the dominant term is fixed pipeline overhead
+> that does not shrink with the diff.
+
+> The overrun driver applies to the generated-token component, which is under
+> 1% of the consumed total; the underrun drivers apply to the component that
+> is over 99% of it. That asymmetry is why the single enum reads
+> `likely-underrun` rather than `symmetric`.
+
+────────────────────────────────────────────────────────────────────────
+
+STAGE NOTES
+
+**THIS IS THE BEAT THAT SETS UP THE CLOSE.** It is the only sentinel in the
+session that looks *forward*. Everything else reports on what already
+happened; this one is asked what a job will cost before anyone commits to it.
+Then the close reveals what the same job actually cost: $52.16, 45 minutes,
+1,457 lines, for twelve characters.
+
+**DO NOT SAY IT PREDICTED $52.16. IT REFUSED TO GIVE A DOLLAR FIGURE AT ALL.**
+That refusal is the point and it must not be sanded into a success story. Say
+what actually happened: asked for a number, it returned a mechanical
+explanation of why the one snapshot on disk cannot ground one, and declined.
+It specifically refused to promote the $211 list-price equivalent into a rate.
+
+**THE ORDERS-OF-MAGNITUDE PARAGRAPH IS THE ONE TO READ ALOUD.** Two thirds of
+the work happens before the implementer starts; the implementer changes three
+to five tokens of text; and the apparatus around it is five to seven orders of
+magnitude larger. That is the descent's argument, arrived at independently,
+*before* the descent is shown — by an instrument that had not been told the
+answer.
+
+**IT CAUGHT MY BRIEF BEING WRONG.** I described a typo in that file. There
+isn't one — all five prototype strings are correctly spelled. It priced the
+pipeline I named and said plainly that it had not verified the defect. If you
+use this beat, say so: an instrument declining to assume the premise of the
+question it was asked is worth more than the estimate.
+
+**IT USED OUR OWN PAST ERROR AS EVIDENCE.** It read the snapshot's record of
+the token figure that "was wrong by two orders of magnitude", and cited it as
+the reason not to report the narrow, precise-looking number. The correction we
+wrote down for ourselves was read back to us by an instrument avoiding the
+same mistake. If you have a spare fifteen seconds anywhere, that is where to
+spend them.
+
+**TIMING SETTLES IT: 4 MINUTES 49 SECONDS.** Measured, not estimated. That is
+a quarter of the slot for one dispatch, against the Mast's 46 seconds. There is
+no version of a twenty-minute session where this runs live. Show the capture,
+say it is a recording, and spend the time you saved on reading the
+orders-of-magnitude paragraph properly.
+
+Measured durations of all four sentinels, for whoever sizes the next slot:
+
+    mast              46s     13,654 tokens
+    reservoir         65s     25,948 tokens
+    wip              121s     33,839 tokens
+    cost-estimator   289s     80,072 tokens
+                     ----
+    all four         521s = 8m 41s of dispatch alone
+
+The two fast ones stay live. The two slow ones are captures. That split is
+measured rather than chosen.

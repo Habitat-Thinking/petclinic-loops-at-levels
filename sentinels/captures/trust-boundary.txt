@@ -1,0 +1,19 @@
+$ grep -h "^tools:" agents/*.agent.md          # the four sentinels
+
+reservoir-warden:  [Read, Glob, Grep, Bash]
+mast:              [Read, Glob, Grep, Bash]
+wip-warden:        [Read, Glob, Grep, Bash]
+cost-estimator:    [Read, Glob, Grep]
+
+# and the agents that DO act on the repository, same plugin:
+
+spec-writer:       [Read, Write, Edit, Glob, Grep]
+tdd-agent:         [Read, Write, Edit, Glob, Grep, Bash]
+integration-agent: [Read, Write, Edit, Bash]
+harness-gc:        [Read, Write, Edit, Glob, Grep, Bash]
+
+# no Write. no Edit. no Agent. a sentinel cannot change the thing
+# it watches, and cannot delegate to something that can.
+#
+# cost-estimator has no Bash either: it cannot run a command to
+# measure, only read. the tightest boundary of the four.

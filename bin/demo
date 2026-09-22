@@ -228,18 +228,19 @@ preflight_sentinels(){
   done
   (( missing == 0 )) && ok "L3/L4 foundation artefacts present"
   missing=0
-  for f in level-5/trust-boundary.txt level-5/diagnosis.yaml level-5/descent.md \
-           level-5/assessment-level-5.md sentinels/slides/LEVEL-5.md; do
+  for f in sentinels/captures/trust-boundary.txt level-5/diagnosis.yaml level-5/descent.md \
+           level-5/reservoir-reading.md sentinels/slides/LEVEL-5.md; do
     [[ -e $NOTES/$f ]] || { bad "$f missing from the demo notes"; missing=1 }
   done
   (( missing == 0 )) && ok "demo-notes artefacts present (trust boundary, diagnosis, descent, assessment, deck)"
 
   # The captured fallbacks for the two live beats.
   missing=0
-  for f in sentinels/captures/mast.txt sentinels/captures/reservoir.txt; do
+  for f in sentinels/captures/mast.txt sentinels/captures/reservoir.txt \
+           sentinels/captures/wip.txt sentinels/captures/cost-estimate.txt; do
     [[ -s $NOTES/$f ]] || { warn "$f missing or empty — that live beat has no fallback"; missing=1 }
   done
-  (( missing == 0 )) && ok "both live beats have a captured fallback"
+  (( missing == 0 )) && ok "all four sentinel captures present"
 
   hdr "Result"
   if (( FAILED > 0 )); then

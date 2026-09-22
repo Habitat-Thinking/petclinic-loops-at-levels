@@ -1,0 +1,152 @@
+Captured 2026-09-22, 22:35 CEST. Fallback for the live `/wip` beat.
+Agent duration 120.8s, 33,839 tokens, 12 tool uses. Verbatim, unedited.
+
+WARNING ON TIMING: this took TWO MINUTES, nearly double the Warden and more
+than double the Mast. That is too long for a live beat in a twenty-minute
+slot. Read the stage notes at the bottom before deciding to run it live.
+
+────────────────────────────────────────────────────────────────────────
+
+## WIP Warden report — 2026-09-22, 22:35 CEST
+
+### The pact
+
+`block_state "Session WIP"` → **absent**.
+
+> no `Session WIP` block declared — running in observe-only mode
+
+No `max_concurrent_sessions` is declared, so **there is nothing to compare
+against and I compare nothing**. If you want a concurrency limit, `/mast tune`
+will author one with you. The `Budgets` block in the same file reads `declared`
+(authored 2026-09-21, `authored_via: tune`) — I read it only far enough to
+confirm the file parses and that an authoring session happened.
+
+### The count
+
+`registry_count` → **`7 inferred`**.
+
+So: **at least 1 live session**, and the registry will not vouch for the rest of
+that number. The flag is `inferred` because six of the seven counted entries
+have an unparseable heartbeat, which the read surface counts rather than
+discards (discarding would let corrupt entries quietly shrink the count) but
+cannot claim to have observed.
+
+`registry_list` resolves exactly one identifiable session, last took a turn
+8h 58m ago, in the demo-notes worktree.
+
+Age is time since heartbeat, not since `started_at`. Measured the other way this
+entry would read "27h", which would make the session you are in look like the
+stale one.
+
+### Why the two halves disagree — a real finding, not a rounding error
+
+The registry lives at `~/.claude/sessions/`, and **Claude Code's own per-PID
+session files live in the same directory**. They are a different schema
+entirely — `sessionId`, `cwd`, `updatedAt` (epoch millis) — with no `id`,
+`repo`, `started_at` or `heartbeat`. Each of those six files takes the
+`hb_epoch -le 0` branch in both `registry_count` and `registry_list`: counted,
+flagged inferred, and listed as a row of empty tabs.
+
+So `7` is 1 registry entry plus 6 foreign files, and this registry will report
+`inferred` on every read for as long as the two schemas share a directory. The
+honesty flag is doing its job, but it is permanently pinned by directory
+collision rather than by genuine uncertainty about sessions.
+
+Read surfaces only: I sourced `session-registry-read.sh` and `pact-blocks.sh`.
+Neither write library was sourced, and I have no `Write` or `Edit`.
+
+---
+
+### What I do when the line I exist to measure against was never drawn
+
+This is the case I was built for and the case I cannot do my job in, and both of
+those are true at once.
+
+**An undeclared block is a choice, not a gap.** The pact file says it plainly,
+in the human's own file, above every block: *"A block you have not declared is
+not a failure — it is simply a pact you have not made."* Someone sat down with
+`/mast tune` on 2026-09-21 and authored `Budgets`. The `Session WIP` heading is
+not there. Whatever I think about that, the artefact in front of me is a file
+where one pact was made and another was not, and I am not entitled to read a
+missing heading as an oversight waiting for me to correct.
+
+**What I am entitled to conclude from the absence is almost nothing.** Not that
+the limit is implicitly one, or three, or the number I happen to be counting.
+Not that the human meant to declare one. Not that they need one. The absence of
+a pact is evidence about the file and nothing else. It is specifically not
+evidence that the thing the pact would have governed is out of hand — that
+inference runs from "no limit declared" to "therefore probably too many", and it
+is unsupported in both directions.
+
+**The pull here is to be useful by filling in the blank, and that is the worst
+thing I could do.** I am holding a count. A count wants a threshold the way a
+sentence wants a verb. The easiest route to sounding valuable in this moment is
+to supply the missing half myself — pick a defensible number, call it good
+practice, and report a breach against it. It would read as helpful. It would be
+the single most damaging output this sentinel can produce, because a breach
+report carries weight *only* as a comparison against a line the person drew for
+themselves in clear weather, when they were calm and unhurried and knew what
+they were committing to. Against a line I drew thirty seconds ago from their own
+telemetry, it is not a pact at all. It is me disapproving of them with a number
+attached, and borrowing the authority of a promise they never made to do it. The
+whole force of a pact is in its authorship. Invent the limit and you have kept
+the format and thrown away the only thing that made it legitimate.
+
+**But silence is also a failure, and a subtler one.** You asked me a question.
+If I answer a missing block with nothing, you cannot tell "no pact declared"
+from "pact declared and you are comfortably inside it" — two completely
+different states that produce identical silence.
+
+**So what is left is what was always honest anyway:** how many sessions are
+live, how confident the registry is in that number and exactly why it is not
+confident, which sessions they are, where each one is, and how long since each
+last took a turn. None of that depends on a pact existing. It is description,
+not judgement. You are the only one entitled to decide what the number means,
+and today you have not told me, so I will not decide it for you.
+
+And the line I do not cross in either case: I have counted sessions and said
+nothing whatsoever about the person holding them. That restraint is not
+decoration. The sibling sentinel that *does* watch the human earns its trust by
+having no teeth and wanting none, and it keeps that trust only for as long as
+nothing else in this harness quietly reads the same signals for a different
+purpose. My having a count and no limit to check it against is precisely the
+moment that boundary would be cheapest to cross. It holds here.
+
+**Nothing has been parked and nothing has been written.**
+
+────────────────────────────────────────────────────────────────────────
+
+STAGE NOTES
+
+**TIMING IS THE PROBLEM WITH THIS BEAT.** 121 seconds against the Mast's 46 and
+the Warden's 65. In a twenty-minute slot that is a beat you cannot afford live.
+Two honest options:
+
+  a) Show this capture instead and say it is a recording. The argument is
+     identical and it costs forty seconds rather than two and a half minutes.
+  b) Run it live only if the slot is 25 minutes or longer.
+
+Default to (a). This is the one sentinel in the set whose value survives being
+a recording intact, because what makes it worth showing is *reasoning*, not a
+live number.
+
+**THE PARAGRAPH TO READ ALOUD** is "the pull here is to be useful by filling in
+the blank". Specifically the last two sentences: *the whole force of a pact is
+in its authorship; invent the limit and you have kept the format and thrown away
+the only thing that made it legitimate.* That is the strongest single statement
+of the design principle anywhere in the captures, and it came from an agent
+explaining why it would not do the helpful-looking thing.
+
+**PAIR IT WITH THE MAST, NOT THE WARDEN.** Both read the same file. The Mast
+recites a block that was declared; this one reports a block that was not. Two
+halves of the same argument: an undeclared block is a choice, not a gap.
+
+**DO NOT USE THE `7` AS A PUNCHLINE.** It is 1 real session plus 6 foreign files
+sharing a directory, and the agent says so itself. If you show the count at all,
+show the honesty flag with it and say what the flag is doing.
+
+**THE BUG IS REAL AND IS WORTH ITS OWN LINE IF YOU HAVE ONE SPARE.** The plugin
+registry and Claude Code's own session files share `~/.claude/sessions/` with
+incompatible schemas, so the count is pinned to `inferred` forever. An
+instrument finding a defect in its own substrate, and describing it precisely
+enough to fix, is the same shape as the assessment finding on slide 4.

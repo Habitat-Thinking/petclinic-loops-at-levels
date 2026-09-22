@@ -5,14 +5,19 @@ spend the time saved on the only thing this session actually demonstrates: **two
 dispatched live, in front of the room, watching the person rather than the code.** Then
 close on the question.
 
-**Length:** 17 slides, 20 minutes. Foundations 5:15 (slides 1–5) · the demo 9:20 (slides
-6–12) · the close 4:00 (slides 13–17). Written budget **18:35**, leaving 1:25 — which is
-the fill you will want during the two live dispatches, not spare time.
+**Length:** 19 slides. Foundations 5:15 (slides 1–5) · the demo 11:40 (slides 6–14) · the
+close 4:00 (slides 15–19). Written budget **20:55**, which is 55 seconds OVER a 20-minute
+slot.
+
+**The 20-minute configuration is: cut slide 5.** That is 1:15 and brings it to 19:40,
+leaving 20 seconds. Everything else assumes you have 21 minutes or more. This is stated
+plainly rather than trimmed out of the close, because the close is what the session is
+for.
 
 **What makes this deck different from every other one in the repository:** it is the only
 segment in the talk that dispatches an agent **for the sake of the sentinel rather than
 the code**, and the only one where the audience watches something being decided about the
-speaker. Everything else is evidence about a repository. Slides 8 and 9 are evidence about
+speaker. Everything else is evidence about a repository. Slides 8 to 11 are evidence about
 the person standing in front of them.
 
 **Source evidence:** [../captures/mast.txt](../captures/mast.txt),
@@ -28,16 +33,25 @@ the person standing in front of them.
 for a room that never saw the bottom is a diagram of something they were not shown. The
 visual thread is **the instrument**: files, proxy tables and captured output in the same
 weight throughout, so the close's numbers do not arrive looking like a different kind of
-claim. Slides 5, 9 and 15 are the ones to photograph. Slide 17 is the URL and nothing
-else. No alarm styling, and no red — especially not on slide 9.
+claim. Slides 5, 10 and 17 are the ones to photograph. Slide 19 is the URL and nothing
+else. No alarm styling, and no red — especially not on slide 10.
 
-**The money rule:** `$52.16` appears once, on slide 13, always paired with `£0.00` actually
+**The money rule:** `$52.16` appears once, on slide 15, always paired with `£0.00` actually
 billed on a subscription. `~$211` appears once, on slide 5, under the same rule. Quote both
 or neither, on screen and out loud.
 
-**Two slides are live and the rest are not.** Say which, each time. Slide 3 is a shell
-script; slides 8 and 9 dispatch a real agent. Everything else is a committed artefact or a
-capture.
+**Four sentinels, two of them live.** Say which, every time. Slide 3 is a shell script;
+**slides 8 and 10 dispatch a real agent**; slides 9 and 13 are captures of sentinels too
+slow to run here. That split is measured, not chosen:
+
+| Sentinel | Measured | On stage |
+|---|---|---|
+| `mast` | 46 s | **live**, slide 8 |
+| `reservoir-warden` | 65 s | **live**, slide 10 |
+| `wip-warden` | 121 s | capture, slide 9 |
+| `cost-estimator` | **289 s** | capture, slide 13 |
+
+All four live would be 8 min 41 s of dispatch alone, in a 20-minute slot.
 
 ## What to have ready
 
@@ -45,26 +59,27 @@ capture.
 |---|---|---|
 | Repo on `level-5-supervising`, clean tree | ladder | slides 2, 3, 4, 5 |
 | `git config core.hooksPath .githooks` | ladder | slide 3 |
-| **Claude Code profile logged in, both plugins** | `~/.claude-loops-at-levels-l2` | **slides 8, 9 — the demo fails without it** |
+| **Claude Code profile logged in, both plugins** | `~/.claude-loops-at-levels-l2` | **slides 8, 10 — the demo fails without it** |
 | **`~/.claude/pacts.md` Budgets `declared`** | home config | **slide 8 — nothing to recite otherwise** |
-| `HARNESS.md` Cognitive reservoir block | ladder | slide 9 — the Warden declines without it |
-| `level-5/trust-boundary.txt` | demo-notes | slide 7 |
-| `level-5/reservoir-reading.md` | demo-notes | slide 10 |
-| `level-5/diagnosis.yaml`, open at reading size | demo-notes | slide 11 |
-| `../captures/*.txt` | demo-notes | slides 8, 9 — the fallbacks |
+| `HARNESS.md` Cognitive reservoir block | ladder | slide 10 — the Warden declines without it |
+| `../captures/trust-boundary.txt` | demo-notes | slide 7 — four sentinels, not two |
+| `level-5/reservoir-reading.md` | demo-notes | slide 11 |
+| `level-5/diagnosis.yaml`, open at reading size | demo-notes | slide 12 |
+| `../captures/*.txt` | demo-notes | slides 8–13 — two fallbacks and two captures |
 
 `./bin/demo preflight sentinels --fix` checks every row, including the pact state and the
 reservoir block, which nothing else in the repository checks.
 
 ## Cutting
 
-1. Slide 5 — what four gates produced
-2. Slide 10 — the night it did fire
+1. **Slide 5 — what four gates produced. This is the 20-minute cut; you will need it.**
+2. Slide 11 — the night it did fire
 3. Slide 3 — the live harness catch
-4. Slide 12 — ceremony and consequence
+4. Slide 14 — ceremony and consequence
 
-**Slides 13–17 never cut. Slides 8 and 9 never cut** — they are the reason this session
-exists. If you are so far over that they look tempting, cut all four above and take the
+**Slides 15–19 never cut. Slides 8 and 10 never cut** — they are the reason this session
+exists. Slides 9 and 13 are captures and cut cheaply if you must, but 13 is the setup for
+the close and you lose the best line in the session with it. If you are so far over that they look tempting, cut all four above and take the
 bridge in one spoken line.
 
 ---
@@ -223,27 +238,32 @@ and they do the elaborating far better than you can.
 
 ---
 
-## Slide 7 — What a sentinel is, before you watch two of them
+## Slide 7 — What a sentinel is, before you watch four of them
 
 **Status:** keep. 40 s.
 
 **Takeaway:** It cannot change the thing it watches.
 
 ```
-reservoir-warden:  tools: [Read, Glob, Grep, Bash]
-mast:              tools: [Read, Glob, Grep, Bash]
+reservoir-warden:  [Read, Glob, Grep, Bash]
+mast:              [Read, Glob, Grep, Bash]
+wip-warden:        [Read, Glob, Grep, Bash]
+cost-estimator:    [Read, Glob, Grep]
 
-spec-writer:       tools: [Read, Write, Edit, Glob, Grep]
-integration-agent: tools: [Read, Write, Edit, Bash]
+spec-writer:       [Read, Write, Edit, Glob, Grep]
+integration-agent: [Read, Write, Edit, Bash]
 ```
 
 - No Write. No Edit. No Agent. **It cannot delegate to something that can.**
+- **`cost-estimator` has no `Bash` either.** It cannot run a command to measure — only
+  read. The tightest boundary of the four, and the one about to give you a number.
 
-**Visual:** the excerpt verbatim; only the absent capabilities emphasised.
+**Visual:** the excerpt verbatim; only the absent capabilities emphasised. The missing
+`Bash` on the last row is worth a beat of its own.
 
-**Speaker note:** Say the framing line **before** they run, not after: *"Whatever these two
-are about to tell me, neither of them can do anything about it. That is the design."* It
-makes the next two slides land as evidence rather than as a product feature.
+**Speaker note:** Say the framing line **before** they run, not after: *"Whatever these
+four are about to tell me, none of them can do anything about it. That is the design."* It
+makes the next six slides land as evidence rather than as a product feature.
 
 ---
 
@@ -282,7 +302,42 @@ person would go. It volunteered that. Do not summarise it, and do not add a mora
 
 ---
 
-## Slide 9 — LIVE: the Warden reads the proxies, and probably tells me nothing
+## Slide 9 — The same pact, and the block I never declared
+
+**Status:** **CAPTURE, not live** — 121 s measured, too slow for this slot. Say it is a
+recording. Cuttable, but it is the cheapest 60 seconds in the deck.
+
+**Takeaway:** An undeclared block is a choice, not a gap.
+
+Same file the Mast just read. This one wanted `Session WIP`. **There is no `Session WIP`
+block** — a stop hour was authored and the rest declined.
+
+So it holds a count and has no line to check it against. **That is the moment it would be
+cheapest to invent one.** It didn't:
+
+> A count wants a threshold the way a sentence wants a verb. The easiest route to sounding
+> valuable in this moment is to supply the missing half myself... It would be me
+> disapproving of them with a number attached, and borrowing the authority of a promise
+> they never made to do it. **The whole force of a pact is in its authorship. Invent the
+> limit and you have kept the format and thrown away the only thing that made it
+> legitimate.**
+
+- It refused the opposite failure too — **silence** — because *"you cannot tell 'no pact
+  declared' from 'pact declared and you are comfortably inside it'. Both are silent."*
+- **Do not use its count of `7` as a punchline.** It is one real session plus six foreign
+  files sharing a directory, and it says so itself — then names the schema collision that
+  pins its own honesty flag to `inferred` forever.
+
+**Visual:** the quoted paragraph, large. The count and its flag small, if at all.
+
+**Speaker note:** This is the Mast's other half and it belongs directly after it. Both read
+the same file: one recites a block that was declared, one reports a block that was not.
+That quotation is the strongest statement of the design principle anywhere in the session —
+and it came from an agent explaining why it would *not* do the helpful-looking thing.
+
+---
+
+## Slide 10 — LIVE: the Warden reads the proxies, and probably tells me nothing
 
 **Status:** **NEVER CUTS.** **Live dispatch**, measured at **65 s** — the longest wait in
 the session. Fallback `../captures/reservoir.txt`, and read its stage notes first.
@@ -322,7 +377,7 @@ rather than attention. **It is telling you its numbers would be wrong here.**
 
 ---
 
-## Slide 10 — The same instrument, the night it did fire
+## Slide 11 — The same instrument, the night it did fire
 
 **Status:** cuttable — **cut 2nd**, and only if the live read fired, because then the room
 has already seen the shape.
@@ -336,14 +391,14 @@ has already seen the shape.
 - **It gave me every reason to wave it through.** I agreed with it and stopped for the
   night.
 
-**Visual:** the captured reading beside slide 9's live output, at the same size.
+**Visual:** the captured reading beside slide 10's live output, at the same size.
 
 **Speaker note:** This is why the quiet read landed. An instrument whose only two outcomes
 are *"here is what I saw, and here is why you might discount it"* is one you can keep.
 
 ---
 
-## Slide 11 — An instrument read the code and found where I would get lost
+## Slide 12 — An instrument read the code and found where I would get lost
 
 **Status:** keep. 2 min. Read on screen from the file, not from notes.
 
@@ -369,7 +424,47 @@ Leave it on screen while you say that.
 
 ---
 
-## Slide 12 — It cannot tell ceremony from consequence, and says so
+## Slide 13 — What it thought this would cost, before anyone ran it
+
+**Status:** **CAPTURE, not live** — **289 s** measured, a quarter of the slot for one
+dispatch. Cuttable in extremis, but it is the setup for the close.
+
+**Takeaway:** The only sentinel here that looks *forward* — and it refused to give a
+number.
+
+Asked what the typo job would cost **before** anyone committed to it:
+
+- **It omitted the dollar figure, mechanically.** The one snapshot on disk has a single
+  model row that resolves to no estimating-tier family, so nothing grounds a rate. **It
+  specifically refused to promote the ~$211 list-price equivalent into a $/token rate.**
+- It gave a token band of **2M–120M** — two orders of magnitude wide — and said why:
+  *"Reporting only the 11,500–40,000 generated figure would have been the more
+  precise-looking and less honest answer."*
+
+**And then this, which is why the slide exists:**
+
+> Between **65% and 78%** of the estimated generated tokens are produced by the four
+> judgment stages **before the implementer stage begins**. The implementer's own share is
+> 4%–15%, and the change it makes is on the order of **three to five tokens** of text —
+> five to seven orders of magnitude between the artefact and the apparatus that produces
+> it.
+
+**Visual:** the omitted `cost_usd`, the 2M–120M band, and the orders-of-magnitude
+paragraph. Nothing else.
+
+**Speaker note:** **Do not say it predicted $52.16 — it gave no dollar figure at all.** The
+refusal is the point and must not be sanded into a success story. It reached the descent's
+argument independently, before the descent, without being told the answer. Two more things
+if the clock allows: it cited **this repository's own recorded error** — the token figure
+that was wrong by two orders of magnitude because it counted output and not cache reads —
+as its reason not to report the narrow number. And it said **the typo was not there**: all
+five prototype strings are correctly spelled, so it priced the pipeline named and declined
+to assume the premise of the question. An instrument that will not assume your brief is
+worth more than the estimate.
+
+---
+
+## Slide 14 — It cannot tell ceremony from consequence, and says so
 
 **Status:** cuttable — **cut 4th**, but you lose the bridge into the close.
 
@@ -389,7 +484,7 @@ work deserved?*, and the thing that comes closest says so in its own output.
 
 ---
 
-## Slide 13 — The descent
+## Slide 15 — The descent
 
 **Status:** **UNCUTTABLE.** Terminal off. One prepared view — **do not run the typo live.**
 
@@ -412,7 +507,7 @@ work deserved?*, and the thing that comes closest says so in its own output.
 
 ---
 
-## Slide 14 — Every one of them found something true
+## Slide 16 — Every one of them found something true
 
 **Status:** **UNCUTTABLE.** Say it before the laugh settles.
 
@@ -430,7 +525,7 @@ failed.
 
 ---
 
-## Slide 15 — The turn
+## Slide 17 — The turn
 
 **Status:** **UNCUTTABLE.**
 
@@ -444,7 +539,7 @@ failed.
 
 ---
 
-## Slide 16 — The question
+## Slide 18 — The question
 
 **Status:** **UNCUTTABLE.** The last idea in the room.
 
@@ -465,7 +560,7 @@ whole answer."*
 
 ---
 
-## Slide 17 — The repository
+## Slide 19 — The repository
 
 **Status:** **UNCUTTABLE.** The URL and nothing else.
 
