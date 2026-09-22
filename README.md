@@ -18,6 +18,12 @@ Decks and beats:
   `level-<n>/RUN-SHEET.md` beside each.
 - `upper-levels/` — the standalone 20-minute demo of Levels 4 and 5 only, with its own
   deck, run sheet and preflight. `./bin/demo run upper`.
+- `sentinels/` — the standalone 20-minute **Level 5 solo** session: Levels 3 and 4
+  explained rather than run, then **two sentinels dispatched live**. The only segment
+  that dispatches an agent for the sake of the sentinel rather than the code, so it is
+  the only one needing the profile, a `declared` pact and the reservoir block — all
+  checked by `./bin/demo preflight sentinels`. Captured fallbacks in
+  `sentinels/captures/`.
 - `./bin/demo run <segment> --time` times any of them and prints a variance table
   splitting slide time from terminal time.
 

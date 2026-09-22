@@ -1,0 +1,122 @@
+Captured 2026-09-22, 13:30 CEST. Fallback for the live `/reservoir` beat.
+Agent duration 65.4s, 25,948 tokens, 8 tool uses. Verbatim, unedited.
+
+READ THE STAGE NOTES AT THE BOTTOM BEFORE USING THIS. This read came back
+QUIET, and that is the beat, not a failure of it.
+
+────────────────────────────────────────────────────────────────────────
+
+## Reservoir read — 2026-09-22 13:30 CEST (Europe/Paris, UTC+2)
+
+Repository: `petclinic-loops-at-levels`, branch `level-5-supervising`
+Config source: `Cognitive reservoir` block in `HARNESS.md` (lines 157–187) —
+shipped defaults, unmodified, chronotype blank. Confirmed present.
+
+Window: last 8 h (2026-09-22 05:30 → 13:30 local)
+
+| Proxy | Value | Threshold | Flag | Crossed? |
+| --- | --- | --- | --- | --- |
+| Continuous span | 0 min | 180 min | observed | no |
+| Decision volume | 0 | 8 | observed | no |
+| Context switches | 0 | 4 | observed | no |
+| Wall-clock hour | 13 (unverified — no chronotype declared) | — | asked | — |
+
+**Nothing crossed.** No threshold fired. No recommendation follows, and I am
+adding none.
+
+Inferred risk (defeasible): none stated. With every counted proxy at zero there
+is no `observed` proxy for a risk claim to sit on, and a risk asserted here
+would be a bare `inferred` — a defect, not a reading.
+
+### What the zeros actually mean
+
+All four counts are zero because the window is **empty**, not because it was a
+light session. Across all refs and all three worktrees of this repository,
+there is no commit dated after 2026-09-21 22:24 CEST. The working tree on
+`level-5-supervising` is clean. I checked `--all` rather than HEAD alone
+deliberately: a HEAD-only log on this branch would have missed the `demo-notes`
+worktree's activity entirely.
+
+So the honest form of this read is *"no recorded activity in the window"*, not
+*"a measured, comfortable session"*. Those are different statements and I will
+not collapse them.
+
+### Limits I cannot see past — stated rather than smoothed
+
+1. **Git silence is not evidence of rest.** The instrument sees commits and the
+   clock. It cannot see reading, reviewing, deck work, conference travel, a
+   rehearsal run, or an agentic session that approved work without committing.
+   An empty window is consistent with eight hours of sleep and with eight hours
+   of uncommitted verification, and I cannot distinguish them. Whether the gap
+   was real rest is `asked` — it has not been declared, so I do not assume it.
+
+2. **The window boundary sits between now and the last recorded work.** The most
+   recent session on record ran 2026-09-21 19:50 → 22:24 CEST and ends roughly
+   15 hours before this read — entirely outside the configured 8 h window, so it
+   is correctly excluded and it fires nothing. I mention it only so the zeros
+   are not misread as "nothing has happened lately." If the 8 h default window
+   is not the right aperture for how this project is actually worked, that is a
+   tuning question for the human, not a finding for me.
+
+3. **This repository's commit pattern is unusual, and it changes what the
+   proxies would mean on a busier read.** It is a conference demo ladder:
+   eighteen-plus branches named for rungs, with commits authored as narrative
+   beats of a staged walkthrough rather than as independent approvals.
+   - **Decision volume would likely overcount.** A commit in a rehearsed demo
+     replay is not reliably one fresh human "yes"; the `commits + merges` proxy
+     assumes it is.
+   - **Context switches would likely fire on structure, not attention.** A
+     ladder demo touches many top-level directories and hops branches by
+     design. That is choreography, not the unfinished-stream switching that
+     task-switching cost is about.
+
+   Neither distortion affects today's numbers — zero is zero — but a future
+   advisory in this repo should be read with a hand on the scale, and the
+   thresholds tuned to it rather than obeyed.
+
+4. **The wall-clock hour is uninterpreted by design.** No `chronotype` is
+   declared in the HARNESS block, so hour 13 is reported as `asked` /
+   unverified. I am not mapping it to any circadian band, favourable or
+   otherwise.
+
+A quiet read is a valid read. This one is quiet.
+
+────────────────────────────────────────────────────────────────────────
+
+STAGE NOTES on this capture — READ BEFORE THE BEAT
+
+**On the day this will probably also be quiet, and you must be ready for both.**
+You will be mid-conference, and the ladder will have had little or no commit
+activity in the preceding eight hours. Plan for the quiet read as the likely
+outcome and treat a firing advisory as the bonus, not the other way round.
+
+**If it comes back quiet — which is the expected case — the beat is stronger,
+not weaker.** The line is: *"I did not rehearse this to fire. It did not fire,
+and watch what it refuses to do with that."* Then read two things aloud:
+
+  - *"The honest form of this read is 'no recorded activity in the window', not
+    'a measured, comfortable session'. Those are different statements and I will
+    not collapse them."*
+  - *"Git silence is not evidence of rest... An empty window is consistent with
+    eight hours of sleep and with eight hours of uncommitted verification, and I
+    cannot distinguish them."*
+
+An instrument that could have flattered you, declining to, is the argument.
+Pair it immediately with the captured reading in `level-5/reservoir-reading.md`
+— the one from the real Level 4 run that DID fire on two proxies and then argued
+against its own finding three times. Same instrument, opposite result, identical
+honesty. That contrast is the beat.
+
+**If it does fire on the day**, do not celebrate it. Read the proxies, read its
+own counter-arguments, and say what you are going to do. The one thing that
+would wreck the beat is treating a fired advisory as a win.
+
+**The third limit is the one that flatters nothing.** It volunteers, unprompted,
+that this repository's commit pattern would make its own decision-volume proxy
+overcount and its own context-switch proxy fire on choreography rather than
+attention. It is telling you its numbers would be wrong here on a busier day.
+If you have thirty seconds spare anywhere in this segment, spend them on that
+paragraph.
+
+**Do not edit this capture to make it more dramatic.** It says nothing crossed
+because nothing crossed.

@@ -1,0 +1,235 @@
+# Level 5 solo — 20 minutes. Beats for ./bin/demo run sentinels
+# Pairs with sentinels/slides/LEVEL-5.md (17 slides).
+#
+# Levels 3 and 4 are EXPLAINED here, not run. One deterministic script is the
+# only thing from the foundations that executes, because it takes two seconds
+# and the whole Level 3 argument rests on it being real.
+#
+# TWO BEATS DISPATCH A LIVE AGENT: beat 7 (/mast) and beat 8 (/reservoir).
+# Measured on 2026-09-22: mast 46s, reservoir 65s. Both are read-only sentinels
+# - no Write, no Edit, no Agent - so neither can touch the repository. The
+# CMDTIME budgets below carry the measured dispatch PLUS the time you spend
+# reading the output aloud.
+#
+# Captured fallbacks for both live beats are in sentinels/captures/. Read the
+# stage notes at the bottom of reservoir.txt before the demo: that read came
+# back quiet, it will probably be quiet on the day, and quiet is the beat.
+#
+# Cut order when the room runs long: beat 4, then 9, then 2, then 11.
+# Beats 12-15 are THE CLOSE and never cut. Beats 7 and 8 are the demo; if you
+# cut either of them you have not done the thing you came to do.
+
+### Three levels of foundation, in ninety seconds
+TIME: 90s
+CMDTIME: 45s
+SAY: No history lesson and no ladder. Say where the room is starting from.
+SAY: Level 1 is prompting. Level 2 is writing down what the project expects.
+SAY: Level 3 is the first one that does not need anyone watching: six
+SAY: constraints, five deterministic, and three loops - edit time, merge time,
+SAY: and a weekly sweep.
+SAY: Every change under src slash carries a decision record. That is a rule a
+SAY: script checks, not a rule in a document.
+CMD: sed -n '/^## Constraints/,/^### Abstraction/p' HARNESS.md | grep -E '^###|Enforcement|Scope' | head -24
+MODE: run
+
+### Watch the harness catch something - the only foundation beat that runs
+TIME: 60s
+CMDTIME: 35s
+SAY: Two seconds, a shell script and git. The Level 3 argument is that this is
+SAY: real, so show it being real once.
+SAY: It stages a one-line change under src, runs the check, and puts the tree
+SAY: back. Nothing is committed.
+SAY: Then the line that matters: the change it refused came from the governed
+SAY: pipeline I am about to describe. A better loop gets no discount.
+SAY: CUT THIS BEAT THIRD if you are over time - the slide carries the capture.
+CMD: printf '\n' >> src/main/resources/templates/owners/findOwners.html && git add src/main/resources/templates/owners/findOwners.html && scripts/check-decision-record.sh --staged; git reset -q && git checkout -- src/main/resources/templates/owners/findOwners.html
+MODE: run
+
+### What Level 4 added, and what an instrument found in it
+TIME: 90s
+CMDTIME: 50s
+SAY: Level 4 puts a pipeline in front of the work with a person inside it. Four
+SAY: hard gates, two soft. A gate is a point where an agent produced something
+SAY: it is forbidden to finish.
+SAY: Point at the enforcement column. Six read human, one reads deterministic.
+SAY: Then the feedback loop that is the reason the column exists: an assessment
+SAY: agent read this branch, found PIPELINE.md describing its gates in the
+SAY: register of mechanism while nothing in the repository refused anything,
+SAY: and named it as over-claiming.
+SAY: The column was added in fifteen minutes. The instrument was right. The
+SAY: cheapest correct response was to stop over-claiming.
+CMD: sed -n '/^| # | Stage/,/^| 5 |/p' PIPELINE.md | $NOTES/bin/fmt-stage-table.py
+MODE: run
+
+### What four gates produced on one real feature
+TIME: 75s
+CMDTIME: 35s
+SAY: One feature: an owner books a visit against a vet's published availability.
+SAY: Sixty-two decisions surfaced. Forty disposed. Twenty-two carried knowingly.
+SAY: Forty-five minutes of my attention against nineteen hours on the clock -
+SAY: do not quote the nineteen hours as work.
+SAY: Two hundred and eleven dollars at list price, and nothing actually billed,
+SAY: because it ran on a subscription. Both figures or neither.
+SAY: Then the thing none of it could see: we were four levels deep in fixing the
+SAY: fixes, at quarter to midnight, and nothing was watching that.
+SAY: CUT THIS BEAT FIRST if you are over time - the numbers are on the slide.
+CMD: grep -c 'disposition:' docs/superpowers/*/*.md | tail -6
+MODE: run
+
+### What is being supervised changes
+TIME: 45s
+SAY: Everything so far supervised the code. Constraints, gates, tests, review -
+SAY: all of it pointed at the artefact.
+SAY: What needs supervising now is whether I can still answer for it.
+SAY: That is the whole level in one sentence. Do not elaborate it. The next two
+SAY: beats are instruments, running live, and they do the elaborating.
+MODE: manual
+
+### What a sentinel is, before you watch two of them
+TIME: 40s
+CMDTIME: 20s
+SAY: Same plugin. Same file format. One line each.
+SAY: No Write. No Edit. No Agent. It cannot change the thing it watches and it
+SAY: cannot delegate to something that can.
+SAY: Say this before they run, not after: whatever these two are about to tell
+SAY: me, neither of them can do anything about it. That is the design.
+CMD: cat $NOTES/level-5/trust-boundary.txt
+MODE: run
+
+### LIVE - the Mast recites the limit I set for myself
+TIME: 110s
+CMDTIME: 75s
+SAY: FIRST LIVE DISPATCH. Measured at 46 seconds. Type it and keep talking.
+SAY: WHILE IT RUNS, say this: a limit you set in advance holds. A limit you set
+SAY: at the moment you are about to breach it does not - you will just move it.
+SAY: I set this one yesterday, in clear weather, and I have not touched it since.
+SAY: Nothing scaffolded it. The plugin will not write this file for you, because
+SAY: a default someone else chose is not a pact.
+SAY: WHEN IT RETURNS: it recites before it measures. Read the stop hour, then
+SAY: the clause - unspent budget is not a debt.
+SAY: Then read the blind-spot paragraph ALOUD and do not paraphrase it: the
+SAY: stamp only moves when tune writes it, so hand-editing the stop hour at
+SAY: 20:55 is invisible to this check. It fires on the honest path and is silent
+SAY: on the dishonest one. It says so itself.
+SAY: FALLBACK: sentinels/captures/mast.txt. Say it is a recording.
+CMD: /mast
+MODE: copy
+
+### LIVE - the Warden reads the proxies, and probably tells me nothing
+TIME: 140s
+CMDTIME: 100s
+SAY: SECOND LIVE DISPATCH. Measured at 65 seconds. Longest wait in the demo.
+SAY: EXPECT IT TO COME BACK QUIET. You are mid-conference; the ladder has had no
+SAY: commits for hours. Plan for quiet and treat a firing advisory as a bonus.
+SAY: WHILE IT RUNS: this one watches me, not the code. Four proxies - session
+SAY: span, decision volume, context switches, wall-clock hour - over the git
+SAY: window. It never writes a record of my state to disk.
+SAY: IF QUIET, and it is the stronger beat: I did not rehearse this to fire. It
+SAY: did not fire. Watch what it refuses to do with that.
+SAY: Read aloud: the honest form of this read is no recorded activity in the
+SAY: window, not a measured comfortable session. Those are different statements
+SAY: and I will not collapse them.
+SAY: Then: git silence is not evidence of rest. An empty window is consistent
+SAY: with eight hours of sleep and eight hours of uncommitted verification, and
+SAY: I cannot distinguish them.
+SAY: IF IT FIRES: do not celebrate it. Read the proxies, read its own
+SAY: counter-arguments, say what you are going to do about it.
+SAY: FALLBACK: sentinels/captures/reservoir.txt, and its stage notes.
+CMD: /reservoir
+MODE: copy
+
+### The same instrument, the night it did fire
+TIME: 60s
+CMDTIME: 35s
+SAY: This is the contrast, and it is why the quiet read just landed.
+SAY: Real, from the end of the Level 4 run. It fired on two proxies, then argued
+SAY: against its own finding three times: a five-minute margin, a 116-minute gap
+SAY: any idle cut would have split, and the possibility it was measuring elapsed
+SAY: time rather than time on task.
+SAY: It gave me every reason to wave it through. I agreed with it and stopped.
+SAY: Same instrument. Opposite result. Identical honesty.
+SAY: CUT THIS BEAT SECOND if you are over time - but only if the live read fired,
+SAY: because then the room has already seen the shape.
+CMD: sed -n '/^## Reservoir read/,/^### Three things/p' $NOTES/level-5/reservoir-reading.md
+MODE: run
+
+### An instrument read the code and found where I would get lost
+TIME: 120s
+CMDTIME: 80s
+SAY: Read the uncomfortable part aloud. Do not editorialise it away.
+SAY: Then: I specified that code. I adjudicated its gates. I approved its plan.
+SAY: I did not write a line of it, and an instrument just told me where I would
+SAY: get lost in it.
+SAY: Its rawness is the argument. Leave it on screen while you say that.
+CMD: sed -n '28,45p' $NOTES/level-5/diagnosis.yaml
+MODE: run
+
+### It cannot tell ceremony from consequence, and says so
+TIME: 45s
+SAY: Asked directly whether its proxies could tell a gate on a typo from a gate
+SAY: on consequential work, it said: they cannot, and I will not pretend
+SAY: otherwise.
+SAY: It could see the diffstat and refused to use it - diff size measures the
+SAY: change, not the adjudication, and would be a precise answer to the wrong
+SAY: question.
+SAY: And it cannot see who decided. Git records who committed, not who decided.
+SAY: This is the bridge into the close. TERMINAL OFF from here.
+SAY: CUT THIS BEAT FOURTH if you are desperate - but you lose the bridge.
+MODE: manual
+
+### THE CLOSE - the descent. Terminal off.
+TIME: 90s
+SAY: TERMINAL OFF. One prepared slide. Do not run the typo live.
+SAY: Twelve characters of prototype text in a Thymeleaf template, replaced at
+SAY: runtime. The rendered page is identical before and after. Nobody has ever
+SAY: seen it and nobody ever will.
+SAY: Just make the change: under a minute, nothing, no gates.
+SAY: Through the habitat: forty-five minutes. Four human gates. Nine agents.
+SAY: Fourteen hundred and fifty-seven lines of artefact.
+SAY: Fifty-two dollars sixteen at API list price - and nothing actually billed.
+SAY: Both figures or neither.
+SAY: Let it land. Let the room laugh.
+MODE: manual
+
+### Take the laugh away
+TIME: 45s
+SAY: Say this before the laugh settles.
+SAY: Every one of those agents was told that finding nothing was a perfectly
+SAY: good answer, and that padding would corrupt the measurement. Not one padded.
+SAY: And every single one found something true: a coverage gap. A false claim in
+SAY: a record the harness requires. A scope claim wrong under the spec's own
+SAY: standard. A standard that collides with a directive. A standard with no
+SAY: defined answer at all. And a question nobody had asked.
+SAY: A reviewer would want all six.
+SAY: The ceremony was proportionate. The findings were real. And it still cost
+SAY: fifty-two dollars to fix a string nobody can see.
+SAY: If the room leaves thinking the pipeline is stupid, this close has failed.
+MODE: manual
+
+### The turn
+TIME: 45s
+SAY: So the answer is not to build the habitat higher.
+SAY: Level 5 is not where anyone should be trying to live. A habitat that can
+SAY: only work at its highest setting is a badly tuned habitat.
+SAY: What you have watched is not a ladder to the top. It is a repertoire, and
+SAY: the skill is choosing the mode the work deserves.
+SAY: Deliver it as a conclusion, not an apology.
+MODE: manual
+
+### The question, then the repository. Then stop.
+TIME: 60s
+SAY: One question picks the mode: if this turns out to be wrong, what does it
+SAY: take to put right?
+SAY: Undo. Repair. Migrate. Answer.
+SAY: The typo is Undo. Revert it and it never happened. It got four gates and
+SAY: fifty-two dollars.
+SAY: The booking feature is Migrate - NOT NULL in three dialects, rows
+SAY: rewritten, packages coupled. And it is also Answer: the owner's page shows
+SAY: a named clinician and a time beside "your visit has been booked", and
+SAY: nothing in the clinic agreed to either. No migration fixes that.
+SAY: Ask only "can I revert it" and you get Migrate. True, and not the whole
+SAY: answer. The class that picks the mode is the most expensive one the work
+SAY: touches.
+SAY: Last slide: the repository. Go and look. Then ask the question.
+SAY: Then stop talking. Do not end on the plugin.
+MODE: manual

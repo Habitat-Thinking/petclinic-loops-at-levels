@@ -1,0 +1,84 @@
+Captured 2026-09-22, 13:30 CEST. Fallback for the live `/mast` beat.
+Agent duration 46.3s, 13,654 tokens, 10 tool uses. Verbatim, unedited.
+
+If you show this instead of running it live, say it is a recording.
+The pact it recites is real and is at ~/.claude/pacts.md.
+
+────────────────────────────────────────────────────────────────────────
+
+## Your pact
+
+From `/Users/russellmiles/.claude/pacts.md`, in your own words:
+
+> **hard_stop_hour: 21:30**
+>
+> *Unspent budget is not a debt.*
+
+Authored 2026-09-21, via `/mast tune`.
+
+That is the whole of it. One line, deliberately set, and a clause telling you
+that finishing early is not something you owe back.
+
+---
+
+## Where you stand
+
+It is **13:30** local (CEST), Tuesday 2026-09-22. Your line is at **21:30**.
+The clock has not reached it.
+
+| Key | Declared | Flag | What could not be seen |
+| --- | --- | --- | --- |
+| `hard_stop_hour` | `21:30` | **observed** | Nothing hidden here — the clock is past the line or it is not, and it is not. What is *not* seen is anything about the hours between now and then: this says only where the hands are, not what you have spent. |
+| `focus_blocks` | not declared | **inferred** (if it were) | You have not declared any. Had you, the check could only see whether the clock sat inside a range — never whether the range was spent working, which needs a day's history nothing here keeps. |
+| `sessions_per_day` | not declared | **inferred** (if it were) | You have not declared one. The session registry is a lease over what is live right now, not a log of the day; it could not tell you how many sessions you have opened and closed since morning. |
+| `daily_cost_ceiling` | not declared | **not observable** | Nothing in this plugin sees spend. Had you declared a ceiling, this row would still read `not observable` — and no figure would appear beside it. I have not estimated one, and will not. |
+| `notification_policy_after_stop` | not declared | — | Declared intent that nothing here enforces; it is the platform's business. |
+
+Three of the four rows are empty because you left them empty. That is a pact
+you chose not to make, not a gap in it.
+
+---
+
+## Weather note
+
+**This pact was not tuned today.** `authored_at` reads 2026-09-21 — yesterday,
+via `tune`. Your 21:30 was set in clear weather and has had a night's distance
+from you. Nothing about tonight's reading is fresh-off-the-pen.
+
+**And here is what that note cannot see.** The stamp moves only when
+`/mast tune` writes it. If this file were hand-edited — the stop hour nudged
+from 21:30 to 23:00 at 20:55 in a text editor — `authored_at` would still read
+2026-09-21 and this note would still tell you the pact is a day old. The check
+fires on the honest path and stays silent on the dishonest one, permanently and
+by construction. Do not read its silence as an all-clear; read it as coverage of
+one channel only.
+
+It is a note. It gates nothing.
+
+---
+
+I have stopped nothing and changed nothing. The file is yours, and `/mast tune`
+is the only path that amends it.
+
+────────────────────────────────────────────────────────────────────────
+
+STAGE NOTES on this capture
+
+1. The date and the clock will be wrong on the day. The pact, the stop hour and
+   the structure will not. If you run it live, these two numbers are the only
+   things that change.
+
+2. The weather note is BETTER on the day than it was when this was captured,
+   and better than it would have been on 2026-09-21. The pact was authored the
+   day before this capture, so the note reports a pact that has had distance
+   from its author — which is the argument. Had it been authored the same day,
+   the note would have said so, and that is also the argument.
+
+3. **The paragraph to read aloud is the blind-spot one.** A sentinel disclosing
+   that its own check fires on the honest path and is silent on the dishonest
+   one is the whole level in one paragraph. Do not paraphrase it.
+
+4. It recites before it measures, and three of four rows are empty. Both are
+   deliberate and both are worth one sentence: a pact is a declaration to be
+   re-read, not a quantity to be metered, and an undeclared key is a pact you
+   chose not to make.
