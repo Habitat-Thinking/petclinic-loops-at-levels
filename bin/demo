@@ -153,42 +153,25 @@ preflight_upper(){
   return 0
 }
 
-# The Level 5 solo segment: twenty minutes, Levels 3 and 4 explained rather than run,
-# and Level 5 demonstrated with TWO LIVE SENTINEL DISPATCHES. That is the only segment
-# in the talk that dispatches an agent for the sake of the sentinel rather than the
-# code, so it needs the full profile AND two things nothing else checks: a pact the
-# Mast can recite, and a reservoir block the Warden can evaluate against.
+# The Level 5 solo segment: twenty minutes, in two acts. Act 1 explains what the
+# habitat does for the AGENTS (Levels 3 and 4, described rather than run). Act 2
+# samples what it does for the HUMAN — four sentinels, played from committed
+# captures.
 #
-# It is called `sentinels` and not `l5` on purpose. `./bin/demo run 5` is a different
-# segment and `5` is one keystroke from `l5`; a wrong segment on stage is unrecoverable
-# in a way a wrong flag is not.
+# NOTHING HERE DISPATCHES AN AGENT, so there is no profile, no login and no
+# --plugin-dir to check. That is a deliberate property: all four sentinels live
+# would be 8m41s of dispatch in a 20-minute slot, and what makes them worth
+# showing is their reasoning, which a sample preserves exactly.
+#
+# It is called `sentinels` and not `l5` on purpose. `./bin/demo run 5` is a
+# different segment and `5` is one keystroke from `l5`; a wrong segment on stage
+# is unrecoverable in a way a wrong flag is not.
 preflight_sentinels(){
-  local fix=${1:-} profile=$(profile_dir 5)
+  local fix=${1:-}
   FAILED=0; WARNED=0
-  hdr "Preflight — Level 5 solo (20 min, two live sentinels)"
+  hdr "Preflight — Level 5 solo (20 min, two acts, nothing dispatched)"
 
-  local v=$(claude --version 2>/dev/null | awk '{print $1}')
-  [[ $v == $PIN_CC_VERSION ]] && ok "Claude Code $v (as verified)" \
-    || warn "Claude Code $v, notes were verified against $PIN_CC_VERSION — re-run the context audit"
-
-  # Two live dispatches means the profile matters more here than anywhere else.
-  if [[ -x $profile/launch ]]; then ok "launcher $profile/launch"; else bad "no launcher at $profile/launch"; fi
-  if auth_ok $profile; then ok "profile logged in"
-  else bad "profile NOT logged in — BOTH live beats fail. Run:
-         env -i HOME=\"\$HOME\" PATH=\"\$PATH\" TERM=\"\$TERM\" CLAUDE_CONFIG_DIR=\"$profile\" claude auth login"; fi
-  if [[ -d $profile/projects ]]; then
-    if [[ $fix == --fix ]]; then rm -rf $profile/projects; ok "cleared rehearsal state"
-    else warn "rehearsal state present ($profile/projects) — stale session history. (--fix clears it)"; fi
-  else ok "no rehearsal state"; fi
-
-  local pdir=$profile/plugins/cache/ai-literacy-superpowers/ai-literacy-superpowers/$PIN_PLUGIN_VERSION
-  [[ -d $pdir ]] && ok "plugin ai-literacy-superpowers $PIN_PLUGIN_VERSION" \
-    || bad "plugin $PIN_PLUGIN_VERSION missing at $pdir — no sentinels at all"
-  local ldir=$profile/plugins/cache/ai-literacy-superpowers/diagnostic-legibility/$PIN_LEGIBILITY_VERSION
-  [[ -d $ldir ]] && ok "plugin diagnostic-legibility $PIN_LEGIBILITY_VERSION" \
-    || bad "plugin diagnostic-legibility $PIN_LEGIBILITY_VERSION missing at $ldir"
-  (( $(grep -c -- "--plugin-dir" $profile/launch 2>/dev/null) == 2 )) \
-    && ok "launcher loads both plugins" || bad "launcher does not carry both --plugin-dir flags"
+  print -r -- "${DIM}  no Claude Code profile needed: every sentinel beat plays a committed sample${R}"
 
   if [[ ! -d $REPO/.git ]]; then bad "no repository at $REPO"; hdr "Result"; return 1; fi
   local cur=$(git -C $REPO rev-parse --abbrev-ref HEAD)
@@ -197,50 +180,35 @@ preflight_sentinels(){
     if [[ -n $(git -C $REPO status --porcelain) ]]; then bad "cannot switch: working tree dirty"
     else git -C $REPO switch -q level-5-supervising && ok "switched to level-5-supervising"; fi
   else bad "on $cur, expected level-5-supervising (--fix switches)"; fi
-  [[ -z $(git -C $REPO status --porcelain) ]] && ok "working tree clean" || bad "working tree dirty"
+  [[ -z $(git -C $REPO status --porcelain) ]] && ok "working tree clean" \
+    || bad "working tree dirty — beat 3 commits nothing, but a dirty tree makes the catch ambiguous"
 
-  # THE PACT. /mast recites it. Absent or malformed and the beat still runs, but it
-  # reports "not opted in" instead of reciting a stop hour — which is a different demo.
-  # This is also the exact symptom of the zsh BASH_SOURCE bug (issue 617), so a pact
-  # written by a session on a zsh machine lands here as `malformed`.
-  local pacts="$HOME/.claude/pacts.md"
-  if [[ ! -f $pacts ]]; then
-    bad "no pact at $pacts — the Mast beat has nothing to recite. Author one with /mast tune (NOT by hand)"
-  else
-    local pstate=$(bash -c '. "$1/hooks/scripts/lib/pact-blocks.sh" 2>/dev/null; block_state Budgets' _ "$pdir" 2>/dev/null)
-    case $pstate in
-      declared) ok "pact Budgets declared ($(bash -c '. "$1/hooks/scripts/lib/pact-blocks.sh" 2>/dev/null; block_key Budgets hard_stop_hour' _ "$pdir" 2>/dev/null))" ;;
-      malformed) bad "pact Budgets is MALFORMED — the Mast drops to observe-only and recites nothing.
-         Almost certainly issue 617: a pact written from zsh loses its governing clause. Re-run /mast tune" ;;
-      *) bad "pact Budgets is $pstate — the Mast beat has nothing to recite" ;;
-    esac
-  fi
+  # Beat 3 is the only live thing in the segment.
+  if [[ -x $REPO/scripts/check-decision-record.sh ]]; then ok "check-decision-record.sh runnable"
+  else bad "scripts/check-decision-record.sh missing or not executable — beat 3 has no live catch"; fi
+  local hp=$(git -C $REPO config --get core.hooksPath 2>/dev/null)
+  if [[ $hp == .githooks ]]; then ok "git hooks enabled (core.hooksPath=.githooks)"
+  elif [[ $fix == --fix ]]; then git -C $REPO config core.hooksPath .githooks && ok "enabled git hooks in this clone"
+  else warn "git hooks not enabled — beat 3 still runs the script directly. (--fix does it)"; fi
 
-  # THE RESERVOIR BLOCK. /reservoir refuses to manufacture a read without it.
-  grep -q '^## Cognitive reservoir' $REPO/HARNESS.md 2>/dev/null \
-    && ok "HARNESS.md carries the Cognitive reservoir block" \
-    || bad "no Cognitive reservoir block in HARNESS.md — /reservoir will decline to read"
-
-  # Level 3 and 4 are explained from artefacts, not run — but the artefacts must be there.
+  # Act 1 is explained from artefacts rather than run, but they must be there.
   local missing=0 f=""
-  for f in PIPELINE.md HARNESS.md docs/superpowers decisions scripts/check-decision-record.sh; do
-    [[ -e $REPO/$f ]] || { bad "$f missing — the foundations slides have nothing behind them"; missing=1 }
+  for f in PIPELINE.md HARNESS.md docs/superpowers decisions; do
+    [[ -e $REPO/$f ]] || { bad "$f missing — act 1 has nothing behind it"; missing=1 }
   done
-  (( missing == 0 )) && ok "L3/L4 foundation artefacts present"
-  missing=0
-  for f in sentinels/captures/trust-boundary.txt level-5/diagnosis.yaml level-5/descent.md \
-           level-5/reservoir-reading.md sentinels/slides/LEVEL-5.md; do
-    [[ -e $NOTES/$f ]] || { bad "$f missing from the demo notes"; missing=1 }
-  done
-  (( missing == 0 )) && ok "demo-notes artefacts present (trust boundary, diagnosis, descent, assessment, deck)"
+  (( missing == 0 )) && ok "act 1 artefacts present (PIPELINE.md, HARNESS.md, docs/superpowers, decisions)"
 
-  # The captured fallbacks for the two live beats.
+  # Act 2 is entirely samples. Each one is a beat; an empty one is a dead beat.
   missing=0
-  for f in sentinels/captures/mast.txt sentinels/captures/reservoir.txt \
-           sentinels/captures/wip.txt sentinels/captures/cost-estimate.txt; do
-    [[ -s $NOTES/$f ]] || { warn "$f missing or empty — that live beat has no fallback"; missing=1 }
+  for f in sentinels/captures/trust-boundary.txt sentinels/captures/mast.txt \
+           sentinels/captures/wip.txt sentinels/captures/cost-estimate.txt \
+           sentinels/captures/reservoir.txt level-5/diagnosis.yaml; do
+    [[ -s $NOTES/$f ]] || { bad "$f missing or empty — that sentinel beat has nothing to show"; missing=1 }
   done
-  (( missing == 0 )) && ok "all four sentinel captures present"
+  (( missing == 0 )) && ok "all six act-2 samples present and non-empty"
+
+  [[ -s $NOTES/sentinels/slides/LEVEL-5.md ]] && ok "deck present" || bad "sentinels/slides/LEVEL-5.md missing"
+  [[ -s $NOTES/level-5/descent.md ]] && ok "descent figures present (close)" || bad "level-5/descent.md missing"
 
   hdr "Result"
   if (( FAILED > 0 )); then
@@ -248,9 +216,8 @@ preflight_sentinels(){
     return 1
   fi
   print -r -- "${GRN}Ready.${R} $WARNED warning(s)."
-  print -r -- "${DIM}Two beats dispatch a live agent. Both are read-only sentinels and neither${R}"
-  print -r -- "${DIM}can write to the repository — but both cost stage time you cannot predict.${R}"
-  print -r -- "${DIM}The captured fallbacks are in sentinels/captures/. Say it is a recording.${R}"
+  print -r -- "${DIM}Nothing in act 2 can wander: every sentinel beat is a committed sample.${R}"
+  print -r -- "${DIM}Say so once, at beat 6, and you never have to say it again.${R}"
   return 0
 }
 

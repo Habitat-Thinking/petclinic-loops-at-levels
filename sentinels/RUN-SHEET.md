@@ -1,11 +1,11 @@
 # Run sheet — Level 5 solo (20 minutes)
 
-Pairs with [slides/LEVEL-5.md](slides/LEVEL-5.md), 19 slides, and with
-`bin/steps-sentinels.txt`, 17 beats.
+Pairs with [slides/LEVEL-5.md](slides/LEVEL-5.md), 18 slides, and with
+`bin/steps-sentinels.txt`, 16 beats.
 
 ```sh
-./bin/demo preflight sentinels --fix    # branch, hooks, profile, plugins, pact, reservoir block
-./bin/demo run sentinels                # teleprompts the 17 beats
+./bin/demo preflight sentinels --fix    # branch, hooks, artefacts, samples
+./bin/demo run sentinels                # teleprompts the 16 beats
 ./bin/demo run sentinels --time         # the same, timed, variance table at the end
 ```
 
@@ -13,138 +13,103 @@ Pairs with [slides/LEVEL-5.md](slides/LEVEL-5.md), 19 slides, and with
 and `5` is one keystroke from `l5`; a wrong segment on stage is unrecoverable in a way a
 wrong flag is not.
 
-## What this session is
+## The spine
 
-Levels 3 and 4 are **explained, not run.** The time that buys is spent on the only thing
-this session demonstrates: **two sentinels dispatched live**, watching the person rather
-than the code. It is the only segment in the repository that dispatches an agent for the
-sake of the sentinel rather than the artefact.
+**A habitat has two jobs.** It supports the **agents** — harness, constraints, pipeline,
+gates. And it supports the **human** — the sentinels, which protect decision sovereignty
+and the capability to keep exercising it.
+
+Act 1 is the first job, **explained**. Act 2 is the second, **sampled**. Every beat serves
+one half or the other; a beat that does not obviously do so should be cut rather than kept.
 
 | | Beats | Slides | Budget |
 |---|---|---|---|
-| Foundations — explained | 1–4 | 1–5 | 5:15 |
-| **The demo — four sentinels, two live** | **5–13** | **6–14** | **11:40** |
-| The close | 14–17 | 15–19 | 4:00 |
-| | | | **20:55** |
+| The thesis | 1 | 1 | 1:00 |
+| **Act 1 — job one, the agents** | 2–5 | 2–5 | 5:00 |
+| **Act 2 — job two, the human** | 6–12 | 6–13 | 8:30 |
+| The close | 13–16 | 14–18 | 4:00 |
+| | | | **18:30** |
 
-**That is 55 seconds OVER a 20-minute slot. The 20-minute configuration is: cut beat 4.**
-It is 1:15 and brings you to 19:40. Stated plainly rather than trimmed out of the close,
-because the close is what the session is for.
+1:30 spare in a 20-minute slot, and **no beat needs cutting to fit** — the previous version
+of this segment ran two sentinels live and was 55 seconds over.
 
-## Four sentinels, two live — and the split is measured, not chosen
+## Profile — there isn't one
 
-| Sentinel | Measured | Tokens | On stage |
-|---|---|---|---|
-| `mast` | **46 s** | 13,654 | **live**, beat 7 |
-| `reservoir-warden` | **65 s** | 25,948 | **live**, beat 9 |
-| `wip-warden` | 121 s | 33,839 | capture, beat 8 |
-| `cost-estimator` | **289 s** | 80,072 | capture, beat 12 |
+**Nothing in act 2 dispatches an agent.** Every sentinel beat plays a committed, unedited
+sample. No Claude Code session, no login, no `--plugin-dir`, no launcher. Preflight says so
+in its first line.
 
-All four live would be **8 min 41 s of dispatch alone** in a 20-minute slot. The two fast
-ones run; the two slow ones are captures with their full output committed under
-`captures/`. The `cost-estimator` at 4 min 49 s is a quarter of the slot for one dispatch —
-there is no version of this session where it runs live.
+That is measured, not timid:
 
-**Neither capture loses anything that matters.** What makes both worth showing is
-*reasoning*, not a live number: one explains why it will not invent a limit, the other why
-it will not invent a price.
+| Sentinel | Measured | Tokens |
+|---|---|---|
+| `mast` | 46 s | 13,654 |
+| `reservoir-warden` | 65 s | 25,948 |
+| `wip-warden` | 121 s | 33,839 |
+| `cost-estimator` | **289 s** | 80,072 |
+| **all four** | **8 min 41 s** | |
 
-## Profile — this one needs it
+Eight and a half minutes of dispatch does not fit in twenty. And nothing is lost by
+sampling: **what makes these instruments worth showing is their reasoning**, which a sample
+preserves exactly. The live version also spent roughly two minutes with a terminal sitting
+there doing nothing visible; the samples give that back.
 
-Unlike the upper-levels demo, **this segment needs the Claude Code profile, logged in, with
-both plugins.** Two beats dispatch a real agent. Preflight checks all of it, plus two
-things nothing else in the repository checks:
+**One thing is still live:** beat 3, a shell script, two seconds, deterministic. It is
+there because the Level 3 argument rests on the harness being real rather than described.
 
-- **`~/.claude/pacts.md` Budgets reads `declared`.** If absent, beat 7 reports *"not opted
-  in"* instead of reciting a stop hour — a different demo. If `malformed`, that is almost
-  certainly [issue 617](https://github.com/Habitat-Thinking/ai-literacy-superpowers/issues/617):
-  a pact written from zsh loses its governing clause. Re-run `/mast tune`.
-- **`HARNESS.md` carries the Cognitive reservoir block.** Without it the Warden declines to
-  read rather than manufacturing one.
+## The shape of every act-2 beat
+
+**Deck names the characteristic. Terminal shows it in the instrument's own words.**
+
+Never the other way round. Output first and explanation after is a tour of a plugin; the
+characteristic first turns the same output into evidence for a claim the room is already
+holding.
+
+| Beat | Slide | The characteristic |
+|---|---|---|
+| 7 | 8 | *it holds a line I set, and has no power to set one* |
+| 8 | 9 | *given a count and no limit, it refuses to invent one* |
+| 9 | 10 | *asked for a number, it would rather refuse than be ungrounded* |
+| 10 | 11 | *it will not round silence up into reassurance* |
+| 11 | 12 | *it names where my understanding fails* |
+
+The first three are **decision sovereignty**. The last two are **standing able**. Slide 7
+puts that map on screen before any of them speak.
 
 ## Before you walk on
 
-- [ ] `./bin/demo preflight sentinels` — **Ready**
-- [ ] Both captures present and read: `captures/mast.txt`, `captures/reservoir.txt`
-- [ ] **`captures/reservoir.txt`'s stage notes read.** That read came back quiet. It will
-      probably be quiet on the day. Quiet is the beat.
+- [ ] `./bin/demo preflight sentinels` — **Ready, 0 warnings**
+- [ ] All five samples read beforehand, especially the stage notes at the foot of
+      `captures/reservoir.txt` and `captures/wip.txt`
 - [ ] `level-5/diagnosis.yaml` open in a second window at reading size
 - [ ] The descent figures on one prepared view. **Never run the typo live.**
 
-## The two live beats
+## Say it once, at beat 6
 
-Measured 2026-09-22, in this repository, on this machine:
+*"Everything from here is a sample — real, unedited output from real runs."*
 
-| Beat | Command | Agent duration | Budget | Fallback |
-|---|---|---|---|---|
-| 7 | `/mast` | **46 s** | 110 s (75 s terminal) | `captures/mast.txt` |
-| 9 | `/reservoir` | **65 s** | 140 s (100 s terminal) | `captures/reservoir.txt` |
-
-Those are agent durations, not beat durations. **The budgets carry the dispatch plus the
-time you spend reading the output aloud** — and the difference is the gap you have to fill
-while a terminal sits there doing nothing visible.
-
-**What to say while `/mast` runs** (~45 s): a limit you set in advance holds; a limit you
-set at the moment you are about to breach it, you will simply move, because the thing you
-want at 21:30 is to keep working. Nothing scaffolded this file — the plugin will not write
-it for you, because a default someone else chose is not a pact.
-
-**What to say while `/reservoir` runs** (~65 s, the longest wait in the session): this one
-watches me, not the code. Four proxies over the git window — session span, decision volume,
-context switches, wall-clock hour. It never writes a record of my state to disk. Nobody
-else can read it. I am not the thing being measured *for* anyone.
-
-**Neither can write.** Say it before they run, not after: *"Whatever these two are about to
-tell me, neither of them can do anything about it. That is the design."*
-
-## The thing to get right about beat 9
-
-**Plan for a quiet read.** You will be mid-conference, the ladder will have had no commits
-for hours, and nothing will cross a threshold.
-
-That is the **stronger** version of the beat, not the weaker one. The line is: *"I did not
-rehearse this to fire. It did not fire, and watch what it refuses to do with that."* Then
-read its two refusals aloud — the honest form of the read is *"no recorded activity"* not
-*"a comfortable session"*, and git silence is not evidence of rest. An instrument that
-could have flattered you, declining to, is the argument.
-
-Then beat 10 lands the contrast: the same instrument, the night it **did** fire, on two
-proxies, arguing against its own finding three times.
-
-**If it does fire, do not celebrate it.** Read the proxies, read its counter-arguments, say
-what you are going to do about it. Treating a fired advisory as a win wrecks the beat.
+Say it **once**, at the act boundary, and never again. Repeating it at every beat turns a
+design decision into an apology.
 
 ## Cut order
 
-**4 first — you will need it — then 10, then 2, then 13.** That is what four gates
-produced, the night it fired, the live harness catch, then ceremony-and-consequence. About
-5:15 recovered, and beat 4 alone gets you inside 20 minutes.
+**5, then 8, then 3, then 12.** Job one at its best, the `wip` refusal, the live harness
+catch, then what-none-of-them-can-do.
 
-**Never beats 14–17**, and **never beats 7 and 9** — they are the reason this session
-exists. If the clock is bad enough that the live beats look tempting, cut all four above
-and take the bridge in one spoken line.
-
-Beat 10 only cuts cheaply **if the live read fired**, because then the room has already seen
-the instrument's shape.
-
-## If a live dispatch fails or wanders
-
-Both are read-only sentinels holding no Write, Edit or Agent, so the failure modes are not
-"it broke the repository" — they are: not logged in, plugin missing, or it takes longer
-than you have. Preflight catches the first two.
-
-If it wanders or stalls past about ninety seconds, stop it, open the capture, **say it is a
-recording**, and carry on. The captures are verbatim and unedited, and the argument is
-identical either way. The room forgives a fallback; it does not forgive a fiction.
+**Beat 1 never cuts** — it is the thesis, and without it this is a tour of a plugin.
+**Beats 13–16 never cut.** At 18:30 you should not need any of these.
 
 ## What not to do
 
-- **Do not run an agent anywhere except beats 7 and 9.** There is no time and no reason.
-- **Do not try to run `/wip` or `/cost-estimate` live** because the capture feels like a
-  cheat. They are 121 s and 289 s. The timing is measured and it is not close.
+- **Do not run a sentinel live.** The timings are measured and they do not fit. If you have
+  25 minutes or more and want one, `mast` at 46 s is the only candidate — and then it needs
+  the profile, the login, both plugins and a `declared` pact, none of which this preflight
+  checks any more.
+- **Do not say the cost-estimator predicted $52.16.** It gave no dollar figure at all, and
+  the refusal is the point.
+- **Do not use the `wip` count of 7 as a punchline.** It is one real session plus six
+  foreign files sharing a directory, and it says so itself.
 - **Do not run the typo through the pipeline live.** Ninety seconds funny, four minutes
   fatal, and the number is already measured.
-- **Do not edit the captures to make them more dramatic.** The reservoir one says nothing
-  crossed because nothing crossed.
-- **Do not put alarm styling or red on beat 9**, even if it fires.
+- **Do not put alarm styling or red anywhere**, including on the reservoir sample.
 - **Do not end on tooling, the plugin, or a call to adopt anything.**

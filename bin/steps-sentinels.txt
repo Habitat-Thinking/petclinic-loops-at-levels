@@ -1,234 +1,246 @@
 # Level 5 solo — 20 minutes. Beats for ./bin/demo run sentinels
-# Pairs with sentinels/slides/LEVEL-5.md (17 slides).
+# Pairs with sentinels/slides/LEVEL-5.md (18 slides).
 #
-# Levels 3 and 4 are EXPLAINED here, not run. One deterministic script is the
-# only thing from the foundations that executes, because it takes two seconds
-# and the whole Level 3 argument rests on it being real.
+# THE SPINE, and every beat serves it:
 #
-# TWO BEATS DISPATCH A LIVE AGENT: beat 7 (/mast) and beat 9 (/reservoir).
-# Beats 8 (/wip) and 12 (/cost-estimate) are CAPTURES, not live, and that
-# split is measured rather than chosen:
+#   A habitat has two jobs. It supports the AGENTS - through the harness, the
+#   constraints, the pipeline, the gates. And it supports the HUMAN - through
+#   the sentinels, which protect decision sovereignty and the capability to
+#   keep exercising it.
 #
-#   mast              46s  <- live
-#   reservoir         65s  <- live
-#   wip              121s  <- capture, too slow
-#   cost-estimator   289s  <- capture, a quarter of the slot
-#   all four         521s = 8m41s of dispatch alone
+#   Act 1 (beats 2-5) is the first job, EXPLAINED.
+#   Act 2 (beats 6-12) is the second job, SAMPLED.
 #
-# Measured on 2026-09-22. Both are read-only sentinels
-# - no Write, no Edit, no Agent - so neither can touch the repository. The
-# CMDTIME budgets below carry the measured dispatch PLUS the time you spend
-# reading the output aloud.
+# NOTHING DISPATCHES AN AGENT. Every sentinel beat plays a committed sample to
+# the terminal. No profile, no login, no --plugin-dir, nothing that can wander.
+# The deck leads each one by naming the CHARACTERISTIC; the terminal then shows
+# that characteristic in the instrument's own words.
 #
-# Captured fallbacks for both live beats are in sentinels/captures/. Read the
-# stage notes at the bottom of reservoir.txt before the demo: that read came
-# back quiet, it will probably be quiet on the day, and quiet is the beat.
+# The samples are real, unedited output from real runs, and they are samples
+# because all four live does not fit:
+#   mast 46s / reservoir 65s / wip 121s / cost-estimator 289s = 8m41s of
+#   dispatch alone, in a twenty-minute slot. What makes them worth showing is
+#   the REASONING, which a sample preserves perfectly.
 #
-# Cut order when the room runs long: beat 4 FIRST (it is the 20-minute cut and
-# you will almost certainly need it), then 10, then 2, then 13.
-# Beats 14-17 are THE CLOSE and never cut. Beats 7 and 9 are the live demo; if
-# you cut either of them you have not done the thing you came to do.
+# ONE THING IS STILL LIVE: beat 3, a shell script. Deterministic, two seconds,
+# and it is there because the Level 3 argument rests on the harness being real
+# rather than described.
+#
+# Cut order: beat 5, then 8, then 3, then 12. Beats 13-16 are THE CLOSE and
+# never cut. Beat 1 never cuts - it is the thesis, and without it this is a
+# tour of a plugin.
 
-### Three levels of foundation, in ninety seconds
-TIME: 90s
-CMDTIME: 45s
-SAY: No history lesson and no ladder. Say where the room is starting from.
-SAY: Level 1 is prompting. Level 2 is writing down what the project expects.
-SAY: Level 3 is the first one that does not need anyone watching: six
-SAY: constraints, five deterministic, and three loops - edit time, merge time,
-SAY: and a weekly sweep.
-SAY: Every change under src slash carries a decision record. That is a rule a
-SAY: script checks, not a rule in a document.
+### The two jobs a habitat has
+TIME: 60s
+SAY: THE THESIS. Never cut this beat. Sixty seconds, and everything after it
+SAY: is evidence for one half or the other.
+SAY: A habitat has two jobs, and almost everything written about this subject
+SAY: only has the first one.
+SAY: JOB ONE: support the AGENTS. That is the harness, the constraints, the
+SAY: pipeline, the gates. Make the machine's work safe to accept.
+SAY: JOB TWO: support the HUMAN. Not the human's productivity - the human's
+SAY: decision sovereignty, and the capability to keep exercising it.
+SAY: Levels 1 to 4 are all job one. The next four minutes are job one and I am
+SAY: going through them fast, because it is the part the industry already
+SAY: argues about.
+SAY: Then the rest of the session is job two, which it does not.
+MODE: manual
+
+### Job one - what Level 3 built for the agents
+TIME: 75s
+CMDTIME: 40s
+SAY: ACT ONE. No history lesson. Six constraints, five deterministic, three
+SAY: loops - edit time, merge time, and a weekly sweep.
+SAY: Every change under src slash carries a decision record. A rule a script
+SAY: checks, not a rule in a document.
+SAY: Note who this serves: all of it points at the ARTEFACT. It bounds what an
+SAY: agent may do to the code. None of it has an opinion about me.
 CMD: sed -n '/^## Constraints/,/^### Abstraction/p' HARNESS.md | grep -E '^###|Enforcement|Scope' | head -24
 MODE: run
 
-### Watch the harness catch something - the only foundation beat that runs
+### The only live thing today
 TIME: 60s
 CMDTIME: 35s
-SAY: Two seconds, a shell script and git. The Level 3 argument is that this is
-SAY: real, so show it being real once.
+SAY: LIVE. A shell script and git, two seconds. It is here because the Level 3
+SAY: argument rests on the harness being real rather than described.
 SAY: It stages a one-line change under src, runs the check, and puts the tree
 SAY: back. Nothing is committed.
-SAY: Then the line that matters: the change it refused came from the governed
-SAY: pipeline I am about to describe. A better loop gets no discount.
-SAY: CUT THIS BEAT THIRD if you are over time - the slide carries the capture.
+SAY: Then the line: the change it refused came from the governed pipeline I am
+SAY: about to describe. A better loop gets no discount on the rules.
+SAY: CUT THIS BEAT THIRD - the slide carries the capture and looks identical.
 CMD: printf '\n' >> src/main/resources/templates/owners/findOwners.html && git add src/main/resources/templates/owners/findOwners.html && scripts/check-decision-record.sh --staged; git reset -q && git checkout -- src/main/resources/templates/owners/findOwners.html
 MODE: run
 
-### What Level 4 added, and what an instrument found in it
+### Job one - what Level 4 added, and what an instrument found in it
 TIME: 90s
 CMDTIME: 50s
-SAY: Level 4 puts a pipeline in front of the work with a person inside it. Four
-SAY: hard gates, two soft. A gate is a point where an agent produced something
-SAY: it is forbidden to finish.
-SAY: Point at the enforcement column. Six read human, one reads deterministic.
-SAY: Then the feedback loop that is the reason the column exists: an assessment
-SAY: agent read this branch, found PIPELINE.md describing its gates in the
-SAY: register of mechanism while nothing in the repository refused anything,
-SAY: and named it as over-claiming.
-SAY: The column was added in fifteen minutes. The instrument was right. The
-SAY: cheapest correct response was to stop over-claiming.
+SAY: Level 4 puts a pipeline in front of the work with a person inside it.
+SAY: Four hard gates, two soft. A gate is a point where an agent produced
+SAY: something it is forbidden to finish.
+SAY: Point at the enforcement column: six read human, one reads deterministic.
+SAY: Then the feedback loop that is the reason the column exists - and note it
+SAY: is the first time in this talk an instrument looks at ME rather than the
+SAY: code, even though it arrives inside job one.
+SAY: An assessment agent read this branch, found PIPELINE.md describing its
+SAY: gates in the register of mechanism while nothing in the repository refuses
+SAY: anything, and named it as over-claiming.
+SAY: It was right. The column was added in fifteen minutes.
 CMD: sed -n '/^| # | Stage/,/^| 5 |/p' PIPELINE.md | $NOTES/bin/fmt-stage-table.py
 MODE: run
 
-### What four gates produced on one real feature
+### Job one at its best - and the thing it still cannot see
 TIME: 75s
-CMDTIME: 35s
+CMDTIME: 30s
 SAY: One feature: an owner books a visit against a vet's published availability.
 SAY: Sixty-two decisions surfaced. Forty disposed. Twenty-two carried knowingly.
 SAY: Forty-five minutes of my attention against nineteen hours on the clock -
 SAY: do not quote the nineteen hours as work.
-SAY: Two hundred and eleven dollars at list price, and nothing actually billed,
-SAY: because it ran on a subscription. Both figures or neither.
-SAY: Then the thing none of it could see: we were four levels deep in fixing the
-SAY: fixes, at quarter to midnight, and nothing was watching that.
-SAY: CUT THIS BEAT FIRST if you are over time - the numbers are on the slide.
+SAY: Two hundred and eleven dollars at list price, nothing actually billed.
+SAY: Both figures or neither.
+SAY: This is job one working WELL. Now the hinge of the whole session:
+SAY: we were four levels deep in fixing the fixes, at quarter to midnight, and
+SAY: the cost was compounding. Hard gates block on pending. Soft gates report a
+SAY: count. The harness reads markdown and shrugs.
+SAY: Not one of them can see that. Every instrument in job one points at the
+SAY: artefact, and the thing at risk was me.
+SAY: CUT THIS BEAT FIRST - the numbers survive on the slide.
 CMD: grep -c 'disposition:' docs/superpowers/*/*.md | tail -6
 MODE: run
 
-### What is being supervised changes
+### Job two - what a sentinel is, and what it is for
 TIME: 45s
-SAY: Everything so far supervised the code. Constraints, gates, tests, review -
-SAY: all of it pointed at the artefact.
-SAY: What needs supervising now is whether I can still answer for it.
-SAY: That is the whole level in one sentence. Do not elaborate it. The next two
-SAY: beats are instruments, running live, and they do the elaborating.
-MODE: manual
-
-### What a sentinel is, before you watch two of them
-TIME: 40s
-CMDTIME: 20s
+CMDTIME: 25s
+SAY: ACT TWO. Everything from here serves the human, not the artefact.
 SAY: Same plugin. Same file format. One line each.
 SAY: No Write. No Edit. No Agent. It cannot change the thing it watches and it
 SAY: cannot delegate to something that can.
-SAY: Say this before they run, not after: whatever these two are about to tell
-SAY: me, neither of them can do anything about it. That is the design.
+SAY: The cost estimator has no Bash either - it cannot run a command to
+SAY: measure, only read. The tightest boundary of the four.
+SAY: Say the framing line here, before any of them speak: whatever these
+SAY: instruments tell me, not one of them can do anything about it. That is
+SAY: not a limitation, it is the entire design.
+SAY: And say this once, here, so you never have to say it again: everything
+SAY: from now on is a SAMPLE - real, unedited output from real runs.
 CMD: cat $NOTES/sentinels/captures/trust-boundary.txt
 MODE: run
 
-### LIVE - the Mast recites the limit I set for myself
-TIME: 110s
-CMDTIME: 75s
-SAY: FIRST LIVE DISPATCH. Measured at 46 seconds. Type it and keep talking.
-SAY: WHILE IT RUNS, say this: a limit you set in advance holds. A limit you set
-SAY: at the moment you are about to breach it does not - you will just move it.
-SAY: I set this one yesterday, in clear weather, and I have not touched it since.
-SAY: Nothing scaffolded it. The plugin will not write this file for you, because
-SAY: a default someone else chose is not a pact.
-SAY: WHEN IT RETURNS: it recites before it measures. Read the stop hour, then
-SAY: the clause - unspent budget is not a debt.
-SAY: Then read the blind-spot paragraph ALOUD and do not paraphrase it: the
+### Sovereignty 1 - it recites what you authored, and nothing else
+TIME: 75s
+CMDTIME: 45s
+SAY: DECISION SOVEREIGNTY, first of three.
+SAY: THE CHARACTERISTIC: it holds a line I set, and it has no power to set one.
+SAY: A limit you set in advance holds. A limit you set at the moment you are
+SAY: about to breach it does not - you will simply move it, because the thing
+SAY: you want at half past nine is to keep working.
+SAY: Nothing scaffolded this file. The plugin will not write it for you,
+SAY: because a default someone else chose is not a pact. Authorship is the
+SAY: active ingredient, and that is decision sovereignty in one word.
+SAY: It recites BEFORE it measures. Three of its four keys are empty because I
+SAY: left them empty.
+SAY: Then read the blind-spot paragraph aloud and do NOT paraphrase it: the
 SAY: stamp only moves when tune writes it, so hand-editing the stop hour at
-SAY: 20:55 is invisible to this check. It fires on the honest path and is silent
-SAY: on the dishonest one. It says so itself.
-SAY: FALLBACK: sentinels/captures/mast.txt. Say it is a recording.
-CMD: /mast
-MODE: copy
+SAY: five to nine is invisible to this check. It fires on the honest path and
+SAY: is silent on the dishonest one. It says so itself, unprompted.
+CMD: sed -n '/^## Your pact/,/^## Where you stand/p' $NOTES/sentinels/captures/mast.txt | head -14; sed -n '/^\*\*And here is what that note cannot see/,/^It is a note/p' $NOTES/sentinels/captures/mast.txt
+MODE: run
 
-### The same pact, the block he never declared
-TIME: 60s
-CMDTIME: 35s
-SAY: CAPTURE, not live - 121 seconds measured, too slow for this slot. Say it
-SAY: is a recording.
-SAY: Same file the Mast just read. This one wanted Session WIP, and there is no
-SAY: Session WIP block, because I authored a stop hour and declined the rest.
-SAY: It has a count and no line to check it against. That is the moment it
-SAY: would be cheapest to invent one.
-SAY: READ THIS ALOUD: a count wants a threshold the way a sentence wants a verb.
-SAY: It would be me disapproving of them with a number attached, and borrowing
-SAY: the authority of a promise they never made to do it. The whole force of a
-SAY: pact is in its authorship. Invent the limit and you have kept the format
-SAY: and thrown away the only thing that made it legitimate.
-SAY: It also refused silence - you cannot tell no pact declared from pact
+### Sovereignty 2 - it will not draw the line you did not draw
+TIME: 75s
+CMDTIME: 45s
+SAY: DECISION SOVEREIGNTY, second of three. The same file, the other half.
+SAY: THE CHARACTERISTIC: given a count and no limit, it refuses to invent one.
+SAY: This one wanted Session WIP. There is no Session WIP block, because I
+SAY: authored a stop hour and declined the rest.
+SAY: So it holds a number and has nothing to check it against. That is the
+SAY: moment it would be cheapest to be helpful and make one up.
+SAY: READ THIS ALOUD - it is the strongest sentence in the session:
+SAY: a count wants a threshold the way a sentence wants a verb. It would be me
+SAY: disapproving of them with a number attached, and borrowing the authority
+SAY: of a promise they never made to do it. The whole force of a pact is in its
+SAY: authorship. Invent the limit and you have kept the format and thrown away
+SAY: the only thing that made it legitimate.
+SAY: It refused silence too - you cannot tell no pact declared from pact
 SAY: declared and comfortably inside it. Both are silent. So it says which.
-SAY: Do NOT use the count of seven as a punchline. It is one real session plus
-SAY: six foreign files sharing a directory, and it says so itself.
+SAY: CUT THIS BEAT SECOND if you must - but it is the cheapest minute here.
 CMD: sed -n '/^\*\*The pull here is to be useful/,/^\*\*But silence is also a failure/p' $NOTES/sentinels/captures/wip.txt | head -22
 MODE: run
 
-### LIVE - the Warden reads the proxies, and probably tells me nothing
-TIME: 140s
-CMDTIME: 100s
-SAY: SECOND LIVE DISPATCH. Measured at 65 seconds. Longest wait in the demo.
-SAY: EXPECT IT TO COME BACK QUIET. You are mid-conference; the ladder has had no
-SAY: commits for hours. Plan for quiet and treat a firing advisory as a bonus.
-SAY: WHILE IT RUNS: this one watches me, not the code. Four proxies - session
-SAY: span, decision volume, context switches, wall-clock hour - over the git
-SAY: window. It never writes a record of my state to disk.
-SAY: IF QUIET, and it is the stronger beat: I did not rehearse this to fire. It
-SAY: did not fire. Watch what it refuses to do with that.
-SAY: Read aloud: the honest form of this read is no recorded activity in the
-SAY: window, not a measured comfortable session. Those are different statements
-SAY: and I will not collapse them.
-SAY: Then: git silence is not evidence of rest. An empty window is consistent
-SAY: with eight hours of sleep and eight hours of uncommitted verification, and
-SAY: I cannot distinguish them.
-SAY: IF IT FIRES: do not celebrate it. Read the proxies, read its own
-SAY: counter-arguments, say what you are going to do about it.
-SAY: FALLBACK: sentinels/captures/reservoir.txt, and its stage notes.
-CMD: /reservoir
-MODE: copy
-
-### The same instrument, the night it did fire
-TIME: 60s
-CMDTIME: 35s
-SAY: This is the contrast, and it is why the quiet read just landed.
-SAY: Real, from the end of the Level 4 run. It fired on two proxies, then argued
-SAY: against its own finding three times: a five-minute margin, a 116-minute gap
-SAY: any idle cut would have split, and the possibility it was measuring elapsed
-SAY: time rather than time on task.
-SAY: It gave me every reason to wave it through. I agreed with it and stopped.
-SAY: Same instrument. Opposite result. Identical honesty.
-SAY: CUT THIS BEAT SECOND if you are over time - but only if the live read fired,
-SAY: because then the room has already seen the shape.
-CMD: sed -n '/^## Reservoir read/,/^### Three things/p' $NOTES/level-5/reservoir-reading.md
+### Sovereignty 3 - it will not price what it cannot ground
+TIME: 85s
+CMDTIME: 50s
+SAY: DECISION SOVEREIGNTY, third of three - and the only instrument here that
+SAY: looks FORWARD.
+SAY: THE CHARACTERISTIC: asked for a number before you commit, it would rather
+SAY: refuse than be precise about something it cannot ground.
+SAY: DO NOT say it predicted fifty-two dollars. It gave NO dollar figure at
+SAY: all, mechanically: the one snapshot on disk has a single model row that
+SAY: resolves to no estimating tier. It would not promote the list price into
+SAY: a rate.
+SAY: It gave a token band two orders of magnitude wide and said why a narrower
+SAY: one would be more precise-looking and less honest - citing THIS
+SAY: repository's own recorded error, the figure that was wrong by two orders
+SAY: of magnitude because it counted output and not cache reads.
+SAY: Then read the paragraph on screen. Sixty-five to seventy-eight percent of
+SAY: the tokens are produced before the implementer starts. The implementer
+SAY: changes three to five tokens of text. Five to seven orders of magnitude
+SAY: between the artefact and the apparatus.
+SAY: It reached the close's argument on its own, before the close, without
+SAY: being told the answer.
+CMD: sed -n '/^## THE PARAGRAPH THIS BEAT EXISTS FOR/,/^## Other disclosures/p' $NOTES/sentinels/captures/cost-estimate.txt
 MODE: run
 
-### An instrument read the code and found where I would get lost
-TIME: 120s
-CMDTIME: 80s
+### Standing able 1 - it will not turn no data into you are fine
+TIME: 85s
+CMDTIME: 50s
+SAY: STANDING ABLE, first of two. Sovereignty is worthless if you are not in a
+SAY: condition to exercise it.
+SAY: THE CHARACTERISTIC: it reports what it saw, flags how confident it is, and
+SAY: refuses to round silence up into reassurance.
+SAY: Four proxies over the git window. It never writes a record of my state to
+SAY: disk, and nobody else can read it. I am not being measured FOR anyone.
+SAY: This sample came back QUIET. Nothing crossed. Watch what it refuses to do
+SAY: with that:
+SAY: the honest form of this read is no recorded activity in the window, not a
+SAY: measured comfortable session. Those are different statements and I will
+SAY: not collapse them.
+SAY: And: git silence is not evidence of rest. An empty window is consistent
+SAY: with eight hours of sleep and eight hours of uncommitted verification, and
+SAY: I cannot distinguish them.
+SAY: Then the contrast, in one line: the same instrument, the night it DID
+SAY: fire, on two proxies - and then argued against its own finding three
+SAY: times before I agreed with it and stopped.
+CMD: sed -n '/^| Proxy/,/^A quiet read is a valid read/p' $NOTES/sentinels/captures/reservoir.txt | head -30
+MODE: run
+
+### Standing able 2 - it tells you where your understanding fails
+TIME: 100s
+CMDTIME: 60s
+SAY: STANDING ABLE, second of two, and the one that matters most.
+SAY: THE CHARACTERISTIC: it maps the code against whether I could still answer
+SAY: for it - and names where I could not.
 SAY: Read the uncomfortable part aloud. Do not editorialise it away.
 SAY: Then: I specified that code. I adjudicated its gates. I approved its plan.
 SAY: I did not write a line of it, and an instrument just told me where I would
 SAY: get lost in it.
+SAY: This is the skill half of job two. Lose the theory and the code does not
+SAY: become wrong - it becomes unchangeable. This is what notices.
 SAY: Its rawness is the argument. Leave it on screen while you say that.
 CMD: sed -n '28,45p' $NOTES/level-5/diagnosis.yaml
 MODE: run
 
-### What it thought this would cost, before anyone ran it
-TIME: 80s
-CMDTIME: 50s
-SAY: CAPTURE, not live - 289 seconds measured. Four minutes forty-nine. A
-SAY: quarter of this slot for one dispatch. Say it is a recording.
-SAY: The only sentinel here that looks FORWARD. Asked what the typo job would
-SAY: cost before anyone committed to it.
-SAY: FIRST: it refused the dollar figure. Do not say it predicted fifty-two
-SAY: dollars - it gave no dollar figure at all, mechanically, because the one
-SAY: snapshot on disk cannot ground one. It would not promote the list price
-SAY: into a rate.
-SAY: SECOND, and read this aloud: between sixty-five and seventy-eight percent
-SAY: of the tokens are produced by the four judgment stages BEFORE the
-SAY: implementer starts. The implementer changes three to five tokens of text.
-SAY: Five to seven orders of magnitude between the artefact and the apparatus.
-SAY: It reached the descent's argument on its own, before the descent, without
-SAY: being told the answer.
-SAY: THIRD if you have the time: it said the typo was not there. All five
-SAY: prototype strings are correctly spelled. It priced the pipeline I named
-SAY: and declined to assume the premise of my question.
-CMD: sed -n '/^## THE PARAGRAPH THIS BEAT EXISTS FOR/,/^## Other disclosures/p' $NOTES/sentinels/captures/cost-estimate.txt
-MODE: run
-
-### It cannot tell ceremony from consequence, and says so
+### What none of them can do, in their own words
 TIME: 45s
-SAY: Asked directly whether its proxies could tell a gate on a typo from a gate
-SAY: on consequential work, it said: they cannot, and I will not pretend
-SAY: otherwise.
+SAY: Close act two honestly. Asked directly whether its proxies could tell a
+SAY: gate on a typo from a gate on consequential work, it said: they cannot,
+SAY: and I will not pretend otherwise.
 SAY: It could see the diffstat and refused to use it - diff size measures the
 SAY: change, not the adjudication, and would be a precise answer to the wrong
 SAY: question.
 SAY: And it cannot see who decided. Git records who committed, not who decided.
-SAY: This is the bridge into the close. TERMINAL OFF from here.
-SAY: CUT THIS BEAT FOURTH if you are desperate - but you lose the bridge.
+SAY: So: job one cannot see me. Job two can see me, and tells me exactly where
+SAY: its sight ends. Neither can tell me whether the ceremony was worth it.
+SAY: TERMINAL OFF from here.
+SAY: CUT THIS BEAT FOURTH if you are desperate - you lose the bridge.
 MODE: manual
 
 ### THE CLOSE - the descent. Terminal off.
@@ -242,6 +254,8 @@ SAY: Through the habitat: forty-five minutes. Four human gates. Nine agents.
 SAY: Fourteen hundred and fifty-seven lines of artefact.
 SAY: Fifty-two dollars sixteen at API list price - and nothing actually billed.
 SAY: Both figures or neither.
+SAY: The estimator showed you this shape earlier and would not put a price on
+SAY: it. Here is the price.
 SAY: Let it land. Let the room laugh.
 MODE: manual
 
@@ -249,24 +263,26 @@ MODE: manual
 TIME: 45s
 SAY: Say this before the laugh settles.
 SAY: Every one of those agents was told that finding nothing was a perfectly
-SAY: good answer, and that padding would corrupt the measurement. Not one padded.
-SAY: And every single one found something true: a coverage gap. A false claim in
-SAY: a record the harness requires. A scope claim wrong under the spec's own
-SAY: standard. A standard that collides with a directive. A standard with no
-SAY: defined answer at all. And a question nobody had asked.
+SAY: good answer, and that padding would corrupt the measurement. Not one
+SAY: padded. And every single one found something true: a coverage gap. A false
+SAY: claim in a record the harness requires. A scope claim wrong under the
+SAY: spec's own standard. A standard that collides with a directive. A standard
+SAY: with no defined answer at all. And a question nobody had asked.
 SAY: A reviewer would want all six.
-SAY: The ceremony was proportionate. The findings were real. And it still cost
-SAY: fifty-two dollars to fix a string nobody can see.
+SAY: Job one was working perfectly. That is the problem.
 SAY: If the room leaves thinking the pipeline is stupid, this close has failed.
 MODE: manual
 
 ### The turn
 TIME: 45s
 SAY: So the answer is not to build the habitat higher.
-SAY: Level 5 is not where anyone should be trying to live. A habitat that can
-SAY: only work at its highest setting is a badly tuned habitat.
+SAY: A habitat that can only work at its highest setting is a badly tuned
+SAY: habitat.
 SAY: What you have watched is not a ladder to the top. It is a repertoire, and
 SAY: the skill is choosing the mode the work deserves.
+SAY: And choosing is job two. No harness, no pipeline and no gate can do it for
+SAY: you - which is exactly why the sentinels exist and why not one of them
+SAY: decides anything.
 SAY: Deliver it as a conclusion, not an apology.
 MODE: manual
 
