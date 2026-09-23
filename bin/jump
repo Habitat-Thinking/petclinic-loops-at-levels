@@ -1,0 +1,306 @@
+#!/bin/zsh
+# Jumping-off points for "(Agentic) Loops At Levels, Live".
+#
+#   ./bin/jump               list every jump point
+#   ./bin/jump J7            show J7 on stage
+#   ./bin/jump --verify      check every assertion, PASS/FAIL, before the talk
+#   ./bin/jump --verify J7   check one
+#
+# THE ONE DESIGN DECISION THAT MATTERS: this never switches branches.
+# Every jump point reads its branch through `git show <ref>:<path>` and
+# `git log <ref>`, so the working tree stays on whatever it was on, stays
+# clean, and a dirty tree or a worktree conflict can never strand you
+# mid-demo. The jump points span ten refs; switching between them fourteen
+# times on stage would be the single most likely way to lose the room.
+#
+# Verify mode is where the assertions live. Run it the morning of the talk:
+# it is the difference between "the slice record has five pending
+# dispositions" being a claim and being a fact.
+
+set -u
+emulate -L zsh
+setopt no_nomatch
+
+HERE=${0:A:h}
+NOTES=${HERE:h}
+REPO=${REPO:-$HOME/code/Habitat-Thinking/petclinic-loops-at-levels}
+
+if [[ -t 1 ]]; then
+  B=$'\e[1m'; DIM=$'\e[2m'; R=$'\e[0m'; GRN=$'\e[32m'; RED=$'\e[31m'; YEL=$'\e[33m'; CYN=$'\e[36m'
+else
+  B=""; DIM=""; R=""; GRN=""; RED=""; YEL=""; CYN=""
+fi
+
+VERIFY=0
+PASS=0; FAIL=0
+
+# ---- helpers ---------------------------------------------------------------
+
+# Read a file from any ref without checking it out.
+gs(){ git -C $REPO show "$1:$2" 2>/dev/null }
+# Does a path exist on a ref?
+gex(){ git -C $REPO cat-file -e "$1:$2" 2>/dev/null }
+
+jhdr(){
+  (( VERIFY )) && { print -r -- ""; print -r -- "${B}$1${R}  ${DIM}$2${R}"; return }
+  print -r -- ""
+  print -r -- "${CYN}────────────────────────────────────────────────────────────${R}"
+  print -r -- "${B}$1 — $3${R}"
+  print -r -- "${DIM}ref: $2   (read without checking out)${R}"
+  print -r -- ""
+}
+
+# What to say while it is on screen. Suppressed in verify mode.
+jsay(){ (( VERIFY )) || print -r -- "  ${DIM}$1${R}" }
+
+# Run a command and show its output. Suppressed in verify mode.
+jcmd(){
+  (( VERIFY )) && return
+  print -r -- ""
+  print -r -- "  ${B}\$ $1${R}"
+  print -r -- ""
+  eval "$1" 2>&1 | sed 's/^/  /'
+  print -r -- ""
+}
+
+# An assertion. In verify mode it is the whole point; on stage it is a quiet
+# one-liner so you can see at a glance that what you just said is still true.
+jck(){
+  local label=$1 actual=$2 expected=$3
+  if [[ $actual == $expected ]]; then
+    PASS=$((PASS+1))
+    (( VERIFY )) && print -r -- "  ${GRN}PASS${R} $label ${DIM}($actual)${R}" \
+                 || print -r -- "  ${GRN}✓${R} ${DIM}$label${R}"
+  else
+    FAIL=$((FAIL+1))
+    print -r -- "  ${RED}FAIL${R} $label ${DIM}— expected [$expected], got [$actual]${R}"
+  fi
+}
+
+# ---- the jump points -------------------------------------------------------
+
+J1_title="AGENTS.md is the single source"
+jump_J1(){
+  jhdr J1 level-2-commanding "$J1_title"
+  jsay "The project writes down what it expects. One file holds it; the vendor files point."
+  jcmd "git -C $REPO show level-2-commanding:CLAUDE.md"
+  jcmd "git -C $REPO show level-2-commanding:.github/copilot-instructions.md"
+  jcmd "git -C $REPO diff --stat level-1-dictating..level-2-commanding"
+  jsay "Directive 12 — judgement calls surfaced 'in the PR description'. Remember it; Level 3 moves it."
+  jcmd "git -C $REPO show level-2-commanding:AGENTS.md | sed -n '48,50p'"
+  jck "CLAUDE.md points at AGENTS.md" "$(gs level-2-commanding CLAUDE.md | grep -c 'AGENTS.md')" "2"
+  jck "directive 12 at AGENTS.md:48" "$(gs level-2-commanding AGENTS.md | sed -n '48p' | cut -c1-3)" "12."
+}
+
+J2_title="Five deterministic constraints, one honestly advisory"
+jump_J2(){
+  jhdr J2 level-3-regulating "$J2_title"
+  jsay "Tools that say no whether or not anyone is watching."
+  jcmd "git -C $REPO show level-3-regulating:HARNESS.md | sed -n '/^## Constraints/,/^---/p' | grep -E '^###|Enforcement|Scope'"
+  jsay "And the things that actually do the enforcing:"
+  jcmd "for f in scripts/check-decision-record.sh .githooks/pre-commit .github/workflows/harness.yml .claude/settings.json; do printf '%-42s %s\n' \"\$f\" \"\$(git -C $REPO cat-file -e level-3-regulating:\$f 2>/dev/null && echo present || echo MISSING)\"; done"
+  local H=$(gs level-3-regulating HARNESS.md | sed -n '/^## Constraints/,/^---/p')
+  jck "deterministic constraints" "$(printf '%s' "$H" | grep -c 'Enforcement\*\*: deterministic')" "5"
+  jck "advisory constraints" "$(printf '%s' "$H" | grep -c 'Enforcement\*\*: \*\*agent')" "1"
+  jck "check-decision-record.sh present" "$(gex level-3-regulating scripts/check-decision-record.sh && echo y || echo n)" "y"
+  jck "pre-commit hook present" "$(gex level-3-regulating .githooks/pre-commit && echo y || echo n)" "y"
+  jck "CI workflow present" "$(gex level-3-regulating .github/workflows/harness.yml && echo y || echo n)" "y"
+  jck "PostToolUse hook in settings.json" "$(gs level-3-regulating .claude/settings.json | grep -c PostToolUse)" "1"
+  jck "demo-notes staged-change beat exists" "$(gs demo-notes bin/steps-sentinels.txt | grep -c 'check-decision-record.sh --staged')" "1"
+}
+
+J3_title="A pipeline in front of the work, and spec before tests"
+jump_J3(){
+  jhdr J3 level-4-orchestrating "$J3_title"
+  jcmd "git -C $REPO show level-4-orchestrating:PIPELINE.md | sed -n '/^| # | Stage/,/^| 5 |/p' | $NOTES/bin/fmt-stage-table.py"
+  jcmd "git -C $REPO ls-tree --name-only level-4-orchestrating docs/superpowers/specs/"
+  jcmd "git -C $REPO show level-4-orchestrating:MODEL_ROUTING.md | head -20"
+  jsay "And the ordering claim — spec and plan land BEFORE the first failing test:"
+  jcmd "git -C $REPO log --oneline --reverse level-4-orchestrating -- docs/superpowers/specs src/test | head -8"
+  jck "spec files present" "$(git -C $REPO ls-tree --name-only level-4-orchestrating docs/superpowers/specs/ | grep -c '\.md$')" "2"
+}
+
+J4_title="What the harness made the agent write down"
+jump_J4(){
+  jhdr J4 level-3-regulating-after "$J4_title"
+  jcmd "git -C $REPO show level-3-regulating-after:decisions/2026-09-17-owner-email.md | grep -iA2 'flag for a human'"
+  jsay "The reflection log is a generated aggregate — one entry at this point, not a pile."
+  jcmd "git -C $REPO show level-3-regulating-after:REFLECTION_LOG.md | grep -A6 '^- \*\*Date\*\*'"
+  jsay "And on demo-notes, the moment a human approved the constraint:"
+  jcmd "git -C $REPO show demo-notes:level-3/harness-constrain-exchange.md | grep -niE 'approv|yes|promote' | head -6"
+  jck "owner-email decision record exists" "$(gex level-3-regulating-after decisions/2026-09-17-owner-email.md && echo y || echo n)" "y"
+  jck "'Flag for a human' lines" "$(gs level-3-regulating-after decisions/2026-09-17-owner-email.md | grep -ci 'flag for a human')" "2"
+  jck "REFLECTION_LOG dated entries" "$(gs level-3-regulating-after REFLECTION_LOG.md | grep -c '^- \*\*Date\*\*')" "1"
+  jck "harness-constrain-exchange.md on demo-notes" "$(gex demo-notes level-3/harness-constrain-exchange.md && echo y || echo n)" "y"
+}
+
+J5_title="Five slices, every disposition pending"
+jump_J5(){
+  jhdr J5 l4-1-sliced "$J5_title"
+  jsay "The agent produced all of them and will not fill any of them in. That IS the gate."
+  jcmd "git -C $REPO show l4-1-sliced:docs/superpowers/slices/owner-books-visit-against-vet-availability.md | grep -nE 'id: S[0-9]|title:|disposition:'"
+  jck "slice ids S1–S5" "$(gs l4-1-sliced docs/superpowers/slices/owner-books-visit-against-vet-availability.md | grep -cE 'id: S[0-9]')" "5"
+  jck "all dispositions pending" "$(gs l4-1-sliced docs/superpowers/slices/owner-books-visit-against-vet-availability.md | grep -c 'disposition: pending')" "5"
+}
+
+J6_title="The decisions nobody wrote down"
+jump_J6(){
+  jhdr J6 l4-4-choices "$J6_title"
+  jcmd "git -C $REPO show l4-4-choices:docs/superpowers/stories/visit-carries-vet-and-time.md | grep '^## Story'"
+  jsay "That one — a visit is an instant, never an interval — was never in the task."
+  jck "story headings" "$(gs l4-4-choices docs/superpowers/stories/visit-carries-vet-and-time.md | grep -c '^## Story')" "10"
+  jck "instant-never-interval present" "$(gs l4-4-choices docs/superpowers/stories/visit-carries-vet-and-time.md | grep -ci 'instant, never an interval' | awk '$1>0{print "y";exit}$1==0{print "n"}')" "y"
+}
+
+J7_title="What would make this wrong — twice"
+jump_J7(){
+  jhdr J7 "l4-3-objections + level-4-orchestrating" "$J7_title"
+  jcmd "git -C $REPO show l4-3-objections:docs/superpowers/objections/visit-carries-vet-and-time.md | grep -E 'id: O[0-9]|severity:'"
+  jsay "Then the second pass, against the CODE rather than the spec:"
+  jcmd "git -C $REPO show level-4-orchestrating:docs/superpowers/objections/visit-carries-vet-and-time-code.md | grep -E 'id: O[0-9]|severity:'"
+  jsay "And O1 was real — a visit could be saved with no date:"
+  jcmd "git -C $REPO log --oneline -1 5ceee2c; git -C $REPO show --stat 5ceee2c | tail -5"
+  jck "spec-mode objections" "$(gs l4-3-objections docs/superpowers/objections/visit-carries-vet-and-time.md | grep -cE 'id: O[0-9]')" "11"
+  jck "code-mode objections" "$(gs level-4-orchestrating docs/superpowers/objections/visit-carries-vet-and-time-code.md | grep -cE 'id: O[0-9]')" "7"
+  jck "commit 5ceee2c fixes O1" "$(git -C $REPO log --format=%s -1 5ceee2c 2>/dev/null | grep -c 'O1')" "1"
+}
+
+J8_title="Five voices, and the count that has not moved"
+jump_J8(){
+  jhdr J8 "l4-4-choices + level-4-orchestrating" "$J8_title"
+  jcmd "git -C $REPO show l4-4-choices:docs/superpowers/consultations/visit-carries-vet-and-time.md | grep -E '^  - voice:|disposition:'"
+  jsay "Now the whole pipeline's dispositions. 46 surfaced, 17 still pending, and nothing will raise them again."
+  jcmd "for f in \$(git -C $REPO ls-tree -r --name-only level-4-orchestrating docs/superpowers | grep '\.md\$'); do printf '%-54s %3s total %3s pending\n' \"\${f#docs/superpowers/}\" \"\$(git -C $REPO show level-4-orchestrating:\$f | grep -c 'disposition:')\" \"\$(git -C $REPO show level-4-orchestrating:\$f | grep -c 'disposition: pending')\"; done"
+  local tot=0 pend=0 f=""
+  for f in $(git -C $REPO ls-tree -r --name-only level-4-orchestrating docs/superpowers | grep '\.md$'); do
+    tot=$(( tot + $(gs level-4-orchestrating "$f" | grep -c 'disposition:') ))
+    pend=$(( pend + $(gs level-4-orchestrating "$f" | grep -c 'disposition: pending') ))
+  done
+  jck "consultation voices" "$(gs l4-4-choices docs/superpowers/consultations/visit-carries-vet-and-time.md | grep -cE '^  - voice:')" "5"
+  jck "total dispositions" "$tot" "46"
+  jck "still pending" "$pend" "17"
+}
+
+J10_title="An instrument pointed at the person, inside a file of constraints"
+jump_J10(){
+  jhdr J10 "level-5-supervising + demo-notes" "$J10_title"
+  jcmd "git -C $REPO show level-5-supervising:HARNESS.md | sed -n '/^## Cognitive reservoir/,/^---/p' | head -28"
+  jsay "It sits in HARNESS.md and says, in its own words, that it is NOT a Constraint."
+  jcmd "git -C $REPO show demo-notes:sentinels/captures/reservoir.txt | sed -n '/^| Proxy/,/^A quiet read/p' | head -12"
+  jck "reservoir block present" "$(gs level-5-supervising HARNESS.md | grep -c '^## Cognitive reservoir')" "1"
+  jck "says NOT a Constraint" "$(gs level-5-supervising HARNESS.md | grep -c 'NOT a Constraint')" "1"
+  jck "proxy table in capture" "$(gs demo-notes sentinels/captures/reservoir.txt | grep -c '| Proxy')" "1"
+  jck "observed/inferred/asked labels" "$(gs demo-notes sentinels/captures/reservoir.txt | grep -cE 'observed|inferred|asked' | awk '$1>2{print "y";exit}{print "n"}')" "y"
+  jck "reservoir-reading.md exists" "$(gex demo-notes level-5/reservoir-reading.md && echo y || echo n)" "y"
+}
+
+J11_title="The pact, and the line it refused to draw"
+jump_J11(){
+  jhdr J11 demo-notes "$J11_title"
+  jcmd "git -C $REPO show demo-notes:sentinels/captures/mast.txt | sed -n '/^## Your pact/,/^Authored/p'"
+  jsay "Now the same file, read by an instrument that wanted a limit that was never declared:"
+  jcmd "git -C $REPO show demo-notes:sentinels/captures/wip.txt | sed -n '/^\*\*The pull here is to be useful/,/^\*\*But silence/p' | head -20"
+  jck "mast.txt has Your pact" "$(gs demo-notes sentinels/captures/mast.txt | grep -c '^## Your pact')" "1"
+  jck "wip.txt has the pull passage" "$(gs demo-notes sentinels/captures/wip.txt | grep -c 'The pull here is to be useful')" "1"
+}
+
+J12_title="Where a reader of this code would get lost"
+jump_J12(){
+  jhdr J12 demo-notes "$J12_title"
+  jsay "The element is VisitController — its name is at line 21, the passage below is its description."
+  jcmd "git -C $REPO show demo-notes:level-5/diagnosis.yaml | sed -n '21,45p'"
+  jcmd "git -C $REPO show demo-notes:level-5/diagnosis.yaml | grep -E '^generated_(by|at)'"
+  jck "line 21 names VisitController" "$(gs demo-notes level-5/diagnosis.yaml | sed -n '21p' | grep -c 'VisitController')" "1"
+  jck "generated_by recorded" "$(gs demo-notes level-5/diagnosis.yaml | grep -c '^generated_by')" "1"
+  jck "generated_at recorded" "$(gs demo-notes level-5/diagnosis.yaml | grep -c '^generated_at')" "1"
+}
+
+J13_title="The sentinel that was never run"
+jump_J13(){
+  jhdr J13 demo-notes "$J13_title"
+  local n=$(git -C $REPO ls-tree -r --name-only demo-notes | grep -ci coda)
+  if (( VERIFY )); then :; else
+    print -r -- "  ${YEL}sentinels/captures/coda.txt — MISSING${R}"
+    print -r -- "  ${DIM}files in the repository recording a Coda run: $n${R}"
+    print -r -- ""
+    print -r -- "  ${DIM}This is an honest gap, not a bug. /coda is a session-close ritual and${R}"
+    print -r -- "  ${DIM}this talk has never run one. Say so — the repository does not pretend${R}"
+    print -r -- "  ${DIM}to have exercised every instrument in the plugin.${R}"
+  fi
+  jck "coda.txt absent (expected)" "$(gex demo-notes sentinels/captures/coda.txt && echo present || echo absent)" "absent"
+  jck "no coda records anywhere" "$n" "0"
+}
+
+J14_title="The repository disagrees with the branch name"
+jump_J14(){
+  jhdr J14 demo-notes "$J14_title"
+  jcmd "git -C $REPO show demo-notes:level-5/assessment-level-5.md | grep -m1 'Assessed level'"
+  jcmd "git -C $REPO show demo-notes:level-5/assessment-level-5.md | grep -m2 'Habitat Build Gap'"
+  jsay "The branch is called level-5-supervising. It assesses as Level 4. I am showing you anyway."
+  jck "assessed level is 4" "$(gs demo-notes level-5/assessment-level-5.md | grep -m1 'Assessed level' | grep -c 'Level 4')" "1"
+  jck "gap figure present" "$(gs demo-notes level-5/assessment-level-5.md | grep -c 'Habitat Build Gap:')" "1"
+}
+
+J15_title="Forty-five minutes and nine agents for twelve characters"
+jump_J15(){
+  jhdr J15 "level-5-supervising-descent + demo-notes" "$J15_title"
+  jcmd "git -C $REPO log --oneline -9 level-5-supervising-descent"
+  jcmd "git -C $REPO show demo-notes:level-5/descent.md | sed -n '/^| Machine time/,/^| Cost/p'"
+  jck "descent decision record exists" "$(gex level-5-supervising-descent decisions/2026-09-21-findowners-prototype-text.md && echo y || echo n)" "y"
+  jck "descent.md has \$52.16" "$(gs demo-notes level-5/descent.md | grep -c '52\.16' | awk '$1>0{print "y";exit}{print "n"}')" "y"
+  jck "descent.md has 4 human gates" "$(gs demo-notes level-5/descent.md | grep -c 'Gates requiring a human')" "1"
+  jck "descent.md has 9 agents" "$(gs demo-notes level-5/descent.md | grep -c 'Agents involved')" "1"
+  jck "descent.md has 1,457 lines" "$(gs demo-notes level-5/descent.md | grep -c '1,457')" "1"
+}
+
+ALL=(J1 J2 J3 J4 J5 J6 J7 J8 J10 J11 J12 J13 J14 J15)
+
+list_all(){
+  print -r -- ""
+  print -r -- "${B}Jumping-off points${R}  ${DIM}(J9 is deliberately unused)${R}"
+  print -r -- ""
+  local j=""
+  for j in $ALL; do
+    local t="${(P)${:-${j}_title}}"
+    printf "  ${B}%-4s${R} %s\n" "$j" "$t"
+  done
+  print -r -- ""
+  print -r -- "${DIM}./bin/jump J7          show one${R}"
+  print -r -- "${DIM}./bin/jump --verify    check every assertion before the talk${R}"
+  print -r -- ""
+  print -r -- "${DIM}Nothing here switches branches. Your tree stays where it is.${R}"
+}
+
+# ---- dispatch --------------------------------------------------------------
+
+args=("$@")
+[[ ${1:-} == --verify ]] && { VERIFY=1; shift; args=("$@") }
+
+if [[ ${#args} -eq 0 ]]; then
+  if (( VERIFY )); then
+    print -r -- ""
+    print -r -- "${B}Verifying every jumping-off point${R}  ${DIM}(nothing is checked out)${R}"
+    for j in $ALL; do jump_$j; done
+    print -r -- ""
+    if (( FAIL > 0 )); then
+      print -r -- "${RED}$FAIL failed${R}, ${GRN}$PASS passed${R}. Fix before the talk."
+      exit 1
+    fi
+    print -r -- "${GRN}All $PASS assertions hold.${R}"
+    exit 0
+  fi
+  list_all
+  exit 0
+fi
+
+for a in $args; do
+  local key=${a:u}
+  if (( ${ALL[(I)$key]} )); then jump_$key
+  else print -r -- "Unknown jump point: $a"; list_all; exit 2; fi
+done
+
+if (( VERIFY )); then
+  print -r -- ""
+  (( FAIL > 0 )) && { print -r -- "${RED}$FAIL failed${R}, ${GRN}$PASS passed${R}."; exit 1 }
+  print -r -- "${GRN}All $PASS assertions hold.${R}"
+fi
