@@ -255,6 +255,17 @@ jump_J15(){
 
 ALL=(J1 J2 J3 J4 J5 J6 J7 J8 J10 J11 J12 J13 J14 J15)
 
+# The four that carry the sovereignty argument, in the order they build it:
+# the gate becomes visible (J5), the gate's honest limit (J8), the pivot from
+# watching the code to watching the person (J10), and the principle itself in
+# an instrument's own words (J11). About 5 minutes.
+CORE=(J5 J8 J10 J11)
+
+# The same four plus the other half of job two — comprehension (J12) — and the
+# twenty seconds of credibility that buys the rest (J14). About 7 minutes,
+# which is what the Level 5 solo segment budgets for terminal time.
+SOVEREIGNTY=(J5 J8 J10 J11 J12 J14)
+
 list_all(){
   print -r -- ""
   print -r -- "${B}Jumping-off points${R}  ${DIM}(J9 is deliberately unused)${R}"
@@ -265,8 +276,14 @@ list_all(){
     printf "  ${B}%-4s${R} %s\n" "$j" "$t"
   done
   print -r -- ""
-  print -r -- "${DIM}./bin/jump J7          show one${R}"
-  print -r -- "${DIM}./bin/jump --verify    check every assertion before the talk${R}"
+  print -r -- ""
+  print -r -- "  ${B}Sets${R}"
+  printf "  ${B}%-14s${R} %s\n" "--core" "$CORE  ${DIM}— the sovereignty argument, ~5 min${R}"
+  printf "  ${B}%-14s${R} %s\n" "--sovereignty" "$SOVEREIGNTY  ${DIM}— plus comprehension and credibility, ~7 min${R}"
+  print -r -- ""
+  print -r -- "${DIM}./bin/jump J7            show one${R}"
+  print -r -- "${DIM}./bin/jump --core        run the four that carry the argument${R}"
+  print -r -- "${DIM}./bin/jump --verify      check every assertion before the talk${R}"
   print -r -- ""
   print -r -- "${DIM}Nothing here switches branches. Your tree stays where it is.${R}"
 }
@@ -275,6 +292,8 @@ list_all(){
 
 args=("$@")
 [[ ${1:-} == --verify ]] && { VERIFY=1; shift; args=("$@") }
+[[ ${1:-} == --core ]] && { shift; args=($CORE $@) }
+[[ ${1:-} == --sovereignty ]] && { shift; args=($SOVEREIGNTY $@) }
 
 if [[ ${#args} -eq 0 ]]; then
   if (( VERIFY )); then
